@@ -1,14 +1,42 @@
-// ================= 配音 + BGM（MiniMax 生成，数据在 audiodata.js：VO_DATA / BGM_DATA） =================
+// ================= HD 配音 + BGM + 音效（VibeHub 官方 CLI，数据：VO_DATA / BGM_DATA / SFX_DATA） =================
 function b64ToAB(b) { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u.buffer; }
 const AudioBus = {
-  out: null, bgm: null, vo: null,
+  out: null, bgm: null, vo: null, sfx: null,
   init() {
     if (this.out || !AC) return;
     this.out = AC.createGain(); this.out.connect(AC.destination);
     this.bgm = AC.createGain(); this.bgm.gain.value = 0; this.bgm.connect(this.out);
     this.vo = AC.createGain(); this.vo.gain.value = 1.15; this.vo.connect(this.out);
+    this.sfx = AC.createGain(); this.sfx.gain.value = 0.8; this.sfx.connect(this.out);
   },
 };
+// 短音效提前解码；战斗调用同步播放，不等网络或解码。未就绪时沿用合成器音效。
+const SFX = {
+  cache: {}, pending: {}, active: [], last: {}, plays: 0,
+  get ok() { return typeof SFX_DATA !== 'undefined'; },
+  prefetch() {
+    if (!AC || !this.ok) return;
+    for (const k of Object.keys(SFX_DATA)) if (!this.pending[k]) {
+      this.pending[k] = AC.decodeAudioData(b64ToAB(SFX_DATA[k])).then(b => this.cache[k] = b).catch(() => null);
+    }
+  },
+  play(k) {
+    if (!AC || !this.cache[k]) return false;
+    const t = AC.currentTime;
+    if (t - (this.last[k] ?? -99) < 0.045) return true;
+    this.last[k] = t; AudioBus.init();
+    if (this.active.length >= 12) { const old = this.active.shift(); try { old.stop(); } catch (e) {} }
+    const s = AC.createBufferSource(); s.buffer = this.cache[k];
+    s.playbackRate.value = 0.96 + Math.random() * 0.08; s.connect(AudioBus.sfx);
+    s.onended = () => { const i = this.active.indexOf(s); if (i >= 0) this.active.splice(i, 1); };
+    this.active.push(s); s.start(); this.plays++; return true;
+  },
+  stop() { for (const s of this.active) { try { s.stop(); } catch (e) {} } this.active.length = 0; this.last = {}; },
+};
+{
+  const synthesizedSfx = sfx;
+  sfx = function (type) { if (!SFX.play(type)) synthesizedSfx(type); };
+}
 const Voice = {
   on: SETTINGS.voice !== false, cache: {}, cur: null, tok: 0,
   has(who, txt) { return !!VO_DATA[who + '|' + txt]; },
@@ -82,6 +110,6 @@ const BGM = {
 }
 // 主菜单：第一次点击 / 按键就开始放菜单音乐
 {
-  const kick = () => { initAudio(); if (AC && AC.state === 'suspended') AC.resume(); AudioBus.init(); };
+  const kick = () => { initAudio(); if (AC && AC.state === 'suspended') AC.resume(); AudioBus.init(); SFX.prefetch(); };
   document.addEventListener('pointerdown', kick, { capture: true }); document.addEventListener('keydown', kick, { capture: true });
 }

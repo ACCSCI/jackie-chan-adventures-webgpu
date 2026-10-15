@@ -1,0 +1,89 @@
+{
+  "cast": {
+    "jackie": {
+      "voice": "白桦",
+      "direction": "中文普通话，成年男性，温暖沉稳、有亲和力的功夫冒险主角。自然对话，有轻微喜剧节奏，焦急时利落清晰，不模仿任何真人演员。"
+    },
+    "uncle": {
+      "voice": "苏打",
+      "direction": "中文普通话，年长男性，声线略沙哑，有鼻音，精神矍铄、爱唠叨的古董店长者。夸张但清晰的喜剧表演，训人时短促有力；同一角色保持音色一致。"
+    },
+    "jade": {
+      "voice": "冰糖",
+      "direction": "中文普通话，明亮轻盈的少女声，活泼好奇、勇敢调皮，语速略快，兴奋时有弹跳感，保持自然不尖叫。"
+    },
+    "narr": {
+      "voice": "白桦",
+      "direction": "中文普通话，男旁白，清晰中低音，电影冒险故事的叙述，冷静、有画面感、节奏舒展。"
+    },
+    "tohru": {
+      "voice": "Milo",
+      "direction": "中文普通话，低沉粗犷的成年男声，身材高大的打手，说话慢，威严、带胸腔共鸣，字句沉重。"
+    },
+    "valmont": {
+      "voice": "Dean",
+      "direction": "中文普通话，优雅成熟的男性反派，低音，绅士口吻，慢条斯理、傲慢而危险。不要英文口音。"
+    },
+    "brute": {
+      "voice": "Milo",
+      "direction": "中文普通话，凶狠低沉粗哑的成年男性打手，短促的威胁语气，粗鲁强硬。"
+    },
+    "finn": {
+      "voice": "苏打",
+      "direction": "中文普通话，狡猾油滑的青年男性反派，带戏谑和嘲讽，懒散但清晰。"
+    },
+    "ratso": {
+      "voice": "白桦",
+      "direction": "中文普通话，憨厚粗声的男性打手，笨拙、迟钝、呆头呆脑的喜剧语气。"
+    },
+    "chow": {
+      "voice": "苏打",
+      "direction": "中文普通话，成年男性，冷漠而狡猾，鼻音稍重，语速快一点，带尖刻讽刺。"
+    },
+    "thug": {
+      "voice": "苏打",
+      "direction": "中文普通话，年轻成年男性打手，嚣张、粗鲁、咄咄逼人的威胁口吻，句尾有力度。"
+    }
+  },
+  "bgmPrompts": {
+    "menu": "原创功夫冒险游戏主菜单纯音乐。东方五声音阶，古筝、竹笛、琵琶、弦乐与轻快鼓点。英雄感、机智幽默、温暖怀旧的动画冒险氛围。100 BPM，旋律鲜明但不过于密集，适合循环，平稳起止，不使用任何现有影视主题旋律，不含人声。",
+    "calm": "原创3D功夫冒险游戏探索和练功房纯音乐。中国风轻快竹笛、木琴、古筝、温暖弦乐，轻柔打击乐。85 BPM，放松、有探索感，留出对白空间，低动态，轻巧幽默，适合长时间循环，无人声，无影视旋律。",
+    "battle": "原创功夫动作游戏普通战斗纯音乐。145 BPM，紧凑的中国大鼓、锣、琵琶节奏、电子贝斯与断奏弦乐，敏捷的拳脚连招感。紧张却充满机智幽默，连续稳定节奏，无大段停顿，适合循环，无人声，无已有影视旋律。",
+    "boss": "原创功夫动作游戏Boss决战纯音乐。150 BPM，强劲大鼓、铜管、低弦乐、东方五声音阶琵琶与电子低音。危险、史诗、紧迫，魔法火球和反击的决战感，持续推进且留空间给打击音效，适合循环，无人声，无已有影视旋律。",
+    "temple": "原创唐人街龙王庙深夜探索纯音乐。70 BPM，低沉古琴、空灵竹笛、细腻铃铛、寺庙钟声、柔和低音弦乐。神秘但不恐怖，安静夜风的感觉，温暖红灯笼与潜伏危险，留出对白空间，适合循环，无人声，无现有影视旋律。"
+  },
+  "sfxPrompts": {
+    "whoosh": {
+      "text": "A single short fast martial arts fist swing through air, clean sharp cloth and air swish, one isolated attack, no impact, no voice, no music.",
+      "durationSeconds": 0.5
+    },
+    "hit": {
+      "text": "One crisp kung fu punch landing on a padded body, compact meaty thump with a sharp slap, satisfying arcade fighting game hit, dry and close, no voice, no music.",
+      "durationSeconds": 0.5
+    },
+    "heavy": {
+      "text": "One powerful heavy kung fu kick impact, deep short punchy bass thud with crisp body slap, forceful arcade combat hit, isolated, no voice or music.",
+      "durationSeconds": 0.7
+    },
+    "block": {
+      "text": "One sharp martial arts forearm block and parry, tight wooden clack with a short bright ringing accent, compact isolated combat sound, no voice, no music.",
+      "durationSeconds": 0.5
+    },
+    "clang": {
+      "text": "One bright metal weapon clash with a brittle ceramic clink accent, short sharp ringing decay, kung fu game prop impact, no voices or music.",
+      "durationSeconds": 0.8
+    },
+    "hurt": {
+      "text": "One compact dull physical body impact and clothing rustle, short soft hit thud for player damage, strictly no vocalization, no voice, no music.",
+      "durationSeconds": 0.5
+    },
+    "fire": {
+      "text": "One magical fireball launching, rapid ignition burst followed by a short fiery air whoosh, aggressive flame crackle, dry game sound, no voices or music.",
+      "durationSeconds": 0.8
+    },
+    "firehit": {
+      "text": "One small magical fireball impact explosion, sharp fiery pop, compact low thump and flame crackle tail, not a huge explosion, isolated, no voices or music.",
+      "durationSeconds": 0.8
+    }
+  }
+}

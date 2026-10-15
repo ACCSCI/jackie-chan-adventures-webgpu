@@ -50,7 +50,7 @@ function spawnFireballs(e) {
     fireballs.push({ g, pos, vel: new THREE.Vector3(Math.sin(a) * 11, 0, Math.cos(a) * 11), t: 0, src: e, dmg: Math.round(e.T.dmg * 0.9), reflect: false, hitP: false,
       parried() { this.reflect = true; this.vel.multiplyScalar(-1.4); this.t = 0; this.g.material = FB_MAT2; floatText(this.pos.clone().setY(2), '火球反弹!', '#4fd1ff', 26); } });
   }
-  sfx('whoosh'); burst(e.pos.clone().setY(1.3 * e.scale), 0xff7a2a, 16, 4);
+  sfx('fire'); burst(e.pos.clone().setY(1.3 * e.scale), 0xff7a2a, 16, 4);
 }
 const FB_MAT2 = glowMat(1.2, 3.5, 5);
 function updateFireballs(dt) {
@@ -62,14 +62,14 @@ function updateFireballs(dt) {
     if (!f.reflect && !f.hitP && p.state !== 'dead' && Math.hypot(p.pos.x - f.pos.x, p.pos.z - f.pos.z) < 0.75 && p.pos.y < 1.3) {
       f.hitP = true; const hp0 = p.hp, st0 = p.st;
       playerTakeHit(f, f.dmg, { high: 1 });
-      if (!f.reflect && (p.hp < hp0 || p.st < st0)) { dead = true; burst(f.pos.clone(), 0xff7a2a, 18, 4); }
+      if (!f.reflect && (p.hp < hp0 || p.st < st0)) { dead = true; sfx('firehit'); burst(f.pos.clone(), 0xff7a2a, 18, 4); }
     }
     if (f.reflect) for (const e of enemies) {
       if (e.dead || e.type === 'dummy') continue;
       if (Math.hypot(e.pos.x - f.pos.x, e.pos.z - f.pos.z) < 0.5 + e.radius) {
         const d = new THREE.Vector2(f.vel.x, f.vel.z).normalize();
         e.takeHit(e.T.fire ? 45 : 30, d, { kb: 5, heavy: 1, guardBreak: 1 }, 1, false); floatText(e.pos.clone().setY(2.3 * e.scale), '-' + (e.T.fire ? 45 : 30), '#4fd1ff', 24);
-        shock(f.pos.clone().setY(0.1), 0x4fd1ff, 1.6); sfx('heavy'); dead = true; break;
+        shock(f.pos.clone().setY(0.1), 0x4fd1ff, 1.6); sfx('firehit'); dead = true; break;
       }
     }
     if (dead) { if (f.t > 0.05) burst(f.pos.clone(), f.reflect ? 0x4fd1ff : 0xff7a2a, 10, 3); scene.remove(f.g); fireballs.splice(i, 1); }
