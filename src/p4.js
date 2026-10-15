@@ -357,11 +357,13 @@ function updateWaves(dt) {
   if (gameOver || wave < 0 || waveDone) return;
   if (!enemies.some(e => !e.dead && e.type !== 'dummy')) { waveDone = true; Story.onClear(wave); }
 }
+let gameEndTimer = null;
 function gameEnd(win, ep = 1) {
   gameOver = true;
   try { if (win) { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); if (ep === 1) saveProgress(6); else localStorage.setItem('jc_clear2', '1'); } else sessionStorage.setItem('jc_ch', String(Math.max(0, wave))); } catch (e) { }
   const mins = Math.floor(playTime / 60), secs = Math.floor(playTime % 60);
-  setTimeout(() => {
+  clearTimeout(gameEndTimer);
+  gameEndTimer = setTimeout(() => {
     document.exitPointerLock(); $('pause').classList.remove('show');
     $('ov').style.display = 'flex';
     $('ov').querySelector('.box').innerHTML = win && ep === 2

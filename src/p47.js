@@ -587,6 +587,48 @@ const Menu = {
     $('setHq').textContent = SETTINGS.hq ? '高清' : '标准'; $('setFps').textContent = SETTINGS.fps ? '开' : '关'; $('setMusic').textContent = Music.on ? '开' : '关'; $('setVoice').textContent = SETTINGS.voice !== false ? '开' : '关'; $('sensV').textContent = (+SETTINGS.sens).toFixed(1);
   },
   show(sub) { this.sub = sub; document.querySelectorAll('#menu .msub').forEach(p => p.classList.toggle('show', p.id === 'm' + sub)); },
+  // 在同一文档内重置，不能 reload：导航会强制结束全屏与键盘锁定。
+  resetSession() {
+    started = false; locked = false; gameOver = false; cutscene = false;
+    clearTimeout(gameEndTimer); gameEndTimer = null;
+    clearTimeout(Story._fadeTimer); clearTimeout(Story._bt);
+    Voice.stop(); Story.timers.length = 0;
+    Object.assign(Story, { lines: null, done: null, i: 0, shown: 0, busy: false, camPos: null, prevWho: null, raged: false, broken: 0, barkT: 8 });
+    for (const e of enemies) { e.rig.root.removeFromParent(); if (e.hb) e.hb.remove(); }
+    enemies.length = 0; attackTokens = 0;
+    for (const f of fireballs) f.g.removeFromParent(); fireballs.length = 0;
+    for (const t of talismans) t.g.removeFromParent(); talismans.length = 0;
+    for (const l of TAL_LIGHTS) { l.intensity = 0; l.userData.used = false; l.position.set(0, -50, 0); }
+    for (const w of groundWeapons) w.mesh.removeFromParent(); groundWeapons.length = 0;
+    for (const w of this.initialWeapons || []) spawnWeapon(w.type, w.x, w.z, w.dur);
+    for (const w of [player.weapon, player.weapon2]) if (w && w.mesh) w.mesh.removeFromParent();
+    Object.assign(player, { hp: 200, maxHp: 200, st: 100, stDelay: 0, weapon: null, weapon2: null, mode: 'fist', crouch: false, guard: false, guardPress: -9, grounded: true, vy: 0, iframe: 0, move: null, clip: null, downClip: null, mt: 0, hitDone: [], combo: 0, comboT: 0, counterT: -9, buffs: {}, hurtT: -99, prevHp: 200, regen: false });
+    player.rig.root.visible = true; player.rig.root.scale.setScalar(1);
+    player.rig.mats.forEach(m => m.emissive.setRGB(0, 0, 0));
+    for (const k in keys) keys[k] = false;
+    buffer.type = null; mouseDX = mouseDY = 0; lockTarget = null;
+    shake = hitstop = slowmo = 0; wave = -1; waveDone = true; waveDelay = 0; kills = 0; playTime = 0;
+    Dojo.on = false; Dojo.dummies.length = 0; Dojo.spar = null; Dojo.log.length = 0;
+    for (const f of floaters) f.d.remove(); floaters.length = 0;
+    for (const p of parts) p.life = 0; updateParts(0); updateRings(10);
+    for (const v of vases) { v.broken = false; v.g.visible = true; if (!colliders.includes(v.col)) colliders.push(v.col); }
+    NPCS.forEach(n => { n.hide(); n.mood = null; n.talk = 0; });
+    Story.setArea('shop'); Story.putPlayer(SC.x + 0.4, SC.z - 1.6, Math.PI);
+    uncle.place(SC.x, SC.z - 5.3, 0); MODE = 'story';
+    if (roosterAltar) roosterAltar.visible = true;
+    if (dragonAltar) dragonAltar.visible = true;
+    document.body.classList.remove('cine'); document.body.classList.add('menu');
+    Bag.open = false;
+    for (const id of ['pause', 'bag', 'dlg', 'narr', 'bark', 'dojoP', 'movesP']) $(id).classList.remove('show');
+    $('ov').style.display = 'none'; $('fade').style.opacity = 0;
+    $('vign').style.boxShadow = 'none'; $('lock').style.display = 'none';
+    $('tip').style.opacity = 0; tipTimer = 0; $('banner').classList.remove('show'); bannerTimer = 0;
+    $('help').classList.remove('hide'); $('wave').textContent = '';
+    $('menu').classList.remove('hide', 'autodojo'); this.show('Main'); this.refresh(); refreshChips();
+    // 只释放鼠标锁，保留 document.fullscreenElement 与键盘锁定。
+    if (document.pointerLockElement) document.exitPointerLock();
+    BGM.want = null; BGM.wantT = 0; BGM.update(1.3); FS.ui();
+  },
   start(fn) {
     if (!SKIN.ready || started) return;
     initAudio(); if (AC && AC.state === 'suspended') AC.resume();
@@ -598,12 +640,12 @@ const Menu = {
     switch (a) {
       case 'new': try { localStorage.removeItem('jc_broken'); } catch (e) { } this.start(() => Story.begin(0)); break;
       case 'continue': this.start(() => Story.begin(CHAPTERS[chapterOf(getProgress())].w)); break;
-      case 'retry': if (gameOver) { location.reload(); break; } this.start(() => Story.begin()); break;
+      case 'retry': { const ch = Math.max(0, wave); if (gameOver) this.resetSession(); this.start(() => Story.begin(ch)); break; }
       case 'chapters': this.show('Chapters'); break;
       case 'help': this.show('Help'); break;
       case 'settings': this.show('Settings'); break;
       case 'back': this.show('Main'); break;
-      case 'dojo': if (gameOver || started) { try { sessionStorage.setItem('jc_go', 'dojo'); } catch (e) { } location.reload(); break; } this.start(() => Dojo.begin()); break;
+      case 'dojo': if (gameOver || started) this.resetSession(); this.start(() => Dojo.begin()); break;
       case 'hq': setQuality(!SETTINGS.hq); this.refresh(); break;
       case 'fps': SETTINGS.fps = !SETTINGS.fps; saveSettings(); this.refresh(); break;
       case 'voice': Voice.on = !Voice.on; SETTINGS.voice = Voice.on; if (!Voice.on) Voice.stop(); saveSettings(); this.refresh(); break;
@@ -611,9 +653,9 @@ const Menu = {
       case 'resume': renderer.domElement.requestPointerLock(); break;
       case 'moves': toggleMoves(true); break;
       case 'fs': FS.toggle(); break;
-      case 'restart': if (MODE === 'dojo') { try { sessionStorage.setItem('jc_go', 'dojo'); } catch (e) { } } else { try { sessionStorage.setItem('jc_ch', String(Math.max(0, wave))); } catch (e) { } } location.reload(); break;
-      case 'ep2': try { sessionStorage.setItem('jc_ch', '6'); sessionStorage.setItem('jc_nx', '1'); } catch (e) { } location.reload(); break;
-      case 'menu': try { sessionStorage.removeItem('jc_ch'); } catch (e) { } location.reload(); break;
+      case 'restart': { const dojo = MODE === 'dojo', ch = Math.max(0, wave); this.resetSession(); this.start(() => dojo ? Dojo.begin() : Story.begin(ch)); break; }
+      case 'ep2': this.resetSession(); this.start(() => Story.begin(6)); break;
+      case 'menu': try { for (const k of ['jc_ch', 'jc_nx', 'jc_go']) sessionStorage.removeItem(k); } catch (e) { } this.resetSession(); break;
     }
   },
   pause() {

@@ -238,7 +238,7 @@ const Story = {
     if (this.i >= this.lines.length) { this.end(); return; }
     const L = this.lines[this.i];
     if (L.act) L.act();
-    if (L.fade) { this.busy = true; $('dlg').classList.remove('show'); $('fade').style.opacity = 1; setTimeout(() => { L.fade(); this.camSnap = true; this.aim(L); $('fade').style.opacity = 0; this.busy = false; this.advance(); }, 650); return; }
+    if (L.fade) { this.busy = true; $('dlg').classList.remove('show'); $('fade').style.opacity = 1; this._fadeTimer = setTimeout(() => { L.fade(); this.camSnap = true; this.aim(L); $('fade').style.opacity = 0; this.busy = false; this.advance(); }, 650); return; }
     if (L.wait) { this.busy = true; $('dlg').classList.remove('show'); this.timers.push({ t: L.wait, f: () => { this.busy = false; this.advance(); } }); this.aim(L); return; }
     this.shown = 0; this.aim(L);
     const W = WHO[L.who];
