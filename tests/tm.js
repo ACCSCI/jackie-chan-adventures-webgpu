@@ -1,0 +1,36 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch({ executablePath: process.env.CH, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const pg = await b.newPage({ viewport: { width: 1280, height: 720 } });
+  const errs = []; pg.on('pageerror', e => errs.push(e.message)); pg.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });
+  await pg.goto('file://' + require('path').resolve(__dirname, '../dist/index.html') + '?webgl'); await pg.waitForFunction(() => window.__game && window.__game.SKIN.ready, null, { timeout: 90000 });
+  await pg.waitForTimeout(2500); await pg.screenshot({ path: '/tmp/m_menu.png' });
+  const ev = (f, a) => pg.evaluate(f, a);
+  const area = async (n, fn) => { await ev(fn); await ev(() => window.__game.step(30)); await pg.waitForTimeout(1500); await pg.screenshot({ path: `/tmp/m_${n}.png` }); };
+  await ev(() => { const g = window.__game; document.getElementById('menu').classList.add('hide'); g.started = true; g.locked = true; });
+  await area('dojo', () => { const g = window.__game; g.Dojo.begin(); g.setCam(Math.PI, -0.2); });
+  // 打木人
+  const r = await ev(() => { const g = window.__game, P = g.player; P.pos.set(-170, 0, -2.6); P.yaw = P.yawTarget = Math.PI; g.setCam(Math.PI + 0.6, -0.15); for (let i = 0; i < 6; i++) { P.st = 100; g.startMove(g.MOVES_STYLE[0].jab1); g.step(25); } return [g.Dojo.S.hits, g.Dojo.S.dmg, g.enemies.filter(e => e.type === 'dummy').map(d => d.hp | 0).join()]; });
+  console.log('dojo hits', r);
+  await pg.waitForTimeout(800); await pg.screenshot({ path: '/tmp/m_dojo2.png' });
+  await area('dock', () => { const g = window.__game; g.Dojo.on = false; document.getElementById('dojoP').classList.remove('show'); g.player.maxHp = g.player.hp = 1e9; g.Story.begin(3); for (let i = 0; i < 4; i++) { g.Story.next(); g.Story.next(); g.step(30); } });
+  await area('dock2', () => { const g = window.__game; for (let i = 0; i < 12; i++) { g.Story.next(); g.Story.next(); g.step(30); } g.step(120); });
+  console.log('dock', await ev(() => { const g = window.__game; return [g.cutscene, g.wave, g.enemies.filter(e => !e.dead && e.type !== 'dummy').map(e => e.type).join()]; }));
+  await area('wh', () => { const g = window.__game; g.enemies.forEach(e => { if (e.type !== 'dummy' && !e.dead) e.die({ x: 0, y: 1 }); }); g.step(200); for (let i = 0; i < 9; i++) { g.Story.next(); g.Story.next(); g.step(30); } });
+  await pg.waitForTimeout(1500); await ev(() => { const g = window.__game; for (let i = 0; i < 10; i++) { g.Story.next(); g.Story.next(); g.step(30); } g.step(60); });
+  console.log('trio', await ev(() => { const g = window.__game; return [g.cutscene, g.wave, g.enemies.filter(e => !e.dead && e.type !== 'dummy').map(e => e.type).join()]; }));
+  await ev(() => { const g = window.__game; g.enemies.forEach(e => { if (e.type !== 'dummy' && !e.dead) e.die({ x: 0, y: 1 }); }); g.step(200); for (let i = 0; i < 9; i++) { g.Story.next(); g.Story.next(); g.step(30); } });
+  await pg.waitForTimeout(1500); await ev(() => { const g = window.__game; for (let i = 0; i < 4; i++) { g.Story.next(); g.Story.next(); g.step(30); } });
+  await pg.screenshot({ path: '/tmp/m_wh0.png' });
+  await ev(() => { const g = window.__game; for (let i = 0; i < 8; i++) { g.Story.next(); g.Story.next(); g.step(30); } g.step(60); });
+  console.log('pre', await ev(() => { const g = window.__game; return [g.cutscene, g.wave, g.AREA.name, g.Story.i, g.Story.lines && g.Story.lines.length, g.Story.busy, g.enemies.filter(e => !e.dead && e.type !== 'dummy').map(e => e.type).join()]; }));
+  await area('wh2', () => { const g = window.__game; g.Story.skip(); g.step(5); const b = g.enemies.find(e => e.type === 'boss2'); b.hp = b.maxHp * 0.4; g.step(60); });
+  console.log('rage', await ev(() => window.__game.enemies.filter(e => !e.dead && e.type !== 'dummy').map(e => e.type).join()));
+  await area('end', () => { const g = window.__game; g.enemies.forEach(e => { if (e.type !== 'dummy' && !e.dead) e.die({ x: 0, y: 1 }); }); g.step(200); for (let i = 0; i < 3; i++) { g.Story.next(); g.Story.next(); g.step(30); } });
+  await ev(() => { const g = window.__game; for (let i = 0; i < 12; i++) { g.Story.next(); g.Story.next(); g.step(30); } }); await pg.waitForTimeout(2500);
+  console.log('ov', await ev(() => [document.getElementById('ov').style.display, document.querySelector('#ov h1') && document.querySelector('#ov h1').textContent]));
+  await pg.screenshot({ path: '/tmp/m_ov.png' });
+  console.log('final', await ev(() => { const g = window.__game; return [g.cutscene, g.wave, g.AREA.name, g.enemies.filter(e => !e.dead && e.type !== 'dummy').map(e => e.type).join()]; }));
+  console.log(errs.slice(0, 10));
+  await b.close(); process.exit(0);
+})();
