@@ -201,7 +201,7 @@ function findSoftTarget() {
   if (lockTarget) return lockTarget;
   let best = null, bd = 4.5;
   for (const e of enemies) {
-    if (e.dead) continue;
+    if (e.dead || e.hidden) continue;
     const dx = e.pos.x - player.pos.x, dz = e.pos.z - player.pos.z, d = Math.hypot(dx, dz);
     const a = Math.abs(angDiff(camYaw, Math.atan2(dx, dz)));
     if (d < bd && a < 1.3) { bd = d; best = e; }
@@ -380,7 +380,8 @@ function playerHitCheck(m, hi) {
   if (p.style === 0) dmgMul *= 1 + Math.min(p.combo, 20) * 0.02; // 龙威：连击越多伤害越高
   const counter = now - p.counterT < 1.5 && (m === MOVES.counter || m === MOVES.push || m.heavy);
   if (counter) dmgMul *= 2.2;
-  let any = false;
+  const sneak = sneakBonus(); if (sneak) { dmgMul *= 1.8; showMove('蛇隐暗袭！', '#4be37a'); }
+  let any = false, killN = 0, armorN = 0, hitPos = null;
   for (const e of enemies) {
     if (e.dead || p.hitDone[hi].has(e)) continue;
     const dx = e.pos.x - p.pos.x, dz = e.pos.z - p.pos.z;
@@ -392,9 +393,11 @@ function playerHitCheck(m, hi) {
     p.hitDone[hi].add(e); any = true;
     const dmg = Math.round(m.dmg * dmgMul * rand(0.9, 1.1));
     const kbDir = new THREE.Vector2(dx, dz).normalize();
+    const armored = e.T.poise && !counter && !m.heavy && !m.guardBreak && e.state !== 'down';
     e.takeHit(dmg, kbDir, m, st.kb * (m.heavy ? 1 : 0.7) * (Runes.has('ox') ? 1.3 : 1), counter);
+    if (e.dead) killN++; else if (armored) armorN++;
     if (p.style === 1) p.st = Math.min(100, p.st + (m.heavy ? 8 : 4)); // 灵蛇：偷体力
-    const hp = e.pos.clone(); hp.y += m.low ? 0.45 : 1.25 * e.scale;
+    const hp = e.pos.clone(); hp.y += m.low ? 0.45 : 1.25 * e.scale; hitPos = hitPos || hp;
     burst(hp, m.heavy || counter ? st.color : 0xfff1b0, m.heavy ? 26 : 14, m.heavy ? 7 : 4.5);
     if (m.heavy || counter) shock(hp, st.color, 1.2);
     floatText(hp, dmg, counter ? '#4fd1ff' : m.heavy ? st.css : '#fff', m.heavy || counter ? 30 : 22);
@@ -404,7 +407,12 @@ function playerHitCheck(m, hi) {
   if (any && m.heavy && Runes.has('pig')) runeBeam();
   if (hi === m.hits.length - 1 && Runes.has('dragon') && !m.heavy && !m.next && !m.nextM && !m.air && (m.keys !== MOVES.counter.keys)) runeFire();
   if (any) {
-    sfx(sound); hitstop = m.heavy ? 0.085 : 0.04; shake = Math.max(shake, m.heavy ? 0.2 : 0.07);
+    const wk = m.wpn && p.weapon ? (WEAPONS[p.weapon.type].kind || ['stick', 'umbrella', 'pan'][p.weapon.type]) : null;
+    impact('hit', { heavy: !!m.heavy, mat: wk ? MAT[wk] : null, counter: counter || sneak, kill: killN > 0, armor: armorN > 0 && !killN, pos: hitPos, fallback: sound });
+    // 停顿：重击/反击/击杀更长，打霸体更短更“弹手”
+    hitstop = killN ? 0.11 : counter ? 0.1 : m.heavy ? 0.085 : armorN ? 0.025 : 0.045;
+    shake = Math.max(shake, killN ? 0.24 : m.heavy || counter ? 0.2 : 0.07);
+    if (killN && !enemies.some(e => !e.dead && e.type !== 'dummy')) slowmo = Math.max(slowmo, 0.35); // 本波最后一击
     p.anim.kick('sx', m.heavy ? 1.5 : 0.8); // 打实的反作用
     refreshChips();
   }
@@ -434,13 +442,13 @@ function playerTakeHit(e, dmg, opts = {}) {
   if (p.guard && side !== 1 && !opts.unblockable && (p.state === 'loco' || p.state === 'block' || p.state === 'parryHit')) {
     const kd = new THREE.Vector2(p.pos.x - e.pos.x, p.pos.z - e.pos.z).normalize();
     if (now - p.guardPress < (Runes.has('tiger') ? 0.33 : 0.22)) {
-      floatText(pos, '完美格挡!', '#4fd1ff', 28); gameEvent('parry'); sfx('clang'); shock(pos, 0x4fd1ff, 1.5); burst(pos, 0x4fd1ff, 30, 6);
+      floatText(pos, '完美格挡!', '#4fd1ff', 28); gameEvent('parry'); impact('parry', { pos }); shock(pos, 0x4fd1ff, 1.5); burst(pos, 0x4fd1ff, 30, 6);
       slowmo = 0.45; p.counterT = now; p.st = 100; floatText(pos.clone().setY(1.75), '体力全满', '#7dffb0', 18);
       e.parried(); showMove('完美格挡！ 立即反击', '#4fd1ff');
       p.clip = PARRY_DEFLECT; setState(p, 'parryHit', 0.04); A.kick('sy', -4);
       return;
     }
-    p.st -= dmg * 1.2; p.stDelay = 0.8; sfx('block'); burst(pos, 0xffffff, 8, 3);
+    p.st -= dmg * 1.2; p.stDelay = 0.8; impact('block', { pos }); burst(pos, 0xffffff, 8, 3);
     p.hp -= Math.round(dmg * 0.15); floatText(pos, '格挡', '#ddd');
     p.vel.set(kd.x * 3, 0, kd.y * 3);
     if (p.st <= 0) {
@@ -450,7 +458,7 @@ function playerTakeHit(e, dmg, opts = {}) {
     } else { p.clip = BLOCK_RECOIL; setState(p, 'block', 0.04); A.kick('sx', -3); }
     hurtFx(0.3); return;
   }
-  p.hp -= dmg; sfx('hurt'); hurtFx(1); floatText(pos, '-' + dmg, '#ff4b3a');
+  p.hp -= dmg; impact('hurt', { pos, heavy: dmg >= 15 }); hurtFx(1); floatText(pos, '-' + dmg, '#ff4b3a');
   shake = Math.max(shake, 0.18);
   const kd = new THREE.Vector2(p.pos.x - e.pos.x, p.pos.z - e.pos.z).normalize();
   p.move = null; p.combo = 0;

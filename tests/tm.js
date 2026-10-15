@@ -1,9 +1,9 @@
-const { chromium } = require('playwright');
+const { chromium } = require('/vercel/sandbox/node_modules/playwright');
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CH, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const pg = await b.newPage({ viewport: { width: 1280, height: 720 } });
   const errs = []; pg.on('pageerror', e => errs.push(e.message)); pg.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });
-  await pg.goto('file://' + require('path').resolve(__dirname, '../dist/index.html') + '?webgl'); await pg.waitForFunction(() => window.__game && window.__game.SKIN.ready, null, { timeout: 90000 });
+  await pg.goto('file:///data/game/成龙历险记_WebGPU.html?webgl'); await pg.waitForFunction(() => window.__game && window.__game.SKIN.ready, null, { timeout: 90000 });
   await pg.waitForTimeout(2500); await pg.screenshot({ path: '/tmp/m_menu.png' });
   const ev = (f, a) => pg.evaluate(f, a);
   const area = async (n, fn) => { await ev(fn); await ev(() => window.__game.step(30)); await pg.waitForTimeout(1500); await pg.screenshot({ path: `/tmp/m_${n}.png` }); };

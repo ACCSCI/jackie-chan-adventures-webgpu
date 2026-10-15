@@ -1,10 +1,10 @@
-const { chromium } = require('playwright');
+const { chromium } = require('/vercel/sandbox/node_modules/playwright');
 const assert = require('node:assert/strict');
 (async () => {
  const b = await chromium.launch({executablePath:process.env.CH,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required']});
  const p=await b.newPage({viewport:{width:1280,height:720}}); const errs=[];p.on('pageerror',e=>errs.push(e.message));
  let navigations=0;p.on('framenavigated',f=>{if(f===p.mainFrame())navigations++;});
- await p.goto(require('node:url').pathToFileURL(require('node:path').resolve(__dirname, '../dist/index.html')).href + '?webgl');
+ await p.goto('file:///data/game/成龙历险记_WebGPU.html?webgl');
  await p.waitForFunction(()=>window.__game?.SKIN.ready,null,{timeout:90000});
  await p.evaluate(()=>window.__menuMarker='preserved');
  await p.locator('#mMain [data-a="fs"]').click();

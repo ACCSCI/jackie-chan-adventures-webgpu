@@ -5,6 +5,9 @@
 ## 玩法亮点
 - 第一集 · 公鸡护身符（5 章）：古董店 → 唐人街 → 刀鲁 → 渔人码头 → 仓库决战
 - 第二集 · 龙之护身符（3 章）：龙王庙之夜 → 赤影忍者 → 龙之力·瓦尔蒙（火球可蹲躲，完美格挡能反弹）
+- 第三集 · 蛇之护身符（3 章）：午夜博物馆 → 蛇影忍者 → 隐身的阿周。隐身敌人只留下脚印灰尘和立体声脚步声，出手前闪烁并发出“嘶——”声；打中隐身者会现形硬直。可撞碎的展柜、霸王龙骨架展品
+- 通关第三集：蛇符觉醒——完美闪避/完美格挡后隐身 2.5 秒，第一击伤害 ×1.8
+- 分层打击音效：CC0 的 Kenney Impact Sounds + qubodup Punch，按轻重/材质/反击/击杀/霸体叠加样本与合成低频，击杀与反击有更长的停顿
 - 练功房：木人桩、陪练、10 项挑战
 - 三种拳法，各有特性：**龙形拳**连击越多伤害越高 · **蛇形拳**打中偷体力、走跑更快 · **醉拳** 80% 自动闪避（出招中也能闪）
 - 轻击 / 重击、拳腿切换、蹲姿、格挡 / 完美格挡、闪避 / 完美闪避、鲤鱼打挺、4 秒不掉血自动回血
@@ -43,6 +46,9 @@ bash build.sh        # 输出 dist/index.html
 | `src/p46.js` `src/p47.js` | 剧情、NPC、码头 / 仓库 / 练功房、菜单 |
 | `src/p48.js` | 背包 / 装备栏、全屏与键盘锁定 |
 | `src/p49.js` | 第二集：龙王庙场景、新敌人、剧情 |
+| `src/websfx.js` | CC0 打击音效数据（来源见 `assets/audio/web/CREDITS.md`） |
+| `src/p51.js` | 分层打击音效系统 |
+| `src/p52.js` | 第三集：博物馆场景、隐身机制、剧情、蛇符觉醒 |
 | `src/p50.js` | HD 配音缓存、BGM 切换、对白压低音乐、音效预解码与并发控制 |
 | `assets/audio/hd/*.part` | HD 配音 / BGM / 音效数据分片（每片 < 1MB，按序拼接；顶层旧分片仅留作旧版档案） |
 | `src/p5.js` | 相机、HUD、主循环 |
@@ -55,6 +61,8 @@ bash build.sh        # 输出 dist/index.html
 ```bash
 CH=$(which chromium) node tests/tm.js   # 练功房 + 码头 + 仓库 + 结局
 CH=$(which chromium) node tests/tep2.js # 第二集、火球、反弹、暴怒
+CH=$(which chromium) node tests/tep3.js # 第三集、隐身/现形、展柜、Boss 暴怒、蛇符觉醒
+CH=$(which chromium) node tests/timp.js # 分层打击音效
 CH=$(which chromium) node tests/ta.js   # 配音、BGM 和设置开关
 CH=$(which chromium) node tests/thd.js  # 全部173条HD语音、5首BGM、8类音效完整解码
 CH=$(which chromium) node tests/tmenu.js # 无刷新返回菜单、全屏、异步事件清理

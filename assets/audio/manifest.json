@@ -3,13 +3,14 @@
   "voiceModel": "mimo-v2.5-tts",
   "bgmModel": "music-3.0",
   "sfxModel": "eleven_text_to_sound_v2",
-  "voiceLines": 173,
+  "voiceLines": 221,
   "bgm": [
     "menu",
     "calm",
     "battle",
     "boss",
-    "temple"
+    "temple",
+    "museum"
   ],
   "sfx": [
     "whoosh",
@@ -715,6 +716,198 @@
       "sha256": "272ebca725a6233623f66dc9980fa1c1bee2b75314853fa66f7703b040c948a6"
     },
     {
+      "path": "vo/6d8872dd31.wav",
+      "sha256": "4a3aff3b19a3fd92dbde21deff76fcdaf8b65dd1428d61b920e32b0ae94224e0"
+    },
+    {
+      "path": "vo/37fd55c3c2.wav",
+      "sha256": "1bd2c0d43a61b44e2b9351e0986383971d9558a2f49ef7e033e7fe1a86b1f1ed"
+    },
+    {
+      "path": "vo/e5bd33c195.wav",
+      "sha256": "b44a2d437dc31d931ad4edf56a6abc4e34ba8f241ed0dde49c3eb4c79dd858ec"
+    },
+    {
+      "path": "vo/36c799841c.wav",
+      "sha256": "2eb543fde80cf47c288177df72033c947d085eef3fb3c3c3a7037bdc7a2e6353"
+    },
+    {
+      "path": "vo/20682d4f69.wav",
+      "sha256": "94749265cf107dc35375a7032e5ffee3985904ebb118f9d9b421083cdfc9e73b"
+    },
+    {
+      "path": "vo/39e364e893.wav",
+      "sha256": "0c642c170f41063d5c4fd459e36fc7f7e659816fa1b3fe485fdae1a94c6c243b"
+    },
+    {
+      "path": "vo/af5a9f3da3.wav",
+      "sha256": "2b344ffe5c176842de098122f769bccf9a9ccd0be89a2dcd52fc4f4197d17899"
+    },
+    {
+      "path": "vo/8bf2f27d52.wav",
+      "sha256": "3f5e00cd5861e779e961dcdc38219102ffc20a13c4aa17d136e7f35cafe6c52a"
+    },
+    {
+      "path": "vo/7c4e24e7bb.wav",
+      "sha256": "11bb1ba30d7f62c94c764136d73688af76769388ff3cf776ae7061ae7dc92fcf"
+    },
+    {
+      "path": "vo/e66ebbd736.wav",
+      "sha256": "3b51647858766567d4067a378c0b7110dee21d36fa16e99717cb6937a8b65007"
+    },
+    {
+      "path": "vo/cf72067bd2.wav",
+      "sha256": "4feaec1b682eb3e9a5b58045ada6530e7b8fadea2619aef1d290363accab5e4c"
+    },
+    {
+      "path": "vo/6ab0e5d2c0.wav",
+      "sha256": "e0aec551ee83792ad7dd21da3ca86df03619484d2408411c013f8a1ebe48c443"
+    },
+    {
+      "path": "vo/f812ee2f17.wav",
+      "sha256": "28832ec67c2f789b33c13303c78682f42aeac4101fe5f52bdb811db7a2a3fbc3"
+    },
+    {
+      "path": "vo/0dcdef3da3.wav",
+      "sha256": "6e5e403b17076d75db8973227f2f7c0613d9cddfcf89db4308a92a443c058316"
+    },
+    {
+      "path": "vo/3981649048.wav",
+      "sha256": "7290e1154c3567b5ce47d17709d47537eb892c6130612efb396fd1ccb483cd3f"
+    },
+    {
+      "path": "vo/675e182008.wav",
+      "sha256": "212452fbd87975444b6e33e9a281ad65b90dd2d631854c070c9c8f864fe1964b"
+    },
+    {
+      "path": "vo/6214a9e60b.wav",
+      "sha256": "61aaf7f578a1d97f571abb3655eac0053e93ef009e00a703a8f3115a3c49de30"
+    },
+    {
+      "path": "vo/44013ab724.wav",
+      "sha256": "4bbb9f10414d3cf83c0c0d30cbf5fa22bf66d4144b10ab15832fb9e0de353ac4"
+    },
+    {
+      "path": "vo/b82e14cde5.wav",
+      "sha256": "edad7d50f8b01d7c443f66fa41ea38fcf97ea479d7911e4c92b01695bbc5c315"
+    },
+    {
+      "path": "vo/cfaf167d29.wav",
+      "sha256": "74067db7df462317dfd4b5ebb77c61e57af2e4fb90478e982baec26eeacb6357"
+    },
+    {
+      "path": "vo/74adf047bb.wav",
+      "sha256": "e17af0e9f5ff05d0ce79d015c1b58ae9e9197af5c94d68acead392702706ff9e"
+    },
+    {
+      "path": "vo/4835502017.wav",
+      "sha256": "dbdb22eb3e52a2d40bb6763b893f1dfbb67ea897c88abe31a88665c596176a55"
+    },
+    {
+      "path": "vo/9c07e387f0.wav",
+      "sha256": "e2436cfc7bfc93b4958717242619b14d5285940af89e6285d05e07d22dda0d4b"
+    },
+    {
+      "path": "vo/5be0b69b4e.wav",
+      "sha256": "e6ce999bbd86d697ef4779ccba6560df28ce3dc1b0061f8f61e7599b7d7db5f2"
+    },
+    {
+      "path": "vo/66043aad31.wav",
+      "sha256": "5f2c393cfd775e08a8ef4d9d2ae128e33ae23dc6df6ec83196c73873b4cc9e66"
+    },
+    {
+      "path": "vo/6651088fed.wav",
+      "sha256": "04aaa8ea722860982fcbb5991d832e4878159a7ed67a58eb34bd8c9fbd9a1ea6"
+    },
+    {
+      "path": "vo/30c321c376.wav",
+      "sha256": "78eb4d817ad2d70afde9412fc5336177ab19a3f0abc10b471f16495a8cab1540"
+    },
+    {
+      "path": "vo/08f39cff58.wav",
+      "sha256": "e638d96b331616e24cf42a71f5c7375a308b09f9465b7494921940eeb0722b11"
+    },
+    {
+      "path": "vo/a73cdf66e3.wav",
+      "sha256": "b0ed6673cfc17f65607ee644f72fa950c98dfc8b5014ff27a443c037b649ebac"
+    },
+    {
+      "path": "vo/301b1e1006.wav",
+      "sha256": "6745f7906d3415f67f91d9b90154f742b4b22d3c004f7294994b69f1c56c036b"
+    },
+    {
+      "path": "vo/5b23bf7732.wav",
+      "sha256": "67ccea9b293b5f7294ed24999a536cc7c9ee8ce235d907fed28137ca1027ab39"
+    },
+    {
+      "path": "vo/2a6e78e178.wav",
+      "sha256": "ad2c93cf004d5702e1890a57902dd0251f3ec418f687ff30bcfbf5c61dbe3e85"
+    },
+    {
+      "path": "vo/c2b0cb1705.wav",
+      "sha256": "3a1204a973dbb5167bd18c497f76b9df7207dc5af3fbd74fa917e39718340143"
+    },
+    {
+      "path": "vo/35fc7fb7e1.wav",
+      "sha256": "3b9d914b61b5fe5988912dec0f2c3a4290d75aa7c6fd6a44f8682cbbd058d627"
+    },
+    {
+      "path": "vo/a972a943e3.wav",
+      "sha256": "d0a109beca13628563c8ac3210bbfe33267e418fe5e9d31c18184b9a77bc226c"
+    },
+    {
+      "path": "vo/986f25ccde.wav",
+      "sha256": "ce5962248d268f24abdc93724e00f875e93dfdbd8ae4a86fab637592456f766e"
+    },
+    {
+      "path": "vo/414dce0d74.wav",
+      "sha256": "8072a43d4bc5c09c27f503fa150d6d1a9ea20d6d4e9908bb1dd2af6729a89f1c"
+    },
+    {
+      "path": "vo/17a17581d7.wav",
+      "sha256": "a873849e8a42596aff3d2046f270e5a0e0f3b7c18f5375a3ed5e33a6ef0311ac"
+    },
+    {
+      "path": "vo/4efe4a44f4.wav",
+      "sha256": "7356930e295e7b9d41736410e0a6822dc3cf6fa9d786e0018a9fc6791721d438"
+    },
+    {
+      "path": "vo/21185cd1f0.wav",
+      "sha256": "288559dc34092ad7e75abdaf8aebf864b978f2558fe3a930ff0f55bc28bd4e0a"
+    },
+    {
+      "path": "vo/acdb3a40ec.wav",
+      "sha256": "9677add5ff26d712e782e98a045b57951093e1fab1265ec07a01496ed6f3ad28"
+    },
+    {
+      "path": "vo/601201b994.wav",
+      "sha256": "04184b792d7235dda70cc1db27a3853a90c070862d340f6a112df4de6760eb2e"
+    },
+    {
+      "path": "vo/77e464bf1c.wav",
+      "sha256": "8e9f4a967a58bc0374db7a7211fa2d2986e52b2c780e4b973baa8c900faa2446"
+    },
+    {
+      "path": "vo/94b712a538.wav",
+      "sha256": "9a0320c4aba8e2d44eda1b6c4e612909ed65408e9ac3ef7e6d27ee92cd866d98"
+    },
+    {
+      "path": "vo/8f93afa8a8.wav",
+      "sha256": "6263981f001675805e012a365e17c3bbc5a85bbdff89370ec5fd994b298cd742"
+    },
+    {
+      "path": "vo/c2aa7a3891.wav",
+      "sha256": "7f90af4f01cc7a56a36c1669a2fab6ddbd8527b90e8c44ef41d9d0aeaa431b63"
+    },
+    {
+      "path": "vo/3d42bae2ac.wav",
+      "sha256": "9bb13d528e65d1340af0448a1d104fd5fbbd70f10e82b441971e267e5583438f"
+    },
+    {
+      "path": "vo/d7e38aa674.wav",
+      "sha256": "37a99139186f1992355695324accc91125802cc7345b083c316c53dbe5378af1"
+    },
+    {
       "path": "bgm/menu.mp3",
       "sha256": "bbda871a3ab6ea36a780f98076fcff69ad74c7e521cb1cfcb7472fa4806ec054"
     },
@@ -733,6 +926,10 @@
     {
       "path": "bgm/temple.mp3",
       "sha256": "2065aa2d026d0e315d883cbedf6427ae2015c1339d87c9bebb1e23889720fafd"
+    },
+    {
+      "path": "bgm/museum.mp3",
+      "sha256": "6794814a85933e3123603613e4926b3c9a5599f60abbc7d97c62615306a17c38"
     },
     {
       "path": "sfx/whoosh.mp3",

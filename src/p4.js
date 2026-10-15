@@ -155,7 +155,7 @@ class Enemy {
       let tt = this.t;
       if (this.state === 'dead') tt = Math.min(tt, 1.0);
       sampleKeys(this.downClip.keys, Math.min(1, tt / this.downClip.dur), tg);
-      if (tt >= 0.36 && tt - dt < 0.36) { burst(this.pos.clone().setY(0.15), 0xc9a27a, 12, 3); shake = Math.max(shake, 0.06); }
+      if (tt >= 0.36 && tt - dt < 0.36) { impact('fall', { pos: this.pos, big: this.scale > 1.1 }); burst(this.pos.clone().setY(0.15), 0xc9a27a, 12, 3); shake = Math.max(shake, 0.06); }
       if (this.state === 'down' && tt >= this.downClip.dur) { this.setState('loco', 0.15); this.cd = rand(0.3, 0.9); }
       if (this.state === 'dead' && this.t > 2.2) { const s = 1 - (this.t - 2.2) / 0.6; this.rig.root.scale.setScalar(Math.max(0.01, s) * this.scale); if (this.t > 2.8) { scene.remove(this.rig.root); this.gone = true; } }
     } else if (this.state === 'hit' || this.state === 'stagger') {
@@ -269,7 +269,7 @@ function pickupOrDrop() {
 }
 function breakWeapon() {
   const w = player.weapon; burst(player.pos.clone().setY(1.2), 0xaa7744, 24, 5);
-  w.mesh.removeFromParent(); player.weapon = null; sfx('clang');
+  w.mesh.removeFromParent(); player.weapon = null; { const k = WEAPONS[w.type].kind || ['stick', 'umbrella', 'pan'][w.type]; impact('break', { mat: MAT[k], pos: player.pos }); }
   if (WEAPONS[w.type].fragile) { burst(player.pos.clone().setY(1.3), 0x3fa060, 30, 6); tip(`「${WEAPONS[w.type].name}」砸碎了！`); } else tip(`「${WEAPONS[w.type].name}」坏了！ 糟了糟了！`);
   refreshChips();
 }
@@ -360,14 +360,16 @@ function updateWaves(dt) {
 let gameEndTimer = null;
 function gameEnd(win, ep = 1) {
   gameOver = true;
-  try { if (win) { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); if (ep === 1) saveProgress(6); else localStorage.setItem('jc_clear2', '1'); } else sessionStorage.setItem('jc_ch', String(Math.max(0, wave))); } catch (e) { }
+  try { if (win) { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); if (ep === 1) saveProgress(6); else if (ep === 2) { saveProgress(9); localStorage.setItem('jc_clear2', '1'); } else localStorage.setItem('jc_clear3', '1'); } else sessionStorage.setItem('jc_ch', String(Math.max(0, wave))); } catch (e) { }
   const mins = Math.floor(playTime / 60), secs = Math.floor(playTime % 60);
   clearTimeout(gameEndTimer);
   gameEndTimer = setTimeout(() => {
     document.exitPointerLock(); $('pause').classList.remove('show');
     $('ov').style.display = 'flex';
-    $('ov').querySelector('.box').innerHTML = win && ep === 2
-      ? `<h1>完</h1><h2>第二集 · 龙之护身符</h2><p>击倒敌人 ${kills} 名 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“两个找回来了……还有十个！”</p><p style="opacity:.6;font-size:13px">下一集预告：蛇之护身符（敬请期待）</p><div class="obtns"><div class="go" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
+    $('ov').querySelector('.box').innerHTML = win && ep === 3
+      ? `<h1>完</h1><h2>第三集 · 蛇之护身符</h2><p>击倒敌人 ${kills} 名 · 撞碎展柜 ${Story.mBroken || 0} 个 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“三个找回来了……还有九个！”</p><p style="color:#7dffb0">蛇符觉醒！装备蛇符后，完美闪避 / 完美格挡会让你隐身 2.5 秒，第一击伤害 ×1.8</p><p style="opacity:.6;font-size:13px">下一集预告：敬请期待</p><div class="obtns"><div class="go" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房试试蛇隐</div></div>`
+      : win && ep === 2
+      ? `<h1>完</h1><h2>第二集 · 龙之护身符</h2><p>击倒敌人 ${kills} 名 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“两个找回来了……还有十个！”</p><p style="opacity:.6;font-size:13px">下一集：蛇之护身符——看不见的敌人，最危险！</p><div class="obtns"><div class="go" data-a="ep3">继续第三集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
       : win
       ? `<h1>完</h1><h2>第一集 · 公鸡护身符</h2><p>击倒敌人 ${kills} 名 · 打碎古董 ${Story.broken} 件 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“一个护身符找回来了……还有十一个！”</p><p style="opacity:.6;font-size:13px">下一集：龙之护身符——瓦尔蒙亲自出手了！</p><div class="obtns"><div class="go" data-a="ep2">继续第二集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
       : `<h1>糟了糟了！</h1><h2>成龙倒下了 · ${WAVES[wave] ? WAVES[wave].title : ''}</h2><p>击倒敌人 ${kills} 名。小提示：倒地后按 Alt 快速起身；敌人发红光出手前一瞬按 Q 完美格挡；去练功房可以随便练连招。</p><div class="obtns"><div class="go" data-a="retry">从本章重来</div><div class="go alt" data-a="menu">返回主界面</div></div>`;

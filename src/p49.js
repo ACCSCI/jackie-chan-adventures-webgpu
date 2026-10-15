@@ -170,6 +170,7 @@ const EP2_ENDING = [
 Object.assign(Story, {
   toTemple() { this.setArea('temple'); this.putPlayer(TP.x, TP.z + 8.5, Math.PI); uncle.hide(); jade.hide(); if (dragonAltar) dragonAltar.visible = true; },
   beginEp2(ch) {
+    if (ch >= 9) return this.beginEp3(ch);
     if (ch === 6) {
       this.setArea('shop'); this.putPlayer(SC.x + 0.4, SC.z - 1.6, Math.PI);
       uncle.place(SC.x, SC.z - 5.3, 0); jade.place(SC.x + 1.7, SC.z - 3.8, -0.6);
@@ -178,6 +179,7 @@ Object.assign(Story, {
     else { this.toTemple(); jade.place(TP.x - 5.6, TP.z + 10.6, Math.PI); this.play(VALMONT_INTRO, () => startWave(8)); }
   },
   onClearEp2(w, T) {
+    if (w >= 9) return this.onClearEp3(w, T);
     if (w === 6) T(1.6, NINJA_INTRO, () => startWave(7));
     else if (w === 7) T(1.8, VALMONT_INTRO, () => startWave(8));
     else T(2.2, EP2_ENDING, () => gameEnd(true, 2));

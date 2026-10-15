@@ -3,7 +3,7 @@ function toggleLock() {
   if (lockTarget) { lockTarget = null; return; }
   let best = null, bs = 1e9;
   for (const e of enemies) {
-    if (e.dead) continue;
+    if (e.dead || e.hidden) continue;
     const dx = e.pos.x - player.pos.x, dz = e.pos.z - player.pos.z, d = Math.hypot(dx, dz);
     const a = Math.abs(angDiff(camYaw, Math.atan2(dx, dz)));
     const s = d + a * 6; if (d < 18 && s < bs) { bs = s; best = e; }
@@ -153,7 +153,7 @@ renderer.init().then(() => {
   renderer.setAnimationLoop(loop);
 });
 Menu.initialWeapons = groundWeapons.map(w => ({ type: w.type, x: w.pos.x, z: w.pos.z, dur: w.dur }));
-window.__game = { SFX, sfx, Voice, BGM, AudioBus, get AC() { return AC; }, fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
+window.__game = { SFX, sfx, Impact, impact, Stealth, cases, MU, get snakeAltar() { return snakeAltar; }, Voice, BGM, AudioBus, get AC() { return AC; }, fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
   step(n, dt = 1 / 60) { for (let i = 0; i < n; i++) { now += dt; updatePlayer(dt); if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.update(dt)); updateWaves(dt); } updatePickups(dt); Story.update(dt); } updateCamera(dt); updateTrails(dt); },
   Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
   get now() { return now; } };

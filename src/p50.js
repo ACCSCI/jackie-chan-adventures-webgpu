@@ -64,6 +64,7 @@ const BGM = {
     const fight = !cutscene && !gameOver && enemies.some(e => !e.dead && e.type !== 'dummy');
     if (fight) return WAVES[wave] && WAVES[wave].boss ? 'boss' : 'battle';
     if (gameOver) return this.name || 'calm';
+    if (AREA.name === 'museum') return BGM_DATA.museum ? 'museum' : 'temple';
     return AREA.name === 'temple' ? 'temple' : 'calm';
   },
   switchTo(n) {

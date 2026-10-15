@@ -1,6 +1,7 @@
 // ================= 新场景：渔人码头（夜）/ 黑手帮仓库 / 练功房 =================
 const DK = { x: 170, z: 0 }, WH = { x: 170, z: -160, hx: 13, hz: 10, h: 8 }, DJ = { x: -170, z: 0, hx: 10, hz: 8, h: 5.2 };
 let playTime = 0;
+const EP_TITLE = { 1: '第一集 · 公鸡护身符', 2: '第二集 · 龙之护身符', 3: '第三集 · 蛇之护身符' };
 const _tex = {
   concrete: (dark) => canvasTex(512, 512, (g, W) => {
     g.fillStyle = dark ? '#3e4044' : '#5b5d60'; g.fillRect(0, 0, W, W);
@@ -582,7 +583,7 @@ const Menu = {
     $('bRetry').classList.toggle('hl', !!nx);
     $('bCont').style.display = prog > 0 && retry == null ? '' : 'none';
     const c = CHAPTERS[chapterOf(prog)]; $('bCont').innerHTML = `继续游戏<small>${c.n} · ${c.t}</small>`;
-    $('chList').innerHTML = CHAPTERS.map((C, i) => { const ok = prog >= C.w || i === 0; const hd = i === 0 ? '<div class="eph">第一集 · 公鸡护身符</div>' : C.ep && !CHAPTERS[i - 1].ep ? '<div class="eph">第二集 · 龙之护身符</div>' : ''; return hd + `<button class="ch ${ok ? '' : 'lock'}" data-ch="${C.w}" ${ok ? '' : 'disabled'}><b>${C.n}</b> ${C.t}<small>${ok ? C.d : '🔒 通关前一章解锁'}</small></button>`; }).join('');
+    $('chList').innerHTML = CHAPTERS.map((C, i) => { const ok = prog >= C.w || i === 0; const ep = C.ep || 1, hd = i === 0 || ep !== (CHAPTERS[i - 1].ep || 1) ? `<div class="eph">${EP_TITLE[ep]}</div>` : ''; return hd + `<button class="ch ${ok ? '' : 'lock'}" data-ch="${C.w}" ${ok ? '' : 'disabled'}><b>${C.n}</b> ${C.t}<small>${ok ? C.d : '🔒 通关前一章解锁'}</small></button>`; }).join('');
     $('chList').querySelectorAll('[data-ch]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); this.start(() => Story.begin(+b.dataset.ch)); }));
     $('setHq').textContent = SETTINGS.hq ? '高清' : '标准'; $('setFps').textContent = SETTINGS.fps ? '开' : '关'; $('setMusic').textContent = Music.on ? '开' : '关'; $('setVoice').textContent = SETTINGS.voice !== false ? '开' : '关'; $('sensV').textContent = (+SETTINGS.sens).toFixed(1);
   },
@@ -655,6 +656,7 @@ const Menu = {
       case 'fs': FS.toggle(); break;
       case 'restart': { const dojo = MODE === 'dojo', ch = Math.max(0, wave); this.resetSession(); this.start(() => dojo ? Dojo.begin() : Story.begin(ch)); break; }
       case 'ep2': this.resetSession(); this.start(() => Story.begin(6)); break;
+      case 'ep3': this.resetSession(); this.start(() => Story.begin(9)); break;
       case 'menu': try { for (const k of ['jc_ch', 'jc_nx', 'jc_go']) sessionStorage.removeItem(k); } catch (e) { } this.resetSession(); break;
     }
   },

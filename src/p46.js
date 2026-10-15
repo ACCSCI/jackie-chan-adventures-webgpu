@@ -350,7 +350,7 @@ const Story = {
     v.broken = true; v.g.visible = false; this.broken++;
     const i = colliders.indexOf(v.col); if (i >= 0) colliders.splice(i, 1);
     const p = v.g.position.clone().setY(0.6);
-    burst(p, v.c, 26, 4.5); burst(p, 0x2a4a9a, 10, 3); shock(v.g.position, 0xffffff, 1.2); sfx('clang'); shake = Math.max(shake, 0.1);
+    burst(p, v.c, 26, 4.5); burst(p, 0x2a4a9a, 10, 3); shock(v.g.position, 0xffffff, 1.2); impact('glass', { pos: p }); shake = Math.max(shake, 0.1);
     floatText(p.clone().setY(1.4), '啪嚓！', '#ffe9a0');
     this.bark('uncle', ['我的明朝花瓶！', '那可是宋朝的！', '从你工资里扣！', '哎呀呀呀呀呀！我的古董！'][Math.floor(rand(0, 4))]);
   },
