@@ -152,7 +152,7 @@ renderer.init().then(() => {
   $('gpu').style.color = gpu ? '#7dffb0' : '#ffcf6a';
   renderer.setAnimationLoop(loop);
 });
-window.__game = { fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
+window.__game = { Voice, BGM, AudioBus, get AC() { return AC; }, fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
   step(n, dt = 1 / 60) { for (let i = 0; i < n; i++) { now += dt; updatePlayer(dt); if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.update(dt)); updateWaves(dt); } updatePickups(dt); Story.update(dt); } updateCamera(dt); updateTrails(dt); },
   Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
   get now() { return now; } };

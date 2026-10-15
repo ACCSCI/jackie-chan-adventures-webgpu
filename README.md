@@ -12,6 +12,14 @@
 - **十二生肖符文**：按 Tab 打开装备 / 背包，最多装 3 个，持续生效
 - 全屏游戏 + 键盘锁定：拦截浏览器快捷键，按住 Esc 退出全屏
 
+## 配音与音乐
+- 152 句中文角色配音，剧情对白与战斗喊话由 MiniMax 生成；不是原版动画配音。
+- 成龙使用沉稳成年男声，老爹使用幽默长者声，小玉使用活泼女孩声，刀鲁与铁臂打手使用低沉男声，瓦尔蒙使用绅士男声；其他角色也有各自音色。
+- 5 首 MiniMax 生成的纯音乐：主菜单、平静探索 / 练功房、普通战斗、Boss 战、龙王庙夜景。
+- 场景音乐自动切换、交叉淡入淡出；播放对白时背景音乐自动降低音量。
+- 设置中可分别关闭「角色配音」和「背景音乐」，仍支持载入自定义音乐。
+- 音频全部内嵌，最终 HTML 约 12.5 MiB；首次点击或按键后才能播放音频（浏览器限制）。
+
 ## 构建
 ```bash
 npm install
@@ -32,6 +40,8 @@ bash build.sh        # 输出 dist/index.html
 | `src/p46.js` `src/p47.js` | 剧情、NPC、码头 / 仓库 / 练功房、菜单 |
 | `src/p48.js` | 背包 / 装备栏、全屏与键盘锁定 |
 | `src/p49.js` | 第二集：龙王庙场景、新敌人、剧情 |
+| `src/p50.js` | 配音缓存、BGM 切换、对白压低音乐、音频开关 |
+| `assets/audio/*.part` | 内嵌音频数据分片（每片 < 1MB；构建时按序拼接） |
 | `src/p5.js` | 相机、HUD、主循环 |
 | `src/shell.html` | 页面骨架与界面样式 |
 | `assets/glb/*.b64` | 角色模型与动作库（meshopt 压缩的 GLB，Base64 分片，每片 < 1MB） |
@@ -41,6 +51,8 @@ bash build.sh        # 输出 dist/index.html
 ## 测试
 ```bash
 CH=$(which chromium) node tests/tm.js   # 练功房 + 码头 + 仓库 + 结局
+CH=$(which chromium) node tests/tep2.js # 第二集、火球、反弹、暴怒
+CH=$(which chromium) node tests/ta.js   # 配音、BGM 和设置开关
 ```
 
 ## 说明

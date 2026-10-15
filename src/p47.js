@@ -263,6 +263,7 @@ function updateAreas(dt) {
   if (started && !cutscene && !gameOver && locked) playTime += dt;
   document.body.classList.toggle('menu', !started);
   Dojo.update(dt);
+  BGM.update(dt);
 }
 
 // ================= 剧情：新增章节 =================
@@ -583,7 +584,7 @@ const Menu = {
     const c = CHAPTERS[chapterOf(prog)]; $('bCont').innerHTML = `继续游戏<small>${c.n} · ${c.t}</small>`;
     $('chList').innerHTML = CHAPTERS.map((C, i) => { const ok = prog >= C.w || i === 0; const hd = i === 0 ? '<div class="eph">第一集 · 公鸡护身符</div>' : C.ep && !CHAPTERS[i - 1].ep ? '<div class="eph">第二集 · 龙之护身符</div>' : ''; return hd + `<button class="ch ${ok ? '' : 'lock'}" data-ch="${C.w}" ${ok ? '' : 'disabled'}><b>${C.n}</b> ${C.t}<small>${ok ? C.d : '🔒 通关前一章解锁'}</small></button>`; }).join('');
     $('chList').querySelectorAll('[data-ch]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); this.start(() => Story.begin(+b.dataset.ch)); }));
-    $('setHq').textContent = SETTINGS.hq ? '高清' : '标准'; $('setFps').textContent = SETTINGS.fps ? '开' : '关'; $('setMusic').textContent = Music.on ? '开' : '关'; $('sensV').textContent = (+SETTINGS.sens).toFixed(1);
+    $('setHq').textContent = SETTINGS.hq ? '高清' : '标准'; $('setFps').textContent = SETTINGS.fps ? '开' : '关'; $('setMusic').textContent = Music.on ? '开' : '关'; $('setVoice').textContent = SETTINGS.voice !== false ? '开' : '关'; $('sensV').textContent = (+SETTINGS.sens).toFixed(1);
   },
   show(sub) { this.sub = sub; document.querySelectorAll('#menu .msub').forEach(p => p.classList.toggle('show', p.id === 'm' + sub)); },
   start(fn) {
@@ -605,6 +606,7 @@ const Menu = {
       case 'dojo': if (gameOver || started) { try { sessionStorage.setItem('jc_go', 'dojo'); } catch (e) { } location.reload(); break; } this.start(() => Dojo.begin()); break;
       case 'hq': setQuality(!SETTINGS.hq); this.refresh(); break;
       case 'fps': SETTINGS.fps = !SETTINGS.fps; saveSettings(); this.refresh(); break;
+      case 'voice': Voice.on = !Voice.on; SETTINGS.voice = Voice.on; if (!Voice.on) Voice.stop(); saveSettings(); this.refresh(); break;
       case 'music': Music.toggle(); SETTINGS.music = Music.on; saveSettings(); this.refresh(); break;
       case 'resume': renderer.domElement.requestPointerLock(); break;
       case 'moves': toggleMoves(true); break;
