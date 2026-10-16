@@ -554,7 +554,7 @@ function movesHTML() {
   ${row(STYLES[player.style].name + ' 特性', STYLE_PASSIVE[player.style].split('：')[0], STYLE_PASSIVE[player.style].split('：')[1] || '')}
   ${row('红光一瞬按 Q', '完美格挡', '反击 ×2.2 · 体力回满')}
   ${row('出手瞬间 Alt', '完美闪避', '慢动作 + 反击 · 体力回满')}
-  ${row('倒地时 Alt', '鲤鱼打挺', '快速起身')}
+  ${row('倒地时 Space', '鲤鱼打挺', '快速起身')}
   </table><p>连招技巧：轻击打完最后一下马上接重击；拳法和腿法可以随时用 Caps 混着打。</p>`;
 }
 function toggleMoves(force) {

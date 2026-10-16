@@ -377,6 +377,6 @@ function gameEnd(win, ep = 1) {
       ? `<h1>完</h1><h2>第二集 · 龙之护身符</h2><p>击倒敌人 ${kills} 名 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“两个找回来了……还有十个！”</p><p style="opacity:.6;font-size:13px">下一集：蛇之护身符——看不见的敌人，最危险！</p><div class="obtns"><div class="go" data-a="ep3">继续第三集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
       : win
       ? `<h1>完</h1><h2>第一集 · 公鸡护身符</h2><p>击倒敌人 ${kills} 名 · 打碎古董 ${Story.broken} 件 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“一个护身符找回来了……还有十一个！”</p><p style="opacity:.6;font-size:13px">下一集：龙之护身符——瓦尔蒙亲自出手了！</p><div class="obtns"><div class="go" data-a="ep2">继续第二集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
-      : `<h1>糟了糟了！</h1><h2>成龙倒下了 · ${WAVES[wave] ? WAVES[wave].title : ''}</h2><p>击倒敌人 ${kills} 名。小提示：倒地后按 Alt 快速起身；敌人发红光出手前一瞬按 Q 完美格挡；去练功房可以随便练连招。</p><div class="obtns"><div class="go" data-a="retry">从本章重来</div><div class="go alt" data-a="menu">返回主界面</div></div>`;
+      : `<h1>糟了糟了！</h1><h2>成龙倒下了 · ${WAVES[wave] ? WAVES[wave].title : ''}</h2><p>击倒敌人 ${kills} 名。小提示：倒地后按 Space 快速起身；敌人发红光出手前一瞬按 Q 完美格挡；去练功房可以随便练连招。</p><div class="obtns"><div class="go" data-a="retry">从本章重来</div><div class="go alt" data-a="menu">返回主界面</div></div>`;
   }, win ? 1500 : 1800);
 }

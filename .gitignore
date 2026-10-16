@@ -4,3 +4,4 @@ dist/
 *.fbx
 *.blend
 *.blend1
+node_modules

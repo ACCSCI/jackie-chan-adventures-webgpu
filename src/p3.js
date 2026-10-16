@@ -24,7 +24,7 @@ addEventListener('keydown', e => {
     case 'Digit2': setStyle(1); break;
     case 'Digit3': setStyle(2); break;
     case 'AltLeft': case 'AltRight': tryDodge(); break;
-    case 'Space': tryJump(); break;
+    case 'Space': if (player.state === 'down') tryKipUp(); else tryJump(); break;
     case 'KeyM': Music.toggle(); break;
     case 'KeyE': pickupOrDrop(); break;
     case 'KeyR': toggleLock(); break;
@@ -161,18 +161,26 @@ const KIPUP = {
     [0.26, { hy: -0.4, hx: 0.4, sx: 0.4, lsx: -0.8, rsx: -0.8, lhx: -1.5, lkx: 2.1, rhx: -0.9, rkx: 1.7 }],
     [0.36, BASE.crouch], [0.5, BASE.stand[0]]], BASE.stand[0]),
 };
-function tryDodge() {
+// 倒地时按 Space：鲤鱼打挺快速起身（太早按会缓冲到可以起身的那一刻）
+function tryKipUp(buffered = false) {
   const p = player;
-  if (p.state === 'down') {
-    if (!p.grounded || p.stateT < 0.32 || p.stateT > 1.4 || p.st < 10) return;
+  if (p.state !== 'down' || cutscene || gameOver) return false;
+  if (!p.grounded || p.stateT < 0.32) { if (!buffered) p.kipBuf = now + 0.45; return false; }
+  if (p.stateT > 1.4 || p.st < 10) return false;
+  p.kipBuf = 0;
+  {
     p.st -= 10;
     const inp = moveInput();
     if (inp.x || inp.z) p.dodgeDir.set(inp.x, inp.z).normalize(); else p.dodgeDir.set(0, 0);
     p.clip = p.downClip === DOWN.front ? KIPUP.front : KIPUP.back;
     setState(p, 'kipup', 0.05); p.iframe = 0.55; p.anim.kick('hy', 2);
     sfx('whoosh'); showMove('受身 · 鲤鱼打挺', '#7dffb0'); burst(p.pos.clone().setY(0.2), 0xc9a27a, 10, 2.5);
-    return;
   }
+  return true;
+}
+function tryDodge() {
+  const p = player;
+  if (p.state === 'down') return;
   // 翻滚可随时打断出招（含出招前摇/判定中），这是本作的核心取消手段
   const cancelAtk = p.state === 'attack' || p.state === 'staffCharge' || p.state === 'staffSpin';
   if (!(canAct(p) || cancelAtk || p.state === 'hit' && p.stateT > 0.18)) return;
@@ -412,7 +420,7 @@ function updatePlayer(dt) {
     sampleKeys(p.downClip.keys, Math.min(1, tt / p.downClip.dur), target);
     if (p.state === 'down' && tt >= 0.36 && tt - dt < 0.36) { shake = Math.max(shake, 0.12); burst(p.pos.clone().setY(0.15), 0xc9a27a, 14, 3); }
     p.iframe = Math.max(p.iframe, p.state === 'down' ? 0.3 : 0);
-    if (p.state === 'down' && p.grounded && tt >= 0.34 && tt - dt < 0.34) tip(isMac ? '按 Option(Alt) 快速起身' : '按 Alt 快速起身', 0.9);
+    if (p.state === 'down' && p.grounded && tt >= 0.34 && tt - dt < 0.34) tip('按 Space 快速起身', 0.9);
     if (p.state === 'down' && tt >= p.downClip.dur) setState(p, 'loco', 0.15);
   }
   // 被动回血（类似使命召唤）：4 秒没掉血就自动快速回血，挨打立即中断
@@ -433,6 +441,7 @@ function updatePlayer(dt) {
     if (!p.grounded && p.vy < -4) { shake = Math.max(shake, 0.05); A.kick('hy', -1.5); A.kick('sx', 2); Foley.land(p.vy < -9); }
     p.pos.y = 0; p.vy = 0; p.grounded = true; p.airJumps = 0; p.airDodge = 0; p.flipT = null;
     if (p.jumpUntil >= now) tryJump(true);
+    if (p.kipBuf > now && p.state === 'down') tryKipUp(true);
   } else p.grounded = false;
   for (const e of enemies) {
     if (e.dead) continue;
@@ -483,7 +492,7 @@ function playerHitCheck(m, hi, staffTargets = null) {
   if (hi === m.hits.length - 1 && Runes.has('dragon') && !m.heavy && !m.next && !m.nextM && !m.air && (m.keys !== MOVES.counter.keys)) runeFire();
   if (any) {
     const wk = m.wpn && p.weapon ? (WEAPONS[p.weapon.type].kind || ['stick', 'umbrella', 'pan'][p.weapon.type]) : null;
-    impact('hit', { heavy: !!m.heavy, mat: wk ? MAT[wk] : null, counter: counter || sneak, kill: killN > 0, armor: armorN > 0 && !killN, pos: hitPos, fallback: sound });
+    impact('hit', { heavy: !!m.heavy, kick: /kick|sweep|slide/i.test(m.skKey || ''), mat: wk ? MAT[wk] : null, counter: counter || sneak, kill: killN > 0, armor: armorN > 0 && !killN, pos: hitPos, fallback: sound });
     // 停顿：重击/反击/击杀更长，打霸体更短更“弹手”
     hitstop = killN ? 0.11 : counter ? 0.1 : m.stop ?? (m.heavy ? 0.085 : armorN ? 0.025 : 0.045);
     if ((m.staff || m.blade) && hitPos) staffCamPunch(hitPos.clone().sub(p.pos).setY(0), m.heavy ? .06 : .03, m.fov || (m.heavy ? 2.5 : 1.2));

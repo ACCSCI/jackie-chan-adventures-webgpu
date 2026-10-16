@@ -59,40 +59,48 @@ function impact(kind, o = {}) {
   const I = Impact, P = I.pan(o.pos), L = (k, x = {}) => I.layer(k, Object.assign({ pan: P }, x));
   switch (kind) {
     case 'hit': {
-      const H = o.heavy, mat = o.mat;
+      const H = o.heavy, mat = o.mat, HQ = I.ready('hqL');
       let ok;
       if (o.armor) { // 打在铁臂这类霸体身上：闷、短、不爽快——提示该用重击
-        ok = L('body', { vol: 0.9, lp: 900, rate: 0.85 }); L('punchL', { vol: 0.35, rate: 0.8 }); I.thump(90, 50, 0.08, 0.25, P);
+        ok = L('body', { vol: 0.9, lp: 900, rate: 0.85 }); L(HQ ? 'hqL' : 'punchL', { vol: 0.35, rate: 0.8, lp: 2500 }); I.thump(90, 50, 0.08, 0.25, P);
       } else if (mat === 'wood') {
-        ok = L(H ? 'woodH' : 'wood', { vol: 1 }); L('punchL', { vol: 0.45, delay: 0.006 }); I.thump(H ? 120 : 160, 50, H ? 0.14 : 0.08, H ? 0.5 : 0.3, P);
+        ok = HQ && L('hqStaff', { vol: H ? 1 : 0.85, rate: H ? 0.9 : 1 }); const wk = L(H ? 'woodH' : 'wood', { vol: HQ ? 0.45 : 1 }); ok = ok || wk;
+        L(HQ ? 'hqL' : 'punchL', { vol: 0.45, delay: 0.006 }); I.thump(H ? 120 : 160, 50, H ? 0.14 : 0.08, H ? 0.5 : 0.3, P);
       } else if (mat === 'metal') {
-        ok = L(H ? 'metalH' : 'metal', { vol: 0.9 }); L('punchL', { vol: 0.4, delay: 0.006 }); I.thump(130, 50, 0.1, 0.35, P);
+        ok = L(H ? 'metalH' : 'metal', { vol: 0.85 }); L(HQ ? (H ? 'hqH' : 'hqL') : 'punchL', { vol: 0.55, delay: 0.006 }); I.thump(130, 50, 0.1, 0.35, P);
       } else if (mat === 'glass') {
-        ok = L('plate', { vol: 0.7, rate: 1.3 }); L('punchL', { vol: 0.6 });
+        ok = L('plate', { vol: 0.7, rate: 1.3 }); L(HQ ? 'hqL' : 'punchL', { vol: 0.6 });
       } else if (mat === 'blade' || mat === 'metal' && o.sword) {
-        ok = L('metal', { vol: 0.35, rate: 1.45 }); L('swordSw', { vol: .3, rate: 1.4 }); L(H ? 'punchH' : 'punchL', { vol: 0.75 }); I.thump(150, 60, 0.07, 0.25, P);
+        if (HQ) { ok = L('hqBlade', { vol: 0.95, rate: H ? 0.92 : 1.04 }); L(H ? 'hqH' : 'hqL', { vol: 0.45, delay: 0.004 }); }
+        else { ok = L('metal', { vol: 0.35, rate: 1.45 }); L('swordSw', { vol: .3, rate: 1.4 }); L(H ? 'punchH' : 'punchL', { vol: 0.75 }); }
+        I.thump(150, 60, 0.07, 0.25, P);
       } else if (mat === 'soft') {
-        ok = L('punchL', { vol: 0.45, rate: 1.3, lp: 3500 });
+        ok = L(HQ ? 'hqL' : 'punchL', { vol: 0.45, rate: 1.3, lp: 3500 });
+      } else if (HQ) { // 徒手：高质量肉击为主层，Kenney 样本只做质感，合成低频补胸腔
+        ok = L(o.kick ? 'hqK' : H ? 'hqH' : 'hqL', { vol: 1, rate: o.kick ? 0.97 : 1 });
+        if (H) { L('body', { vol: 0.35, delay: 0.012, lp: 1600 }); I.thump(110, 40, 0.18, 0.55, P); }
+        else { L('punchL', { vol: 0.25, lp: 5000 }); I.thump(150, 55, 0.07, 0.24, P); }
       } else if (H) {
         ok = L('punchH', { vol: 1 }); L('body', { vol: 0.55, delay: 0.012, lp: 1800 }); I.thump(115, 40, 0.17, 0.6, P);
       } else {
         ok = L('punchL', { vol: 0.95 }); I.thump(150, 55, 0.08, 0.32, P);
       }
       if (!ok) { sfx(o.fallback || (H ? 'heavy' : 'hit')); return; }
-      if (o.counter) { L('punchH', { vol: 0.8, rate: 0.82, delay: 0.01 }); L('plate', { vol: 0.25, rate: 0.7 }); I.thump(95, 35, 0.22, 0.75, P); }
-      if (o.kill) { L('body', { vol: 0.75, rate: 0.78, delay: 0.035 }); I.thump(85, 32, 0.26, 0.7, P); }
+      if (o.counter) { if (!L('hqCrit', { vol: 0.6, lp: 7000 })) { L('punchH', { vol: 0.8, rate: 0.82, delay: 0.01 }); L('plate', { vol: 0.25, rate: 0.7 }); } I.thump(95, 35, 0.22, 0.75, P); }
+      if (o.kill) { if (!L('hqH', { vol: 0.55, rate: 0.8, delay: 0.03 })) L('body', { vol: 0.75, rate: 0.78, delay: 0.035 }); I.thump(85, 32, 0.26, 0.7, P); }
       break;
     }
     case 'fall': // 被打倒落地
-      if (!L('body', { vol: o.big ? 1 : 0.75, rate: o.big ? 0.75 : 0.9, lp: 1600 })) return;
-      L('step', { vol: 0.5, rate: 0.8 }); I.thump(75, 32, o.big ? 0.3 : 0.2, o.big ? 0.6 : 0.4, P); break;
+      if (!L('hqFall', { vol: o.big ? 1 : 0.8, rate: o.big ? 0.85 : 1 }) && !L('body', { vol: o.big ? 1 : 0.75, rate: o.big ? 0.75 : 0.9, lp: 1600 })) return;
+      L('step', { vol: 0.4, rate: 0.8 }); I.thump(75, 32, o.big ? 0.3 : 0.2, o.big ? 0.6 : 0.4, P); break;
     case 'block':
+      if (L('hqBlock', { vol: 0.9 })) { L('plate', { vol: 0.25, rate: 0.9 }); I.thump(120, 60, 0.06, 0.22, P); break; }
       if (!L('plate', { vol: 0.65, rate: 0.9 })) { sfx('block'); return; }
       L('punchL', { vol: 0.45, rate: 0.85, lp: 2200 }); I.thump(120, 60, 0.06, 0.25, P); break;
     case 'parry':
-      if (!L('metalH', { vol: 1 })) { sfx('clang'); return; }
-      L('clash', { vol: .55, rate: 1.1 });
-      L('bell', { vol: 0.32, rate: 1.15, delay: 0.01 }); I.thump(140, 45, 0.12, 0.4, P); break;
+      if (!L('hqParry', { vol: 0.85 }) && !L('metalH', { vol: 1 })) { sfx('clang'); return; }
+      L('hqBlock', { vol: 0.6 }); L('clash', { vol: .4, rate: 1.1 });
+      L('bell', { vol: 0.28, rate: 1.15, delay: 0.01 }); I.thump(140, 45, 0.12, 0.4, P); break;
     case 'hurt':
       sfx('hurt'); L(o.heavy ? 'punchH' : 'punchL', { vol: 0.8, rate: 0.9 }); I.thump(100, 40, 0.14, 0.45, P); break;
     case 'glass':
@@ -108,6 +116,7 @@ function impact(kind, o = {}) {
 { const _st = SFX.stop.bind(SFX); SFX.stop = function () { _st(); for (const s of Impact.active) { try { s.stop(); } catch (e) { } } Impact.active.length = 0; }; }
 // ================= 第二批 CC0 拟音：挥空 / 刀剑 / 布料 / 脚步 / 生物 / 科幻（WEB_SFX2） =================
 if (typeof WEB_SFX2 !== 'undefined') Object.assign(WEB_SFX, WEB_SFX2);
+if (typeof WEB_SFX3 !== 'undefined') Object.assign(WEB_SFX, WEB_SFX3);
 const Foley = {
   L(k, o) { return Impact.layer(k, o || {}); },
   // 徒手出招：挥空声对准第一个命中帧前一点点，而不是按键瞬间
