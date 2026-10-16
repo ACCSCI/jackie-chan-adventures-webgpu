@@ -194,9 +194,19 @@ class Enemy {
         this.atk = this.k === 'boss' ? list[Math.random() < (this.type === 'boss2' ? 0.5 : 0.4) ? 1 : 0] : list[Math.random() < 0.3 ? 1 : 0];
         if (this.k === 'thug' && this.atk.name === 'kick' && dist > 1.9) this.atk = list[0];
         this.setState('attack', 0.14); this.atkN = (this.atkN || 0) + 1; attackTokens++; this.holdToken = true; this.didHit = false;
+        // 连招：普通打手 1–3 段、精英 2–4 段、首领 2–4 段，后续段收招被取消、出手更快
+        const r = Math.random(), el = T.elite || this.k === 'boss';
+        this.chainLeft = el ? (r < .25 ? 1 : r < .7 ? 2 : 3) : (r < .3 ? 0 : r < .75 ? 1 : 2); this.chainI = 0;
       }
     } else if (this.state === 'attack') {
       const a = this.atk;
+      if (this.chainI > 0) this.t += dt * .35; // 连招后续段：起手更快
+      if (this.chainLeft > 0 && this.didHit && !a.proj && !a.aoe && this.t >= Math.max(a.wind, a.hit + .16) && p.state !== 'dead' && dist < T.range + 1.5 && !cutscene) {
+        const list = EATK[this.k].filter(x => !x.proj && !x.aoe); let nx = list[(list.indexOf(a) + 1 + (Math.random() < .5 ? 0 : 1)) % list.length] || a;
+        if (this.k === 'thug' && nx.name === 'kick' && dist > 1.9) nx = list[0];
+        this.chainLeft--; this.chainI++; this.atk = nx; this.release(); attackTokens++; this.holdToken = true;
+        this.setState('attack', 0.07); this.didHit = false; this.yaw += angDiff(this.yaw, toP) * .6; return this.update(0);
+      }
       sampleKeys(a.keys, Math.min(1, this.t / a.dur), tg);
       if (this.t < a.wind * 0.75) this.yaw += angDiff(this.yaw, toP) * (1 - Math.exp(-dt * 9));
       // 蓄力红光

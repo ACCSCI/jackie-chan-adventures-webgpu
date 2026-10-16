@@ -3,8 +3,8 @@ const SN = { x: -300, z: 400, hx: 5, hz: 28 };
 const BT = { x: -300, z: 520, hx: 13, hz: 13 };
 const YY = { x: -300, z: 640, r: 12.2 };
 Object.assign(ETYPES, {
-  tohru5: { name: '刀鲁 · 古寺守卫', hp: 1100, dmg: 22, spd: 2.5, radius: 0.85, scale: 1.45, beast: 1, poise: 1, elite: 1, dieMsg: '刀鲁倒下了！<small>“……这口钟……很硬。”</small>' },
-  darkj: { name: '黑成龙', hp: 880, dmg: 14, spd: 4.0, radius: 0.42, scale: 1, beast: 1, elite: 1 },
+  tohru5: { name: '刀鲁 · 古寺守卫', hp: 2600, dmg: 26, spd: 2.5, radius: 0.85, scale: 1.45, beast: 1, poise: 1, elite: 1, dieMsg: '刀鲁倒下了！<small>“……这口钟……很硬。”</small>' },
+  darkj: { name: '黑成龙', hp: 2000, dmg: 18, spd: 4.0, radius: 0.42, scale: 1, beast: 1, elite: 1 },
   shade: Object.assign({}, ETYPES.khan, { base: 'khan', name: '影子', hp: 42, dmg: 9, spd: 4.5, windup: 0.4, scale: 0.95, tint: [0.22, 0.16, 0.36] }),
 });
 ETYPES.shade.base = 'khan';
@@ -324,7 +324,7 @@ class Tohru5 extends Beast {
   startSwipe() {
     this.act('swipe', 1.45, 0.78); Foley.at('swishH', this.pos, { vol: 0.7, rate: 0.6, delay: 0.62 });
     this.tele = Tele.add({ shape: 'sector', x: this.pos.x, z: this.pos.z, yaw: this.yaw, r: 3.6, arc: 0.95, wind: 0.78, lock: 0.6, col: 'amber', src: this,
-      follow: (T) => { T.x = this.pos.x; T.z = this.pos.z; T.yaw = this.yaw; }, onFire: (T) => { this.tele = null; if (Tele.inside(T, player.pos) && player.pos.y < 1.4) playerTakeHit(this, 18, {}); } });
+      follow: (T) => { T.x = this.pos.x; T.z = this.pos.z; T.yaw = this.yaw; }, onFire: (T) => { this.tele = null; if (Tele.inside(T, player.pos) && player.pos.y < 1.4) playerTakeHit(this, 22, {}); } });
   }
   startGrab() {
     this.act('grab', 1.3, 0.72); Foley.at('growl', this.pos, { vol: 0.5, rate: 0.6 });
@@ -436,7 +436,7 @@ class ShadowJ extends Beast {
       if (d > 2.9) { fx = ux; fz = uz; } else if (d < 1.5) { fx = -ux * 0.7; fz = -uz * 0.7; } else { fx = -uz * this.orb * 0.55; fz = ux * this.orb * 0.55; }
       if (Math.random() < dt * 0.5) this.orb = -this.orb;
       this.steer(dt, fx, fz, d > 5 ? this.T.spd * 1.35 : this.T.spd * 0.65, 6);
-      if (p.state === 'attack' && d < 2.8 && this.dodgeCd <= 0 && p.move !== this.seenMove) { this.seenMove = p.move; if (Math.random() < 0.28) { this.dodgeCd = 2.6; this.startDodge(); return; } }
+      if (p.state === 'attack' && d < 2.8 && this.dodgeCd <= 0 && p.move !== this.seenMove) { this.seenMove = p.move; if (Math.random() < 0.42) { this.dodgeCd = 2.0; this.startDodge(); return; } }
       if (this.cd <= 0 && p.state !== 'dead') { if (d > 6 && this.stepCd <= 0) this.shadowStep(); else if (d < 3.3) this.startCombo(); }
     } else if (S === 'combo') this.runCombo(dt);
     else if (S === 'dodge') { const k = Math.min(1, this.t / 0.42); this.vel.set(this.dv.x * 7.5 * (1 - k), 0, this.dv.z * 7.5 * (1 - k)); if (this.t > 0.45) { this.setState('loco'); this.cd = Math.min(this.cd, 0.25); } }
@@ -471,7 +471,7 @@ class ShadowJ extends Beast {
   }
   nextMove() {
     const q = this.seq; q.i++;
-    if (q.i >= q.keys.length) { this.seq = null; this.setState('loco'); this.cd = rand(1.2, 2.0); return; }
+    if (q.i >= q.keys.length) { this.seq = null; this.setState('loco'); this.cd = rand(0.55, 1.1) * (this.summoned ? 0.75 : 1); return; }
     const key = q.keys[q.i], map = SKM[key], len = Math.max(0.3, map[3] - map[1]);
     const hf = map[2] == null ? 0.55 : clamp((map[2] - map[1]) / len, 0.2, 0.85);
     let D = clamp(len / 1.15, 0.5, 1.25); if (D * hf < 0.4) D = 0.4 / hf;
@@ -479,11 +479,11 @@ class ShadowJ extends Beast {
     this.t = 0; this.cur = { key, map, D, hitAt: D * hf, kind };
     Foley.at(kind === 'light' ? 'swishS' : 'swishH', this.pos, { vol: 0.5, rate: kind === 'light' ? 1.1 : 0.85, delay: Math.max(0, D * hf - 0.1) });
     const f = (T) => { T.x = this.pos.x; T.z = this.pos.z; T.yaw = this.yaw; };
-    if (kind === 'light') this.tele = Tele.add({ shape: 'sector', x: this.pos.x, z: this.pos.z, yaw: this.yaw, r: 2.3, arc: 0.75, wind: D * hf, lock: 0.7, col: 'amber', src: this, follow: f,
-      onFire: (T) => { this.tele = null; if (Tele.inside(T, player.pos) && player.pos.y < 1.3) playerTakeHit(this, 11, {}); } });
-    else if (kind === 'heavy') this.tele = Tele.add({ shape: 'sector', x: this.pos.x, z: this.pos.z, yaw: this.yaw, r: 2.6, arc: 0.85, wind: D * hf, lock: 0.65, col: 'red', src: this, follow: f,
-      onFire: (T) => { this.tele = null; if (Tele.inside(T, player.pos) && player.pos.y < 1.3) playerTakeHit(this, 17, { kd: 1, unblockable: 1 }); } });
-    else this.tele = Tele.add({ shape: 'ring', x: this.pos.x, z: this.pos.z, r: 4.6, wind: D * hf, speed: 8, col: 'red', src: this, dmg: 13, opts: { kd: 1, unblockable: 1 }, follow: f, onFire: () => { this.tele = null; } });
+    if (kind === 'light') this.tele = Tele.add({ shape: 'sector', x: this.pos.x, z: this.pos.z, yaw: this.yaw, r: 2.9, arc: 0.8, wind: D * hf, lock: 0.7, col: 'amber', src: this, follow: f,
+      onFire: (T) => { this.tele = null; if (Tele.inside(T, player.pos) && player.pos.y < 1.3) playerTakeHit(this, 16, {}); } });
+    else if (kind === 'heavy') this.tele = Tele.add({ shape: 'sector', x: this.pos.x, z: this.pos.z, yaw: this.yaw, r: 3.2, arc: 0.9, wind: D * hf, lock: 0.65, col: 'red', src: this, follow: f,
+      onFire: (T) => { this.tele = null; if (Tele.inside(T, player.pos) && player.pos.y < 1.3) playerTakeHit(this, 25, { kd: 1, unblockable: 1 }); } });
+    else this.tele = Tele.add({ shape: 'ring', x: this.pos.x, z: this.pos.z, r: 4.6, wind: D * hf, speed: 8, col: 'red', src: this, dmg: 18, opts: { kd: 1, unblockable: 1 }, follow: f, onFire: () => { this.tele = null; } });
   }
   runCombo(dt) {
     const c = this.cur; if (!c) { this.setState('loco'); return; }

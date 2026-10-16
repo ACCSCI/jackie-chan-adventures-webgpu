@@ -258,14 +258,6 @@ function sfx(type) {
   if (type === 'whoosh') f.frequency.exponentialRampToValueAtTime(P[0] * 2.5, t + P[3]);
   gn.gain.setValueAtTime(P[2], t); gn.gain.exponentialRampToValueAtTime(0.001, t + P[3]);
   src.start(t); src.stop(t + P[3] + 0.02);
-  if (type === 'heavy' || type === 'hit' || type === 'clang') {
-    const o = AC.createOscillator(), og = AC.createGain();
-    o.type = type === 'clang' ? 'square' : 'sine';
-    o.frequency.setValueAtTime(type === 'clang' ? 900 : type === 'heavy' ? 110 : 160, t);
-    o.frequency.exponentialRampToValueAtTime(40, t + 0.15);
-    og.gain.setValueAtTime(type === 'clang' ? .12 : .5, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-    o.connect(og); og.connect(AC.destination); o.start(t); o.stop(t + 0.2);
-  }
 }
 
 // ================= 粒子（实例化，WebGPU 友好） =================

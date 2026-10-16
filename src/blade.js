@@ -110,6 +110,7 @@ function driveBlade(p, dt) {
   if (!own) {
     if (rig._hipsLast && B.Hips?.position.equals(rig._hipsLast)) { B.Hips.position.copy(rig._hipsBase); rig._hipsLast = null; rig.root.updateMatrixWorld(true); }
     bladeRide(p, rig, mesh, d); d.footL = d.footR = null; d.ikW = 0; d.lastState = p.state; d.cur = null;
+    bladeSwish(p, d, !!clipMove);
     p.bladeTrace = clipMove ? { a: staffLine(mesh, d.gz + .1), b: staffLine(mesh, d.max), atk: p.atkN } : null; return;
   }
   const rq = rig.root.getWorldQuaternion(new THREE.Quaternion()), rqi = rq.clone().invert();
@@ -177,7 +178,20 @@ function driveBlade(p, dt) {
   }
   // ---- swish + trace for the ribbon trail ----
   d.tipSpeed = lerp(d.tipSpeed, attack ? vel.length() : 0, .5);
-  d.swishT -= dt; if (attack && d.tipSpeed > 9 && d.swishT <= 0) { staffSwish(d.tipSpeed * 1.25, WEAPONS[w.type].kind, true); d.swishT = .18; }
+  bladeSwish(p, d, attack);
   p.bladeTrace = { a: staffLine(mesh, d.gz + .1), b: staffLine(mesh, d.max), atk: p.atkN };
+}
+// 刀剑挥空：每个命中帧之前只放一次（不再按刃尖速度连发），轻招短促、重招/收招厚重
+function bladeSwish(p, d, attack) {
+  const m = p.move; if (!attack || !m || !m.hits) { d.swKey = null; return; }
+  const key = p.atkN + ':' + (m.name || m.skKey || ''); if (d.swKey !== key) { d.swKey = key; d.swDone = 0; d.swLast = -9; }
+  const dur = m.dur / Math.max(.3, moveSpeed()), lead = .085 / Math.max(.05, dur), t = (typeof AC !== 'undefined' && AC) ? AC.currentTime : now;
+  for (let i = d.swDone; i < m.hits.length; i++) {
+    if (p.mt < m.hits[i] - lead) break;
+    d.swDone = i + 1; if (t - d.swLast < .13) continue; d.swLast = t;
+    const H = m.heavy || m.finisher || i === m.hits.length - 1 && m.hits.length > 2;
+    Impact.layer(H ? 'swH' : 'swL', { vol: H ? .8 : .62, rate: H ? .92 : 1.04 + Math.random() * .06, pan: 0 });
+    if (H) Impact.layer('cloth', { vol: .28, rate: 1.05 });
+  }
 }
 function bladeOnHit(p, m) { const d = p.weapon?.mesh.userData.blade; if (d) d.hitKick = m.heavy ? 1.3 : 1; }
