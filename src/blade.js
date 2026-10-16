@@ -177,7 +177,7 @@ function driveBlade(p, dt) {
   }
   // ---- swish + trace for the ribbon trail ----
   d.tipSpeed = lerp(d.tipSpeed, attack ? vel.length() : 0, .5);
-  d.swishT -= dt; if (attack && d.tipSpeed > 9 && d.swishT <= 0) { staffSwish(d.tipSpeed * 1.25, WEAPONS[w.type].kind); d.swishT = .18; }
+  d.swishT -= dt; if (attack && d.tipSpeed > 9 && d.swishT <= 0) { staffSwish(d.tipSpeed * 1.25, WEAPONS[w.type].kind, true); d.swishT = .18; }
   p.bladeTrace = { a: staffLine(mesh, d.gz + .1), b: staffLine(mesh, d.max), atk: p.atkN };
 }
 function bladeOnHit(p, m) { const d = p.weapon?.mesh.userData.blade; if (d) d.hitKick = m.heavy ? 1.3 : 1; }

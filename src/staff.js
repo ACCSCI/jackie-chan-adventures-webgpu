@@ -513,8 +513,10 @@ function staffHeat(p, d, mesh, charge, dt) {
   d.heatOn = d.heat > .002;
   if (charge && k > .35 && Math.random() < k * .5) burst(staffLine(mesh, lerp(d.min, d.max, Math.random())), col.getHex(), 1, .8 + k);
 }
-function staffSwish(speed, kind) {
+function staffSwish(speed, kind, blade) {
   const rate = clamp(.62 + speed / 34, .7, 1.55), vol = clamp(.25 + speed / 40, .3, 1) * (kind === 'iron' ? .85 : 1);
+  // 真实挥空样本：刀剑用金属破风，棍用竹棍破风（快→短促高亢，慢→厚重）
+  if (Impact.layer(blade ? 'swordSw' : speed > 20 || kind === 'iron' ? 'swishH' : 'swishL', { vol: vol * .9, rate: clamp(rate * (kind === 'iron' ? .85 : kind === 'broom' ? 1.1 : 1), .75, 1.35) })) return;
   if (typeof SFX !== 'undefined' && AC && SFX.cache.whoosh) {
     AudioBus.init(); const s = AC.createBufferSource(), g = AC.createGain(); s.buffer = SFX.cache.whoosh;
     s.playbackRate.value = rate * (kind === 'iron' ? .82 : kind === 'broom' ? 1.12 : 1); g.gain.value = vol; s.connect(g); g.connect(AudioBus.sfx); s.start(); return;

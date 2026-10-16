@@ -187,13 +187,13 @@ function tryDodge() {
     p.airDodge = (p.airDodge || 0) + 1; p.yaw = p.yawTarget = Math.atan2(dx, dz);
     p.clip = AIRFLIP; p.vy = Math.max(p.vy, 3.2); p.flipT = null;
     setState(p, 'dodge', 0.05); p.iframe = Runes.has('sheep') ? 0.5 : 0.36; p.move = null;
-    sfx('whoosh'); burst(p.pos.clone().setY(p.pos.y + .9), 0xbfefff, 10, 2.5); refreshChips(); return;
+    if (!Foley.dodge(true)) sfx('whoosh'); burst(p.pos.clone().setY(p.pos.y + .9), 0xbfefff, 10, 2.5); refreshChips(); return;
   }
   const fwdRoll = p.view === 'third' && (inp.x || inp.z);
   if (fwdRoll) p.yaw = p.yawTarget = Math.atan2(dx, dz);
   p.clip = fwdRoll ? ROLL : DASH;
   setState(p, 'dodge', 0.06); p.iframe = Runes.has('sheep') ? 0.54 : 0.36; p.crouch = false; p.move = null;
-  sfx('whoosh'); refreshChips();
+  if (!Foley.dodge(false)) sfx('whoosh'); refreshChips();
 }
 function tryJump(buffered = false) {
   const p = player;
@@ -205,14 +205,14 @@ function tryJump(buffered = false) {
     p.airJumps = (p.airJumps || 0) + 1; p.jumpUntil = -Infinity; buffer.type = null; p.move = p.clip = null; p.staffTrace = null;
     setState(p, 'loco', .05); hitstop = 0;
     p.vy = (Runes.has('rooster') ? 8.2 : 7.2); p.flipT = 0; p.anim.kick('hy', -1);
-    sfx('whoosh'); burst(p.pos.clone().setY(p.pos.y + .2), 0xdff6ff, 12, 2.2); shock(p.pos.clone().setY(p.pos.y + .05), 0xcfefff, .5);
+    Foley.jump(true); burst(p.pos.clone().setY(p.pos.y + .2), 0xdff6ff, 12, 2.2); shock(p.pos.clone().setY(p.pos.y + .05), 0xcfefff, .5);
     refreshChips(); return true;
   }
   p.jumpUntil = -Infinity; buffer.type = null; p.move = p.clip = null;
   p.chargeT = 0; p.staffTrace = null; p.guard = false;
   setState(p, 'loco', .055); hitstop = 0;
   p.vy = Runes.has('rooster') ? 8.6 : 7.5; p.grounded = false; p.crouch = false;
-  p.anim.kick('hy', -1.2); refreshChips(); return true;
+  p.anim.kick('hy', -1.2); Foley.jump(false); refreshChips(); return true;
 }
 function moveInput() {
   if (cutscene) return { x: 0, z: 0 };
@@ -265,7 +265,7 @@ function startMove(m) {
   if ((m === MOVES.counter || m === MOVES.push) && now - p.counterT < 1.5) name = '反击·' + name;
   if (m.wpn && p.weapon) name = WEAPONS[p.weapon.type].name + '·' + name;
   showMove(name, m.heavy ? STYLES[p.style].css : '#fff');
-  sfx('whoosh');
+  if (!Foley.swing(m)) sfx('whoosh');
   return true;
 }
 function moveSpeed() { const m = player.move; let s = STYLES[player.style].spd; if (m && (m.wpn || m.low || m === MOVES.counter || m === MOVES.push)) s = 1 + (s - 1) * .5; if (Runes.has('rabbit')) s *= 1.1; return s; }
@@ -342,6 +342,7 @@ function updatePlayer(dt) {
     const vmag = Math.hypot(p.vel.x, p.vel.z);
     // 锁定时横移：按相对朝向的前进速度驱动步伐
     p.walkPh += dt * (vmag * 3.4);
+    { const n = Math.floor(p.walkPh / Math.PI); if (n !== p._stepN) { p._stepN = n; if (p.grounded && vmag > 1.2) { Foley.step(vmag); p.noise = Math.max(p.noise || 0, p.crouch ? 0 : vmag > 5 ? 9 : 4); } } }
     locoPose(target, p.baseSm, vmag, p.walkPh, { crouch: p.crouch, noArmSwing: p.guard });
     if (p.style === 2 && !p.guard && !p.crouch) { target.hrz += Math.sin(now * 1.7) * 0.1; target.sz += Math.sin(now * 1.7 + 1) * 0.13; target.nx += Math.sin(now * 2.3) * 0.08; }
     if (p.style === 1 && !p.guard && !p.crouch) { target.lsy += Math.sin(now * 2.5) * 0.25; target.rsy += Math.sin(now * 2.5 + 2) * 0.25; }
@@ -429,7 +430,7 @@ function updatePlayer(dt) {
   p.vy -= (glide ? 5 : 22) * dt; if (glide) { p.vy = Math.max(p.vy, -2.2); if (Math.random() < 0.3) burst(p.pos.clone().setY(0.6), 0xffd04a, 2, 1); }
   p.pos.x += p.vel.x * dt; p.pos.z += p.vel.z * dt; p.pos.y += p.vy * dt;
   if (p.pos.y <= 0) {
-    if (!p.grounded && p.vy < -4) { shake = Math.max(shake, 0.05); A.kick('hy', -1.5); A.kick('sx', 2); }
+    if (!p.grounded && p.vy < -4) { shake = Math.max(shake, 0.05); A.kick('hy', -1.5); A.kick('sx', 2); Foley.land(p.vy < -9); }
     p.pos.y = 0; p.vy = 0; p.grounded = true; p.airJumps = 0; p.airDodge = 0; p.flipT = null;
     if (p.jumpUntil >= now) tryJump(true);
   } else p.grounded = false;

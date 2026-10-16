@@ -69,8 +69,8 @@ function impact(kind, o = {}) {
         ok = L(H ? 'metalH' : 'metal', { vol: 0.9 }); L('punchL', { vol: 0.4, delay: 0.006 }); I.thump(130, 50, 0.1, 0.35, P);
       } else if (mat === 'glass') {
         ok = L('plate', { vol: 0.7, rate: 1.3 }); L('punchL', { vol: 0.6 });
-      } else if (mat === 'blade') {
-        ok = L('metal', { vol: 0.35, rate: 1.45 }); L(H ? 'punchH' : 'punchL', { vol: 0.75 }); I.thump(150, 60, 0.07, 0.25, P);
+      } else if (mat === 'blade' || mat === 'metal' && o.sword) {
+        ok = L('metal', { vol: 0.35, rate: 1.45 }); L('swordSw', { vol: .3, rate: 1.4 }); L(H ? 'punchH' : 'punchL', { vol: 0.75 }); I.thump(150, 60, 0.07, 0.25, P);
       } else if (mat === 'soft') {
         ok = L('punchL', { vol: 0.45, rate: 1.3, lp: 3500 });
       } else if (H) {
@@ -91,6 +91,7 @@ function impact(kind, o = {}) {
       L('punchL', { vol: 0.45, rate: 0.85, lp: 2200 }); I.thump(120, 60, 0.06, 0.25, P); break;
     case 'parry':
       if (!L('metalH', { vol: 1 })) { sfx('clang'); return; }
+      L('clash', { vol: .55, rate: 1.1 });
       L('bell', { vol: 0.32, rate: 1.15, delay: 0.01 }); I.thump(140, 45, 0.12, 0.4, P); break;
     case 'hurt':
       sfx('hurt'); L(o.heavy ? 'punchH' : 'punchL', { vol: 0.8, rate: 0.9 }); I.thump(100, 40, 0.14, 0.45, P); break;
@@ -105,3 +106,26 @@ function impact(kind, o = {}) {
 }
 { const _pf = SFX.prefetch.bind(SFX); SFX.prefetch = function () { _pf(); Impact.prefetch(); }; }
 { const _st = SFX.stop.bind(SFX); SFX.stop = function () { _st(); for (const s of Impact.active) { try { s.stop(); } catch (e) { } } Impact.active.length = 0; }; }
+// ================= 第二批 CC0 拟音：挥空 / 刀剑 / 布料 / 脚步 / 生物 / 科幻（WEB_SFX2） =================
+if (typeof WEB_SFX2 !== 'undefined') Object.assign(WEB_SFX, WEB_SFX2);
+const Foley = {
+  L(k, o) { return Impact.layer(k, o || {}); },
+  // 徒手出招：挥空声对准第一个命中帧前一点点，而不是按键瞬间
+  swing(m) {
+    if (m.staff || m.blade) return true; // 器械由棍梢/刃尖速度驱动 staffSwish
+    const p = player, dur = m.dur / Math.max(.3, moveSpeed()), lead = Math.max(0, (m.hits?.[0] ?? .3) * dur - (m.heavy ? .16 : .1));
+    const k = m.heavy ? 'swishH' : m.wpn ? 'swishL' : 'swishS';
+    const ok = this.L(k, { vol: m.heavy ? .75 : .55, rate: m.heavy ? .85 : 1.05, delay: lead, pan: 0 });
+    if (m.heavy || m.spin360) this.L('cloth', { vol: .35, rate: 1.1 });
+    return ok;
+  },
+  dodge(air) { const a = this.L('swishH', { vol: .6, rate: air ? .9 : .75 }); this.L('cloth', { vol: .5 }); return a; },
+  jump(second) { this.L('cloth', { vol: .35, rate: second ? 1.2 : 1 }); if (second) this.L('swishH', { vol: .45, rate: 1.15 }); },
+  land(hard) { this.L('foot', { vol: hard ? .7 : .4, rate: .85 }); if (hard) Impact.thump(80, 40, .12, .3, 0); },
+  step(v) { this.L('foot', { vol: clamp(.08 + v * .035, .1, .3), rate: .95 + Math.random() * .1, lp: v > 5 ? 0 : 3200 }); },
+  at(k, pos, o = {}) { return Impact.layer(k, Object.assign({ pan: Impact.pan(pos) }, o)); },
+};
+{ // 通用 whoosh 改用真实挥空样本（未解码时回退到原合成/生成音效）
+  const prevSfx = sfx;
+  sfx = function (type) { if (type === 'whoosh' && Foley.L('swishL', { vol: .6 })) return; prevSfx(type); };
+}

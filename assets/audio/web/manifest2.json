@@ -1,0 +1,550 @@
+{
+ "swishL_0": {
+  "src": "oga/swoshes/swosh-01.flac",
+  "sha256": "6bacb655b1b6e6669f5b1eb44e7eaea1219b185539486c08e11240193391ebd5"
+ },
+ "swishL_1": {
+  "src": "oga/swoshes/swosh-02.flac",
+  "sha256": "6148210eed26653d305eedc7f43e0f623864d434f0f4d8e3a540f623a823ff26"
+ },
+ "swishL_2": {
+  "src": "oga/swoshes/swosh-04.flac",
+  "sha256": "651afe743f1713c01b46a43a8fe099e5f866b46c22a98682c7d05728cfa4f5ae"
+ },
+ "swishL_3": {
+  "src": "oga/swoshes/swosh-06.flac",
+  "sha256": "9d21a424c5ff4b8b11974e80f5f051ea3526cc97e41f3dd7494b7037c09ec454"
+ },
+ "swishL_4": {
+  "src": "oga/swoshes/swosh-09.flac",
+  "sha256": "df11094a3a0e071e10c78ab4aa79102b22c5efbe62bccec409dac62f2e4540b0"
+ },
+ "swishL_5": {
+  "src": "oga/swoshes/swosh-10.flac",
+  "sha256": "b475a668c84b3ed78f144793ab328b38d8c4093ceb50df546e91d2af349304f2"
+ },
+ "swishL_6": {
+  "src": "oga/swoshes/swosh-25.flac",
+  "sha256": "0740d9ba253e7923b4d5b7b7361ba06a5259aea20070b31c54b6e4e37d3db212"
+ },
+ "swishL_7": {
+  "src": "oga/swoshes/swosh-27.flac",
+  "sha256": "4078224d10cb597c9bb64be23d0f18626701e52a81e35a0535cbf9b77771dc44"
+ },
+ "swishH_0": {
+  "src": "oga/swoshes/swosh-03.flac",
+  "sha256": "2111003e4c61b8f3589f926f549ffc36094319da7b99238624c7d64e91bddc09"
+ },
+ "swishH_1": {
+  "src": "oga/swoshes/swosh-13.flac",
+  "sha256": "a22c0da4eff26f4b6171721c830f291a0ad9fe5383f23d5f4530020e995dc4de"
+ },
+ "swishH_2": {
+  "src": "oga/swoshes/swosh-24.flac",
+  "sha256": "4083604a369ede7c34042fe5c3b6588db098428188d6177893dc91e02d076874"
+ },
+ "swishH_3": {
+  "src": "oga/swoshes/swosh-29.flac",
+  "sha256": "83e33eabddc940a40766d24b629fb7e5cab0d034eab3ba8143c139fed9215493"
+ },
+ "swishH_4": {
+  "src": "oga/swoshes/swosh-30.flac",
+  "sha256": "83559d4d9af8bcf02b8feca60132afb3536f511edbeb8323f7ce4c99b40d8b9b"
+ },
+ "swishH_5": {
+  "src": "oga/swoshes/swosh-33.flac",
+  "sha256": "cc1c1fb5484965350658e02fd87935db1e24bad32c3a148abf3ae7d9db38bfcb"
+ },
+ "swishH_6": {
+  "src": "oga/swoshes/swosh-37.flac",
+  "sha256": "48d1d168111e565916a71a9d11f862fdbce56c885be8a7555b7795bb9bfa1a80"
+ },
+ "swishH_7": {
+  "src": "oga/swoshes/swosh-40.flac",
+  "sha256": "a3fe7f88f22b04aabbe47404ddfb32bbb3b37da9a25b9698ff8950e1e63ec675"
+ },
+ "swishS_0": {
+  "src": "oga/swishes/swishes/swish-1.wav",
+  "sha256": "9a15c881345c1ce1c39cc31f52f081c8c4dc81fa41111e0079400f39d3ba0e45"
+ },
+ "swishS_1": {
+  "src": "oga/swishes/swishes/swish-10.wav",
+  "sha256": "4f7381a76f280d3f36f962ac3f44f16f77eec44797f30715d063c81ea3859024"
+ },
+ "swishS_2": {
+  "src": "oga/swishes/swishes/swish-11.wav",
+  "sha256": "9e81d548d8215fbb36f7a41b5771d4b52c2fd02fbb9b5ff9a4c65118fd88ee4d"
+ },
+ "swishS_3": {
+  "src": "oga/swishes/swishes/swish-12.wav",
+  "sha256": "0513a86d428d9ed8601e93b8554580a5932c6c1a82d39d81a8f48883f1807a67"
+ },
+ "swishS_4": {
+  "src": "oga/swishes/swishes/swish-13.wav",
+  "sha256": "698230ba3fe05a68c18d68cd6b3a07fb98e6c1198bb1a4238592ee9912c02c77"
+ },
+ "swishS_5": {
+  "src": "oga/swishes/swishes/swish-2.wav",
+  "sha256": "1ce7752cce3d43f16fc222ad7f7ffb69d9a5fc01e64b93d205765fc37b8e9b0d"
+ },
+ "swishS_6": {
+  "src": "oga/swishes/swishes/swish-3.wav",
+  "sha256": "55b100e2c67fa43dad8510e31e85bbd51a68d5ce84a6e0259e21e19030083e24"
+ },
+ "swishS_7": {
+  "src": "oga/swishes/swishes/swish-4.wav",
+  "sha256": "0060f4a7040edce4cc50d1daa10a9cb76764128a942e4688339e69cd1d5d784c"
+ },
+ "swordSw_0": {
+  "src": "oga/sword_-_starninjas_1/sword - StarNinjas/sword.3.ogg",
+  "sha256": "ce09eb2987531d1323415065d7811a9cf0ea8639766d9fa77655d602e7e14989"
+ },
+ "swordSw_1": {
+  "src": "oga/sword_-_starninjas_1/sword - StarNinjas/sword.4.ogg",
+  "sha256": "320aa8a77d35f9354c3d7e03a53e987ae67b0c5721f0dd2680100c5e6b5e4cc4"
+ },
+ "swordSw_2": {
+  "src": "oga/sword_-_starninjas_1/sword - StarNinjas/sword.6.ogg",
+  "sha256": "5b6eaaac9c552ce364cfdea3c12cef846c89796fc9bb880181615f43ee4e4779"
+ },
+ "swordSw_3": {
+  "src": "oga/sword_-_starninjas_1/sword - StarNinjas/sword.7.ogg",
+  "sha256": "66f2a2e63182fa14470a63fc4a862ff77fa861f69a6a41d8e9874c9853c2d9dd"
+ },
+ "swordSw_4": {
+  "src": "oga/80-CC0-RPG-SFX_0/blade_01.ogg",
+  "sha256": "caf7a7cb9b25cda4bd487c1d12d18b74a34bb18c816fd67277cf3c8d7ef32a3a"
+ },
+ "swordSw_5": {
+  "src": "oga/80-CC0-RPG-SFX_0/blade_02.ogg",
+  "sha256": "c770afec8f62f14d3d082d5437c5cec28e2751d393df645ddd938eabc2588abd"
+ },
+ "swordSw_6": {
+  "src": "oga/80-CC0-RPG-SFX_0/blade_03.ogg",
+  "sha256": "2cd9e6926f4602a4350e703eeae4df520053e290f358ab692632d651ad368a7c"
+ },
+ "clash_0": {
+  "src": "oga/sword_clash_-_starninjas_0/sword_clash.2.ogg",
+  "sha256": "e09f222b70d53f2967514d076e2ae50c21526ac640fe4919965f964af043da1a"
+ },
+ "clash_1": {
+  "src": "oga/sword_clash_-_starninjas_0/sword_clash.3.ogg",
+  "sha256": "6c588bc79b7e4fe202e3b65fa849954d684d2d2342f6ad04813540854c421663"
+ },
+ "clash_2": {
+  "src": "oga/sword_clash_-_starninjas_0/sword_clash.5.ogg",
+  "sha256": "09e36369f2556e6a234ce78ec797447518ef7671f8224fc64747a7fa66ea229a"
+ },
+ "clash_3": {
+  "src": "oga/sword_clash_-_starninjas_0/sword_clash.10.ogg",
+  "sha256": "61d40c241c5df7722249983938109564a8470245116fe34d23d2a35324d3a4f1"
+ },
+ "clash_4": {
+  "src": "oga/sword_clash_-_starninjas_0/sword_clash.4.ogg",
+  "sha256": "4c2c962f8703882b8a6f863c1f5a35c6ae518d0281755fac9a13e63a73b86fa5"
+ },
+ "cloth_0": {
+  "src": "kenney_rpg-audio/Audio/cloth1.ogg",
+  "sha256": "ddb93a3671233f95da0e0b10367f082f7eb42fa6caaddcf776410aa8833c747d"
+ },
+ "cloth_1": {
+  "src": "kenney_rpg-audio/Audio/cloth2.ogg",
+  "sha256": "8a7451193c38bc05483aec25dd193e163a15d44cf7fff04ac7912573231b0201"
+ },
+ "cloth_2": {
+  "src": "kenney_rpg-audio/Audio/cloth3.ogg",
+  "sha256": "a48632d17a4f1416541d261a32a31612e01267144c407fa3ecab3ff410f0085b"
+ },
+ "cloth_3": {
+  "src": "kenney_rpg-audio/Audio/cloth4.ogg",
+  "sha256": "e7ab9a6c4466dea874196c61f59bf1da05cfe58748f42fadd695d441a154a99b"
+ },
+ "cloth_4": {
+  "src": "kenney_rpg-audio/Audio/clothBelt.ogg",
+  "sha256": "f29560a2aea95bbfeb643e1e8f56ec2b6f7e32f32ce4e140645a36db81de3253"
+ },
+ "cloth_5": {
+  "src": "kenney_rpg-audio/Audio/clothBelt2.ogg",
+  "sha256": "d545b1d9f20e6188140aaf551a96f1e82fe0d15f7ca066fac8b065e1231e0038"
+ },
+ "cloth_6": {
+  "src": "kenney_rpg-audio/Audio/clothBelt.ogg",
+  "sha256": "f29560a2aea95bbfeb643e1e8f56ec2b6f7e32f32ce4e140645a36db81de3253"
+ },
+ "cloth_7": {
+  "src": "kenney_rpg-audio/Audio/clothBelt2.ogg",
+  "sha256": "d545b1d9f20e6188140aaf551a96f1e82fe0d15f7ca066fac8b065e1231e0038"
+ },
+ "foot_0": {
+  "src": "kenney_rpg-audio/Audio/footstep00.ogg",
+  "sha256": "6fe61ef1fc3bcf0e253bf2eb64759db6cb69e2fe452f4d88cc597ecf78a3d601"
+ },
+ "foot_1": {
+  "src": "kenney_rpg-audio/Audio/footstep01.ogg",
+  "sha256": "313472dba31fd0c855376069fa368bb5a198c27251cc8398ef464578b7047a4c"
+ },
+ "foot_2": {
+  "src": "kenney_rpg-audio/Audio/footstep02.ogg",
+  "sha256": "2d9575b7dead6e1217ca113991fc5229e9b6d998ea0726ebbb277e7398ab888f"
+ },
+ "foot_3": {
+  "src": "kenney_rpg-audio/Audio/footstep03.ogg",
+  "sha256": "a86756b9af9f370455ab47844239bb07fd1bee7a113068c91f0fcd9b72703fae"
+ },
+ "foot_4": {
+  "src": "kenney_rpg-audio/Audio/footstep04.ogg",
+  "sha256": "fd264d72a7cd622b82abde202f4ed09fa7de95d34c36473ee938ce66cdf39830"
+ },
+ "foot_5": {
+  "src": "kenney_rpg-audio/Audio/footstep05.ogg",
+  "sha256": "817957e1f95d97fd36870064c41673895575cde17bccb245f50364c86ed10198"
+ },
+ "foot_6": {
+  "src": "kenney_rpg-audio/Audio/footstep06.ogg",
+  "sha256": "6cabfe7ae95d227a84066c6e17014ac31cc7c89b14ef51d7877e98352d4a64fb"
+ },
+ "foot_7": {
+  "src": "kenney_rpg-audio/Audio/footstep07.ogg",
+  "sha256": "42924cdbf998d5b3db180a339fd74afc94c570d594a536687e337ef1bdfdb346"
+ },
+ "draw_0": {
+  "src": "kenney_rpg-audio/Audio/drawKnife1.ogg",
+  "sha256": "276403e72c3b71c47bc24db3083970c23f8e5551ffa78f436f83483c56f3f0bb"
+ },
+ "draw_1": {
+  "src": "kenney_rpg-audio/Audio/drawKnife2.ogg",
+  "sha256": "d5df6a4130cbb016f97b4883769a418917b9629cb4c21717030b186e0c73281a"
+ },
+ "draw_2": {
+  "src": "kenney_rpg-audio/Audio/drawKnife3.ogg",
+  "sha256": "a11ae62fb1a628425769d11a9de394980ad8909c31f4c9a4316f226963e21caf"
+ },
+ "roar_0": {
+  "src": "oga/80-CC0-creature-SFX_0/roar_01.ogg",
+  "sha256": "e9d44326860a1c3aba917684faccfd967a4fefa284d7df773e05ae890ec242e0"
+ },
+ "roar_1": {
+  "src": "oga/80-CC0-creature-SFX_0/roar_02.ogg",
+  "sha256": "ceb532ee0fe775d6f86a821099b75f1790ab8022b963cb837c8c1fa4fffee5c2"
+ },
+ "roar_2": {
+  "src": "oga/80-CC0-creature-SFX_0/roar_03.ogg",
+  "sha256": "983396c808eb658ed3bd223ffaf9ea7f756dba7bc45ecc3fde117083026a4556"
+ },
+ "roar_3": {
+  "src": "oga/80-CC0-RPG-SFX_0/creature_roar_01.ogg",
+  "sha256": "ca1b9198490f29037e6e6487dd6db6165ca8b2583a445c0edd6b9f474d2d1f5f"
+ },
+ "roar_4": {
+  "src": "oga/80-CC0-RPG-SFX_0/creature_roar_02.ogg",
+  "sha256": "4da0cf77a3506e1b573ec40e3688dc66400d1734853510db357fb3f843cde242"
+ },
+ "roar_5": {
+  "src": "oga/80-CC0-RPG-SFX_0/creature_roar_03.ogg",
+  "sha256": "3571f6372012fdebb2a38ef89e18a6137b3f17d519f1259aafeb166dbdd94195"
+ },
+ "growl_0": {
+  "src": "oga/80-CC0-creature-SFX_0/monster_01.ogg",
+  "sha256": "e8bb5c9d3d25172666c60ed302d354144b67e66170bdf039ec88f4b6b0cd879f"
+ },
+ "growl_1": {
+  "src": "oga/80-CC0-creature-SFX_0/monster_02.ogg",
+  "sha256": "2f590aec7086b2327a141ec71d5e8b8e83524a30e6b9baf3be2784f4adb153b3"
+ },
+ "growl_2": {
+  "src": "oga/80-CC0-creature-SFX_0/monster_03.ogg",
+  "sha256": "1208729886f3f66e7d8018e8880dff073275fd37b30e1016dd5b164161482df1"
+ },
+ "growl_3": {
+  "src": "oga/80-CC0-creature-SFX_0/monster_04.ogg",
+  "sha256": "04b556b93bf3f99255ac362ebe7f905f750a8bcbb653f78ef7191adb91e71f49"
+ },
+ "growl_4": {
+  "src": "oga/80-CC0-creature-SFX_0/monster_05.ogg",
+  "sha256": "e7e67dd4b5ae627dbdefcb25ee1a0fab2a5f6d0c9879eae87974a422fd83e583"
+ },
+ "growl_5": {
+  "src": "oga/80-CC0-creature-SFX_0/troll_01.ogg",
+  "sha256": "d61a6ea6ab0263406de93002ee7378abac7b33486eafc04a91eeb625938e0df1"
+ },
+ "growl_6": {
+  "src": "oga/80-CC0-creature-SFX_0/troll_02.ogg",
+  "sha256": "d63ae3a57294b8370eb6370cc4c75f544f4a8571d893ea3a48a4564d82e078cb"
+ },
+ "growl_7": {
+  "src": "oga/80-CC0-creature-SFX_0/troll_03.ogg",
+  "sha256": "993b97ae0ca7755b6254f02242e6da4fe9895fc06ab2e092771927caab689660"
+ },
+ "chitter_0": {
+  "src": "oga/80-CC0-creature-SFX_0/bug_01.ogg",
+  "sha256": "a7afae8bd3b448184e92bbb6162702e86322e5df58045715176c450ba4bbea3a"
+ },
+ "chitter_1": {
+  "src": "oga/80-CC0-creature-SFX_0/bug_02.ogg",
+  "sha256": "7993707dcb082c4f9f297bec44f8aa276988d848f4cf10ea6046c1c45daee518"
+ },
+ "chitter_2": {
+  "src": "oga/80-CC0-creature-SFX_0/bug_03.ogg",
+  "sha256": "947dad474b93a2786455b1772184f79f4881cf8bf212353638a42f662c808b7b"
+ },
+ "chitter_3": {
+  "src": "oga/80-CC0-creature-SFX_0/bug_04.ogg",
+  "sha256": "478418f0d70667109145ca10d82e918c5eeb95c594be40186681179a883d64be"
+ },
+ "cHurt_0": {
+  "src": "oga/80-CC0-creature-SFX_0/hurt_01.ogg",
+  "sha256": "619f9f2b4bc6cb013b4a62d0ef515a11e4be3a73c9d78c7c12ec5669b166d2cd"
+ },
+ "cHurt_1": {
+  "src": "oga/80-CC0-creature-SFX_0/hurt_02.ogg",
+  "sha256": "b90ca3a0f5f48e1141ec6326f08ebf9f597efb6b2ca4ceeccc285b203c1ccbe1"
+ },
+ "cHurt_2": {
+  "src": "oga/80-CC0-creature-SFX_0/hurt_03.ogg",
+  "sha256": "53e0ff510ef43f583befea63af23af1d82ddb993b981f7c3c0e7eb5f0f9d21ab"
+ },
+ "cHurt_3": {
+  "src": "oga/80-CC0-creature-SFX_0/hurt_04.ogg",
+  "sha256": "65a6524d46bbf2acccb09b551fe7e3616dbd19f62266b5ea7e6313df29031df1"
+ },
+ "cHurt_4": {
+  "src": "oga/80-CC0-creature-SFX_0/hurt_05.ogg",
+  "sha256": "4dc63fc62e8604a87baa1f5a74b75d848ccb68ce6e0e34d603dd3cbefc8519ed"
+ },
+ "cHurt_5": {
+  "src": "oga/80-CC0-RPG-SFX_0/creature_hurt_01.ogg",
+  "sha256": "9948f9ce067e1aae7bd780e974d51ceae03f2611a52afffb0e092ba47e9dc8e1"
+ },
+ "cHurt_6": {
+  "src": "oga/80-CC0-RPG-SFX_0/creature_hurt_02.ogg",
+  "sha256": "a4ea983e62ace874754c51d78239bd8b6532227119bd511c38fa827b2ccbca70"
+ },
+ "stone_0": {
+  "src": "oga/80-CC0-RPG-SFX_0/stones_01.ogg",
+  "sha256": "d11ce95031c2c36ae2a00979620fa95a7a3f5c6d6f2ac86962ed292aa556be8d"
+ },
+ "stone_1": {
+  "src": "oga/80-CC0-RPG-SFX_0/stones_02.ogg",
+  "sha256": "57dc6b85ee986e68ddc4b7fb2b41cc1c885151677d32439fdb299492a3103a65"
+ },
+ "stone_2": {
+  "src": "oga/80-CC0-RPG-SFX_0/stones_03.ogg",
+  "sha256": "b86d143d7ef4974c2b97fda9e5d1861482646eec754e15935eeb3680ea0d71da"
+ },
+ "stone_3": {
+  "src": "oga/80-CC0-RPG-SFX_0/stones_04.ogg",
+  "sha256": "66f1cef820f66d86414d481b37a48a7b7ea11f4a5d7358372ebcfb506af0e652"
+ },
+ "stone_4": {
+  "src": "oga/80-CC0-RPG-SFX_0/item_stone_01.ogg",
+  "sha256": "ca630a5d7420d031588b4f5f4e60273d5e6e30b71c6e5a34ec733fb10089b829"
+ },
+ "stone_5": {
+  "src": "oga/80-CC0-RPG-SFX_0/item_stone_02.ogg",
+  "sha256": "bc9d36c83f44415b16411878f460a5005bea1ede42259daeb179f59d82a754b5"
+ },
+ "chain_0": {
+  "src": "oga/80-CC0-RPG-SFX_0/chain_01.ogg",
+  "sha256": "d376caf0f61384b1d2e0b447f64f06be56d0ee0622ba70dd01cfdd78b3a10687"
+ },
+ "chain_1": {
+  "src": "oga/80-CC0-RPG-SFX_0/chain_02.ogg",
+  "sha256": "dd3b753e54fd4e6ed94c36231d1950fafd681ff4a93462cfa3980099a6454ecb"
+ },
+ "chain_2": {
+  "src": "oga/80-CC0-RPG-SFX_0/chain_03.ogg",
+  "sha256": "ae2247dc68aa85bca15d87355353b5858441644b6a65172e9659f4d0819b42d6"
+ },
+ "spell_0": {
+  "src": "oga/80-CC0-RPG-SFX_0/spell_01.ogg",
+  "sha256": "09821a53c418c5eeeac4fa25bada9d245e822fed302eeeae9ae4151522a45ae5"
+ },
+ "spell_1": {
+  "src": "oga/80-CC0-RPG-SFX_0/spell_02.ogg",
+  "sha256": "bf9c48b76921e56aa266172d969a2c08215d6ce0ffae7c3584f23fa05d3f8bd4"
+ },
+ "spell_2": {
+  "src": "oga/80-CC0-RPG-SFX_0/spell_fire_01.ogg",
+  "sha256": "02fa3a2c6e79e868e546802f45127c5cdda69aba6d5a24ac997ea66f81a816cb"
+ },
+ "spell_3": {
+  "src": "oga/80-CC0-RPG-SFX_0/spell_fire_02.ogg",
+  "sha256": "bf1eef4993f0adb4bd3a1c1ec91f8f6e4ddeb32d922671a14561846d5b7cab98"
+ },
+ "spell_4": {
+  "src": "oga/80-CC0-RPG-SFX_0/spell_fire_03.ogg",
+  "sha256": "2e4edee4ff8d7898198f1ab5213e086965e14a665cb947d53759505e28ddd3e4"
+ },
+ "spell_5": {
+  "src": "oga/80-CC0-RPG-SFX_0/spell_fire_04.ogg",
+  "sha256": "64d653cd0cc6eb71bb45a1dfbba29eaa769ed5b663cce275082d6971e4f2ca8e"
+ },
+ "gong_0": {
+  "src": "oga/100-CC0-SFX_0/gong_01.ogg",
+  "sha256": "4780a38e91688b59899b3679cf3534b4b75654b45a177af9d9fb681c447f7f9a"
+ },
+ "gong_1": {
+  "src": "oga/100-CC0-SFX_0/gong_02.ogg",
+  "sha256": "eb53bd74d92ed2422568ed5770615b177b0a4d281f55959e6aa263d756412524"
+ },
+ "explode_0": {
+  "src": "oga/sci-fi-sfx/explosion_01.ogg",
+  "sha256": "2ba5012301d0086d61aed17b6e71debea075fd79040b93947e37e3a93689a093"
+ },
+ "explode_1": {
+  "src": "oga/sci-fi-sfx/explosion_02.ogg",
+  "sha256": "1a696afbab70b8c54f3d9d31c52a4d7f600557fb5b616771f3ebc871eacd1319"
+ },
+ "explode_2": {
+  "src": "oga/100-CC0-SFX_0/explosion.ogg",
+  "sha256": "f31e12359b96b5e4d43edbcd533630b32421e55bc0b08aec4520d2ed45cd1a93"
+ },
+ "explode_3": {
+  "src": "oga/explosions/explosions/explode.wav",
+  "sha256": "ea324b675203a509e1c5adf0c4acc94ab407684b30d9d4191507a2d4f72aea9a"
+ },
+ "laser_0": {
+  "src": "oga/sci-fi-sfx/shoot_01.ogg",
+  "sha256": "f876dbfad8eabafd913e4cd9c174a2deff342f383a772ee34140b9a1994d26f4"
+ },
+ "laser_1": {
+  "src": "oga/sci-fi-sfx/shoot_02.ogg",
+  "sha256": "8062c456a8319620918847c16703d8ddd882f688a646ff1a35db48bd172c847e"
+ },
+ "laser_2": {
+  "src": "kenney_sci-fi-sounds/Audio/laserLarge_000.ogg",
+  "sha256": "a56d95794cd732d6c2d66ce488c14cf557fe526c282897c9a77675c2bd9b77e6"
+ },
+ "laser_3": {
+  "src": "kenney_sci-fi-sounds/Audio/laserLarge_001.ogg",
+  "sha256": "e678aca631495b7dfef4ac625f0349875ccac81a60f538d530e072241af3e4bd"
+ },
+ "laser_4": {
+  "src": "kenney_sci-fi-sounds/Audio/laserLarge_002.ogg",
+  "sha256": "e5e0b6ccc4d5720c8174a3e5b7cc6f9be3057352a89cbb2e99a00efc6fe5cc11"
+ },
+ "zap_0": {
+  "src": "kenney_sci-fi-sounds/Audio/forceField_000.ogg",
+  "sha256": "c2916f2a062c8ddd1aca2826d134fe90847037db31342726ffb0f9097afe339c"
+ },
+ "zap_1": {
+  "src": "kenney_sci-fi-sounds/Audio/forceField_001.ogg",
+  "sha256": "5574e69dd04e5f59322c5ddffde5978f077b09170ae5e29cec0bd9901828cd90"
+ },
+ "zap_2": {
+  "src": "kenney_sci-fi-sounds/Audio/forceField_002.ogg",
+  "sha256": "051b0eafc479695af4ca3607d41fd4be41bae7c21f4f9508d004722b09f1bd63"
+ },
+ "zap_3": {
+  "src": "oga/sci-fi-sfx/teleport_01.ogg",
+  "sha256": "88d1d00c7d9180c6afd273cf19ee047ad072c112a5e4df17e2b55c0e5c767706"
+ },
+ "zap_4": {
+  "src": "oga/sci-fi-sfx/teleport_02.ogg",
+  "sha256": "1776e7df75bad4b5eacae95b9f7075a0a789fbd08f1954e7651c90ac17203e4b"
+ },
+ "beep_0": {
+  "src": "oga/sci-fi-sfx/beep_01.ogg",
+  "sha256": "6d82719549fc522a25d572a14bc4f204e39b78f28a6ca8cfc3e0fc95c4a1b738"
+ },
+ "beep_1": {
+  "src": "oga/sci-fi-sfx/beep_02.ogg",
+  "sha256": "fa895f4e6569d7bc30c78b54d7f366395b031b7affc012daa7962737f4c4ec37"
+ },
+ "beep_2": {
+  "src": "oga/sci-fi-sfx/beep_03.ogg",
+  "sha256": "61f8eca45a0ea759a89798e8551b31cf33f101e84907095748ab42501295e94b"
+ },
+ "beep_3": {
+  "src": "oga/sci-fi-sfx/retro_beep_01.ogg",
+  "sha256": "0360f15b6f9bbb63978bfd6fffccc809eae61e5553e553f6df8be42828a71cec"
+ },
+ "beep_4": {
+  "src": "oga/sci-fi-sfx/retro_beep_02.ogg",
+  "sha256": "4dfd093ae7130893d797f108a149c887b0664d86cd2f40829308d1a09578ff97"
+ },
+ "beep_5": {
+  "src": "oga/sci-fi-sfx/retro_beep_03.ogg",
+  "sha256": "e21bf1bb18b4170d5ffa7c8bf1357f5bda393d081591f2af55b0de4b0cc51d92"
+ },
+ "mech_0": {
+  "src": "oga/sci-fi-sfx/misc_01.ogg",
+  "sha256": "4785313be39755cc5e1feb095b2852bc35ae8add161ed2ada145451765a31572"
+ },
+ "mech_1": {
+  "src": "oga/sci-fi-sfx/misc_02.ogg",
+  "sha256": "0cf108b910a2007af552af578ab3ec992dafa11cfaabf8ce7852cb3e5997cea4"
+ },
+ "mech_2": {
+  "src": "oga/sci-fi-sfx/misc_03.ogg",
+  "sha256": "25dab78168e29561ee48839a414336a5741eccc13af0c2fb351691ec1411e798"
+ },
+ "mech_3": {
+  "src": "oga/sci-fi-sfx/misc_04.ogg",
+  "sha256": "1f5a7b50d52afe4c9cc9ced881504b5b4a6017887aad079ab6b9a461553432ce"
+ },
+ "mech_4": {
+  "src": "oga/sci-fi-sfx/misc_05.ogg",
+  "sha256": "446d45b68483e9e1ce0bcc695b21f715ea93208b51fefc2a4b3ddbf4c724a44f"
+ },
+ "mech_5": {
+  "src": "oga/sci-fi-sfx/misc_06.ogg",
+  "sha256": "f8cf3dae594bded6be24000f769e6a1a0d9f43e93c158c44cc612e4b335e862f"
+ },
+ "thrust_0": {
+  "src": "kenney_sci-fi-sounds/Audio/thrusterFire_000.ogg",
+  "sha256": "0fdc474d93f209debf1fc4ea77765a669dcb7676db31b4d8a0a509685bccf374"
+ },
+ "thrust_1": {
+  "src": "kenney_sci-fi-sounds/Audio/thrusterFire_001.ogg",
+  "sha256": "924636edc923fe4aab5829b69dc5dc1c5d659dec5739865434dabee752a3bb79"
+ },
+ "thrust_2": {
+  "src": "kenney_sci-fi-sounds/Audio/thrusterFire_002.ogg",
+  "sha256": "5f7731c30196d73777d62eec7cb36a28bf63852e70244057b7625b888e71a3a8"
+ },
+ "alarm_0": {
+  "src": "kenney_sci-fi-sounds/Audio/computerNoise_000.ogg",
+  "sha256": "1527944e16eb14b48ee03fe3e7ce6aae94262833a4e1f83928d451a7414fe4e1"
+ },
+ "alarm_1": {
+  "src": "kenney_sci-fi-sounds/Audio/computerNoise_001.ogg",
+  "sha256": "29b4842f6d8c0ba2b0cb00bfaff3b852b492bb43197a82e697917aacbe106757"
+ },
+ "alarm_2": {
+  "src": "kenney_interface-sounds/Audio/error_001.ogg",
+  "sha256": "46e67425d16339772e8d328fb36a49426c9467418686e11beeb71ff84b0f6433"
+ },
+ "alarm_3": {
+  "src": "kenney_interface-sounds/Audio/error_002.ogg",
+  "sha256": "76810ec365f41078fd0507101da5bb7b8730fe011dde43908329fdabd8575e79"
+ },
+ "alarm_4": {
+  "src": "kenney_interface-sounds/Audio/error_003.ogg",
+  "sha256": "885b28175c7b511118bcffab95675b48bbac9005cf6514656ebdad979276b3ab"
+ },
+ "ui_0": {
+  "src": "kenney_interface-sounds/Audio/confirmation_001.ogg",
+  "sha256": "063564703b6094d70718a3e787a55cc9141611e4ecd6b6637f8828f79b4a8c3a"
+ },
+ "ui_1": {
+  "src": "kenney_interface-sounds/Audio/confirmation_002.ogg",
+  "sha256": "33b17a9a9a2397c62b285c52c33a907fdffb476909c99e42dde603f6a7a8b12c"
+ },
+ "ui_2": {
+  "src": "kenney_interface-sounds/Audio/confirmation_003.ogg",
+  "sha256": "3091bf0be0497f825769ee0733ca7bdc3bcd59bd6c6e8f2ba8f93d580ff38022"
+ },
+ "ui_3": {
+  "src": "kenney_interface-sounds/Audio/select_001.ogg",
+  "sha256": "aec0c31ea934a35936ae0d2ab8fac8123c93aa5647f935853a58dbaf90278b7a"
+ },
+ "ui_4": {
+  "src": "kenney_interface-sounds/Audio/select_002.ogg",
+  "sha256": "4cc6ac5341b9b2c86fef80c347de028e9ab9f2e037586ac7d9fa59a403a1c012"
+ },
+ "ui_5": {
+  "src": "kenney_interface-sounds/Audio/select_003.ogg",
+  "sha256": "9a612fd2f513d52a296906b41071c990f75defe56be3bee60d2d4e2423b51b8b"
+ }
+}
