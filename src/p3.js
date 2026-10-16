@@ -149,6 +149,8 @@ const ROLL = clip(0.55, [
   [0.3, { hx: 3.4, hy: -0.55, sx: 0.8, nx: 0.6, lhx: -2.1, lkx: 2.5, rhx: -2.1, rkx: 2.5, lsx: -1.3, rsx: -1.3, lex: -1.9, rex: -1.9 }],
   [0.42, { hx: 5.6, hy: -0.48, sx: 0.6, lhx: -1.8, lkx: 2.2, rhx: -1.2, rkx: 2.0, lsx: -1.0, rsx: -1.0 }],
   [0.55, Object.assign({}, BASE.crouch, { hx: TAU, hy: -0.3 })]], {});
+const AIRFLIP = clip(0.5, [[0, { hy: -0.1 }], [0.1, { sx: 0.6, lhx: -1.9, lkx: 2.3, rhx: -1.9, rkx: 2.3, lsx: -1.0, rsx: -1.0, lex: -1.7, rex: -1.7 }],
+  [0.38, { sx: 0.5, lhx: -1.7, lkx: 2.1, rhx: -1.7, rkx: 2.1, lsx: -0.8, rsx: -0.8, lex: -1.5, rex: -1.5 }], [0.5, BASE.stand[0]]], BASE.stand[0]);
 const DASH = clip(0.45, [[0, { hy: -0.1 }], [0.12, { hy: -0.3, sx: 0.35, lhx: -0.9, lkx: 1.0, rhx: 0.4, rkx: 0.6 }], [0.32, { hy: -0.25, sx: 0.25 }], [0.45, BASE.stand[0]]], BASE.stand[0]);
 // 倒地受身：倒地后按闪避快速起身
 const KIPUP = {
@@ -171,12 +173,22 @@ function tryDodge() {
     sfx('whoosh'); showMove('受身 · 鲤鱼打挺', '#7dffb0'); burst(p.pos.clone().setY(0.2), 0xc9a27a, 10, 2.5);
     return;
   }
-  if (!p.grounded || !(canAct(p) || p.state === 'hit' && p.stateT > 0.18)) return;
+  // 翻滚可随时打断出招（含出招前摇/判定中），这是本作的核心取消手段
+  const cancelAtk = p.state === 'attack' || p.state === 'staffCharge' || p.state === 'staffSpin';
+  if (!(canAct(p) || cancelAtk || p.state === 'hit' && p.stateT > 0.18)) return;
+  if (!p.grounded && (p.airDodge || 0) >= 1) return;
   if (!useStamina(Runes.has('sheep') ? 9 : 18)) return;
+  if (cancelAtk) { p.move = null; p.staffTrace = null; p.chargeT = 0; p.chargeLv = 1; buffer.type = null; hitstop = 0; p.anim.kick('sx', -.6); if (p.state === 'attack') showMove('翻滚取消', '#9ff'); }
   const inp = moveInput();
   let dx = inp.x, dz = inp.z;
   if (!dx && !dz) { dx = -Math.sin(p.yaw); dz = -Math.cos(p.yaw); }
   p.dodgeDir.set(dx, dz).normalize();
+  if (!p.grounded) { // 空中闪避：空翻 + 横向冲刺，每次腾空一次
+    p.airDodge = (p.airDodge || 0) + 1; p.yaw = p.yawTarget = Math.atan2(dx, dz);
+    p.clip = AIRFLIP; p.vy = Math.max(p.vy, 3.2); p.flipT = null;
+    setState(p, 'dodge', 0.05); p.iframe = Runes.has('sheep') ? 0.5 : 0.36; p.move = null;
+    sfx('whoosh'); burst(p.pos.clone().setY(p.pos.y + .9), 0xbfefff, 10, 2.5); refreshChips(); return;
+  }
   const fwdRoll = p.view === 'third' && (inp.x || inp.z);
   if (fwdRoll) p.yaw = p.yawTarget = Math.atan2(dx, dz);
   p.clip = fwdRoll ? ROLL : DASH;
@@ -186,7 +198,16 @@ function tryDodge() {
 function tryJump(buffered = false) {
   const p = player;
   if (cutscene || gameOver || !['loco', 'attack', 'block', 'parryHit', 'staffCharge', 'staffSpin'].includes(p.state)) { p.jumpUntil = -Infinity; return false; }
-  if (!p.grounded) { if (!buffered) p.jumpUntil = now + .15; return false; }
+  if (!p.grounded) {
+    // 二段跳：腾空后再按一次跳，带前空翻；出招中需过了可取消点
+    const ok = !buffered && (p.airJumps || 0) < 1 && (p.state === 'loco' || p.state === 'attack' && p.mt >= p.move.cancel);
+    if (!ok) { if (!buffered) p.jumpUntil = now + .15; return false; }
+    p.airJumps = (p.airJumps || 0) + 1; p.jumpUntil = -Infinity; buffer.type = null; p.move = p.clip = null; p.staffTrace = null;
+    setState(p, 'loco', .05); hitstop = 0;
+    p.vy = (Runes.has('rooster') ? 8.2 : 7.2); p.flipT = 0; p.anim.kick('hy', -1);
+    sfx('whoosh'); burst(p.pos.clone().setY(p.pos.y + .2), 0xdff6ff, 12, 2.2); shock(p.pos.clone().setY(p.pos.y + .05), 0xcfefff, .5);
+    refreshChips(); return true;
+  }
   p.jumpUntil = -Infinity; buffer.type = null; p.move = p.clip = null;
   p.chargeT = 0; p.staffTrace = null; p.guard = false;
   setState(p, 'loco', .055); hitstop = 0;
@@ -324,11 +345,19 @@ function updatePlayer(dt) {
     locoPose(target, p.baseSm, vmag, p.walkPh, { crouch: p.crouch, noArmSwing: p.guard });
     if (p.style === 2 && !p.guard && !p.crouch) { target.hrz += Math.sin(now * 1.7) * 0.1; target.sz += Math.sin(now * 1.7 + 1) * 0.13; target.nx += Math.sin(now * 2.3) * 0.08; }
     if (p.style === 1 && !p.guard && !p.crouch) { target.lsy += Math.sin(now * 2.5) * 0.25; target.rsy += Math.sin(now * 2.5 + 2) * 0.25; }
+    if (p.flipT != null) { p.flipT += dt; if (p.flipT > .52) p.flipT = null; }
     if (!p.grounded) { const up = clamp(p.vy / 7, -1, 1); target.lhx = -0.9 - up * 0.3; target.lkx = 1.5 + up * 0.4; target.rhx = -0.3; target.rkx = 1.1; target.lsx -= 0.4 * up; target.rsx -= 0.4 * up; }
     p.yaw += angDiff(p.yaw, p.yawTarget) * (1 - Math.exp(-dt * 13));
   } else if (p.state === 'staffCharge') {
     staffChargeTick(p, dt);
-    p.vel.multiplyScalar(Math.exp(-dt * 15));
+    // 龙形/灵蛇可边走边蓄力（醉棍是插地立棍，原地蓄）
+    if (p.style !== 2 && moving) {
+      const acc = 1 - Math.exp(-dt * 9), spd = 2.3;
+      p.vel.x = lerp(p.vel.x, inp.x * spd, acc); p.vel.z = lerp(p.vel.z, inp.z * spd, acc);
+      if (p.view === 'third') p.yawTarget = lockTarget ? Math.atan2(lockTarget.pos.x - p.pos.x, lockTarget.pos.z - p.pos.z) : Math.atan2(inp.x, inp.z);
+      p.yaw += angDiff(p.yaw, p.yawTarget) * (1 - Math.exp(-dt * 8));
+      p.walkPh += dt * Math.hypot(p.vel.x, p.vel.z) * 3.4;
+    } else p.vel.multiplyScalar(Math.exp(-dt * 15));
     Object.assign(target, p.baseSm);
   } else if (p.state === 'staffSpin') {
     staffFlowerTick(p, dt);
@@ -401,7 +430,7 @@ function updatePlayer(dt) {
   p.pos.x += p.vel.x * dt; p.pos.z += p.vel.z * dt; p.pos.y += p.vy * dt;
   if (p.pos.y <= 0) {
     if (!p.grounded && p.vy < -4) { shake = Math.max(shake, 0.05); A.kick('hy', -1.5); A.kick('sx', 2); }
-    p.pos.y = 0; p.vy = 0; p.grounded = true;
+    p.pos.y = 0; p.vy = 0; p.grounded = true; p.airJumps = 0; p.airDodge = 0; p.flipT = null;
     if (p.jumpUntil >= now) tryJump(true);
   } else p.grounded = false;
   for (const e of enemies) {

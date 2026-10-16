@@ -10,7 +10,7 @@ const { pathToFileURL } = require('node:url');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(pathToFileURL(path.resolve(__dirname, '../dist/index.html')).href + '?webgl');
     await page.waitForFunction(() => window.__game?.SKIN.ready, null, { timeout: 90000 });
-    for (const name of ['combat-input', 'cutscene', 'staff', 'blade']) {
+    for (const name of ['combat-input', 'cutscene', 'staff', 'blade', 'mobility']) {
       const checks = await page.evaluate(fs.readFileSync(path.join(__dirname, name + '.scenario.js'), 'utf8'));
       console.log(`${name}: ${checks.length} checks passed`);
     }

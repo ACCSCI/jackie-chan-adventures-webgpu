@@ -67,7 +67,8 @@ function driveSkinPlayer(p, dt) {
     return;
   }
   if (st === 'loco' || !started) {
-    if (!p.grounded) {
+    if (!p.grounded && p.flipT != null) { sk.set('roll', { roll: 1 }, null, 0.06); sk.time('roll', 0.3 + Math.min(1, p.flipT / .52) * 1.65); }
+    else if (!p.grounded) {
       const t = clamp(0.62 + (7.5 - p.vy) / 15 * 0.55, 0.5, 1.15);
       sk.set('air', { jump: 1 }, null, 0.1); sk.time('jump', t);
     } else {
@@ -84,6 +85,11 @@ function driveSkinPlayer(p, dt) {
       const W = skLoco(sk, o);
       if (p.guard) sk.set('guard', W, { block: 1 }, 0.12); else sk.set('loco', W, null, 0.18);
     }
+  } else if (st === 'staffCharge' && Math.hypot(p.vel.x, p.vel.z) > .25) {
+    const v = Math.hypot(p.vel.x, p.vel.z), sy = Math.sin(p.yaw), cy = Math.cos(p.yaw);
+    const fwd = (p.vel.x * sy + p.vel.z * cy) / v, side = (p.vel.x * cy - p.vel.z * sy) / v;
+    const W = skLoco(sk, { v, idle: 'idle_box', walk: 'walk', walkV: 1.5, walkMax: 3.5, dir: 1, fwd, side, back: 'walk_back', strafe: ['strafe_l', 'strafe_r'] });
+    sk.set('chargeWalk', W, null, .15);
   } else if (st === 'staffCharge' || st === 'staffSpin') {
     sk.set(st, { idle_box: 1 }, null, .12); sk.speed('idle_box', .6);
   } else if (st === 'attack') {
@@ -102,7 +108,7 @@ function driveSkinPlayer(p, dt) {
     else rig.inner.rotation.y = 0;
   } else if (st === 'dodge') {
     const t = Math.min(1, p.stateT / p.clip.dur);
-    if (p.clip === ROLL) { sk.set('roll', { roll: 1 }, null, 0.05); sk.time('roll', 0.3 + t * 1.65); }
+    if (p.clip === ROLL || p.clip === AIRFLIP) { sk.set('roll', { roll: 1 }, null, 0.05); sk.time('roll', 0.3 + t * 1.65); }
     else {
       const sy = Math.sin(p.yaw), cy = Math.cos(p.yaw), f = p.dodgeDir.x * sy + p.dodgeDir.y * cy;
       if (f < -0.4) { sk.set('dback', { dodge_back: 1 }, null, 0.05); sk.time('dodge_back', 0.25 + t * 1.5); }
@@ -126,6 +132,10 @@ function driveSkinPlayer(p, dt) {
     skDown(sk, p.downClip === DOWN.front, tt, p.downClip.dur, st === 'dead');
   }
   if (st !== 'attack') rig.inner.rotation.y = 0;
+  // 空翻（二段跳/空中闪避）借用翻滚片段：片段里胯部会贴地，空中时把整体抬回去
+  if (rig._iy == null) rig._iy = rig.inner.position.y;
+  const airK = !p.grounded && p.flipT != null ? Math.min(1, p.flipT / .52) : st === 'dodge' && p.clip === AIRFLIP ? Math.min(1, p.stateT / p.clip.dur) : -1;
+  rig.inner.position.y = rig._iy + (airK >= 0 ? .42 * Math.sin(Math.PI * Math.min(1, airK * 1.15)) : 0);
   const sweep = st === 'attack' && p.move === MOVES.sweep;
   sk.update(dt); if (!sweep) skSprings(rig, A); // 扫腿姿势完全程序化，弹簧会把旧招式关键帧的冲量带进来
   if (sweep) skLowSweep(rig, p.mt);

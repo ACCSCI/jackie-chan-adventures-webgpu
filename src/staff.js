@@ -36,7 +36,8 @@ const STAFF_IDLE = staffSample(SKS([[0, {}], [1, {}]]), 0);
 const STAFF_RUN = staffSample(SKS([[0, { h: [.24, .93, -.1], d: [176, -20], g: .3, lean: .1 }], [1, {}]]), 0);
 // Charge stances per style (dragon overhead, snake drawn back, drunk planted pole).
 const STAFF_CHARGE = [
-  staffSample(SKS([[0, { h: [.12, 1.62, -.02], d: [175, 58], g: .08, sp: 0, l: .22, lw: 1, hip: .35, tw: .25, lean: -.12, drop: .1, fl: .12 }], [1, {}]]), 0),
+  // 龙形：拖棍蓄势——棍身低横于身侧、棍梢斜指后下方，可边走边蓄
+  staffSample(SKS([[0, { h: [.2, .96, .16], d: [158, -16], g: .3, sp: 0, l: .56, lw: 1, hip: .28, tw: .3, lean: .1, drop: .1, fl: .08 }], [1, {}]]), 0),
   staffSample(SKS([[0, { h: [.24, 1.02, -.18], d: [2, 4], g: .08, sp: 0, l: .45, lw: 1, hip: .7, tw: .35, lean: .12, drop: .15, fl: .18, fr: -.05 }], [1, {}]]), 0),
   staffSample(SKS([[0, { h: [.06, 1.28, .38], d: [0, -84], g: .1, sp: 0, sl: 90, l: .3, lw: 1, hip: .1, tw: .15, lean: .18, drop: .14, fl: .1 }], [1, {}]]), 0),
 ];
@@ -84,6 +85,13 @@ const STAFF_POSES = {
     [.55, { free: 0, lw: .2 }], [.6, { free: 1, lw: 0 }], [.86, { free: 1, h: [.25, 1.1, .1] }],
     [.95, { free: 0, pole: 1, h: [.1, 1.2, .3], ik: 1, drop: .12, lean: .1, lw: 0 }],
     [1, { h: [.2, 1.0, .12], d: [165, 40], g: .35, sp: 180, pole: 0, drop: .04 }]]),
+  // 撑棍踢：棍尖戳地、双手握在棍上段借力，腿法照常；连段中棍不离地
+  plantK: SKS([[0, {}], [.14, { h: [.1, 1.22, .36], d: [0, -86], g: .1, sp: 0, sl: 90, l: .34, lw: 1, pole: 1, ik: 0 }], [.8, { h: [.08, 1.18, .34] }],
+    [1, { h: [.2, .98, .1], d: [165, 40], g: .35, sp: 180, sl: 40, l: .6, lw: 0, pole: 0, ik: 1 }]]),
+  plantC: SKS([[0, { h: [.1, 1.22, .36], d: [0, -86], g: .1, sp: 0, sl: 90, l: .34, lw: 1, pole: 1, ik: 0 }], [.8, { h: [.08, 1.18, .34] }],
+    [1, { h: [.2, .98, .1], d: [165, 40], g: .35, sp: 180, sl: 40, l: .6, lw: 0, pole: 0, ik: 1 }]]),
+  plantV: SKS([[0, {}], [.12, { h: [.1, 1.25, .36], d: [0, -86], g: .1, sp: 0, sl: 90, l: .34, lw: 1, pole: 1, ik: 0 }], [.38, { h: [.06, 1.1, .3] }],
+    [.56, { h: [.15, 1.05, .1], d: [170, 20], g: .3, sp: 180, l: .6, lw: 0, pole: 0 }], [1, { h: [.2, .98, .1], d: [165, 40], g: .35, sl: 40, ik: 1 }]]),
   // 扫地棍（蹲轻）、挑天棍（蹲重）、凌空劈（空轻）、落地劈山（空重）
   low: SKS([[0, { h: [.2, .9, .2], d: [-100, -30], g: .1, sp: 0, drop: .35, lean: .3, hip: -.3, tw: -.4, lw: 0, ik: 1 }],
     [.5, { h: [.25, .72, .5], d: [30, -40], hip: .3, tw: .4 }], [.75, { h: [.35, .75, .3], d: [100, -36], hip: .45, tw: .55 }],
@@ -351,7 +359,8 @@ function driveStaff(p, dt) {
   }
   const rig = p.rig, mesh = w.mesh, d = mesh.userData.staff || initStaffMesh(mesh, w.type), B = rig.bones;
   const attack = !cutscene && p.state === 'attack' && p.move?.staff, charge = !cutscene && p.state === 'staffCharge', spin = !cutscene && p.state === 'staffSpin';
-  const own = !cutscene && (p.state === 'loco' || attack || charge || spin) && !p.guard;
+  const plant = !cutscene && p.state === 'attack' && !!p.move?.plant && !p.move.staff, atkLike = attack || plant;
+  const own = !cutscene && (p.state === 'loco' || atkLike || charge || spin) && !p.guard;
   rig.root.updateMatrixWorld(true);
   const rq = rig.root.getWorldQuaternion(new THREE.Quaternion()), rqi = rq.clone().invert();
   const fists = staffFists(rig);
@@ -372,6 +381,13 @@ function driveStaff(p, dt) {
     const m = p.move, t = clamp(p.mt, 0, 1);
     P = staffPose(m.staff, t);
     if (m.staff === 'pole') { P = { ...P }; if (!d.poleBase || d.poleAtk !== p.atkN) { d.poleAtk = p.atkN; d.poleBase = rig.root.localToWorld(new THREE.Vector3(-.06, 0, .46)); } }
+  } else if (plant) {
+    P = { ...staffPose(p.move.plant, clamp(p.mt, 0, 1)) };
+    if (d.poleAtk !== p.atkN) {
+      d.poleAtk = p.atkN;
+      const keep = d.plantLast && d.poleBase && Math.hypot(d.poleBase.x - p.pos.x, d.poleBase.z - p.pos.z) < 1.3 && p.move.plant === 'plantC';
+      if (!keep) { d.poleBase = rig.root.localToWorld(new THREE.Vector3(-.3, 0, .42)); d.poleBase.y = 0; }
+    }
   } else if (charge) {
     P = { ...STAFF_CHARGE[p.style] }; const k = clamp(p.chargeT / 1.1, 0, 1);
     P.drop += k * .06; P.lean += (p.style === 0 ? -.05 : .05) * k; P.tw += k * .1;
@@ -386,15 +402,16 @@ function driveStaff(p, dt) {
     P.ik = 0;
   }
   // Blend out of attacks into the carry: the wrist rolls the shaft half a turn back under the arm.
-  if (d.lastState !== p.state || attack && d.lastAtk !== p.atkN) {
-    if (d.cur && (!attack || d.lastState !== 'attack')) { d.from = { ...d.cur }; d.fromT = 0; }
+  d.plantLast = plant;
+  if (d.lastState !== p.state || atkLike && d.lastAtk !== p.atkN) {
+    if (d.cur && (!atkLike || d.lastState !== 'attack')) { d.from = { ...d.cur }; d.fromT = 0; }
     d.lastAtk = p.atkN;
   }
   d.lastState = p.state;
   if (d.from && d.fromT < 1) {
-    d.fromT = Math.min(1, d.fromT + dt / (attack ? .08 : .34)); const k = staffEase(d.fromT);
+    d.fromT = Math.min(1, d.fromT + dt / (atkLike ? .08 : .34)); const k = staffEase(d.fromT);
     const out = staffMix(d.from, P, k);
-    if (!attack && !charge && !spin) out.el -= Math.sin(Math.PI * k) * 1.2;
+    if (!atkLike && !charge && !spin) out.el -= Math.sin(Math.PI * k) * 1.2;
     out.sl = Math.max(P.sl, d.from.sl, Math.sin(Math.PI * k) * Math.PI);
     P = out;
   }
@@ -403,9 +420,10 @@ function driveStaff(p, dt) {
   // ---- capture animated feet before the body is moved ----
   const anim = {};
   for (const side of ['Left', 'Right']) { const f = B[side + 'Foot']; if (f) { const wp = f.getWorldPosition(new THREE.Vector3()); anim[side] = { world: wp, local: rig.root.worldToLocal(wp.clone()), q: f.getWorldQuaternion(new THREE.Quaternion()) }; } }
-  const ikTarget = (attack || charge || spin) && p.grounded ? P.ik : 0;
+  const chargeWalk = charge && Math.hypot(p.vel.x, p.vel.z) > .4;
+  const ikTarget = (attack || charge || spin) && p.grounded && !plant && !chargeWalk ? P.ik : 0;
   d.ikW = lerp(d.ikW || 0, ikTarget, 1 - Math.exp(-dt * 14));
-  const bodyW = attack || charge || spin ? 1 : .35;
+  const bodyW = plant ? 0 : attack || charge || spin ? 1 : .35;
   const hitPush = Math.max(0, d.hitKick || 0); d.hitKick = Math.max(0, (d.hitKick || 0) - dt * 6);
   const PB = { ...P, drop: P.drop + hitPush * .04, lean: P.lean + hitPush * .08, hf: P.hf + hitPush * .05 };
   staffBody(rig, PB, bodyW);
@@ -439,7 +457,7 @@ function driveStaff(p, dt) {
   }
   mesh.updateWorldMatrix(true, true);
   // ---- left hand slides along the shaft to its authored station ----
-  const lw = attack || charge ? P.lw : 0;
+  const lw = atkLike || charge ? P.lw : 0;
   d.lw = lerp(d.lw || 0, lw, 1 - Math.exp(-dt * 22)); d.lz = d.min + P.l * d.len;
   if (d.lw > .02 && !free) {
     // Slide the support hand along the shaft to the nearest station the arm can actually reach.
@@ -457,6 +475,7 @@ function driveStaff(p, dt) {
     const L = staffArmGrip(rig, 'Left', target, dirS, sp, .7, d, d.lw);
     if (L) staffFistPose(fists.Left, L.axisL, d.lw > .45);
   }
+  staffHeat(p, d, mesh, charge, dt);
   // ---- 2-D spring bend from tip velocity (lag) ----
   const tip = staffLine(mesh, d.max), tail = staffLine(mesh, d.min);
   const tipVel = d.ready ? tip.clone().sub(d.prevT).divideScalar(Math.max(dt, 1e-4)) : new THREE.Vector3();
@@ -474,6 +493,25 @@ function driveStaff(p, dt) {
   const same = p.staffTrace && p.staffTrace.atk === p.atkN;
   const prevA = same ? p.staffTrace.a : tail, prevB = same ? p.staffTrace.b : tip;
   p.staffTrace = { a: tail, b: tip, prevA, prevB, atk: p.atkN, progress: attack ? p.mt : 0 };
+}
+// 蓄力时棍身由木色逐渐烧红（龙形赤红，灵蛇青、醉棍紫），满蓄后脉动并飘火星；出招后余热约半秒褪去
+const STAFF_HEAT_COL = [new THREE.Color(0xff2a10), new THREE.Color(0x20ffc0), new THREE.Color(0xc060ff)];
+function staffHeat(p, d, mesh, charge, dt) {
+  const k = charge ? clamp(p.chargeT / 1.1, 0, 1) : 0;
+  d.heat = charge ? Math.max(d.heat || 0, k * k * (3 - 2 * k) * (.35 + .65 * k)) : Math.max(0, (d.heat || 0) - dt * (p.state === 'attack' ? 1.6 : 4));
+  if (charge) d.heatCol = p.style;
+  if (d.heat < .002 && !d.heatOn) return;
+  if (!d.heatMats) {
+    d.heatMats = [];
+    for (const pc of d.pieces) { const m = pc.mesh.material = pc.mesh.material.clone(); d.heatMats.push({ m, c: m.color.clone(), e: m.emissive ? m.emissive.clone() : null, ei: m.emissiveIntensity ?? 1 }); }
+  }
+  const col = STAFF_HEAT_COL[d.heatCol || 0], full = charge && p.chargeT >= 1.1, h = d.heat * (full ? .82 + .18 * Math.sin(now * 22) : 1);
+  for (const it of d.heatMats) {
+    it.m.color.copy(it.c).lerp(col, h * .55);
+    if (it.e) { it.m.emissive.copy(it.e).lerp(col, h); it.m.emissiveIntensity = it.ei + h * 1.8; }
+  }
+  d.heatOn = d.heat > .002;
+  if (charge && k > .35 && Math.random() < k * .5) burst(staffLine(mesh, lerp(d.min, d.max, Math.random())), col.getHex(), 1, .8 + k);
 }
 function staffSwish(speed, kind) {
   const rate = clamp(.62 + speed / 34, .7, 1.55), vol = clamp(.25 + speed / 40, .3, 1) * (kind === 'iron' ? .85 : 1);

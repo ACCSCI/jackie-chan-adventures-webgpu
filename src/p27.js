@@ -107,6 +107,7 @@ Object.assign(WSHARED.staff.AH, { staff: 'slam', name: '落地劈山' });
   S.KL2 = wm({ name: '撑棍侧踹', sk: ['kick_side', .2, .83, 1.4], kf: _WK.L3, dur: .45, hit: .5, range: 2.1, arc: .8, dmg: 13, kb: 5, cost: 8, lunge: [.2, .5, 3] });
   S.KL3 = wm({ name: '撑棍高踢', sk: ['kick_high', .25, .76, 1.5], kf: _WK.L3, dur: .55, hit: .5, range: 2.1, arc: .9, dmg: 16, kb: 7, cost: 9 });
   S.KH = wm({ name: '撑竿飞踢', sk: ['kick_side', .1, .83, 1.4], kf: _WK.L3, dur: .8, hit: .5, range: 2.2, arc: .9, dmg: 26, kb: 10, cost: 18, heavy: 1, jump: 6, kd: 1, lunge: [.15, .65, 9] });
+  S.KL1.plant = 'plantK'; S.KL2.plant = S.KL3.plant = 'plantC'; S.KH.plant = 'plantV';
   S.KL1.nextM = S.KL2; S.KL2.nextM = S.KL3;
 }
 const WALL = new Set(); for (const c in WMOVES) { WMOVES[c].forEach(s => Object.values(s).forEach(m => WALL.add(m))); Object.values(WSHARED[c]).forEach(m => WALL.add(m)); }
