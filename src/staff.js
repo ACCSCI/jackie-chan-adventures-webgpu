@@ -7,13 +7,13 @@
 const D2R = Math.PI / 180;
 const STAFF_GRIP = { Right: new THREE.Vector3(.01, .062, .02), Left: new THREE.Vector3(-.01, .062, .02) };
 const STAFF_AXIS = { Right: new THREE.Vector3(Math.cos(.55), Math.sin(.55), 0), Left: new THREE.Vector3(-Math.cos(.55), Math.sin(.55), 0) };
-const STAFF_CH = ['r', 'u', 'f', 'az', 'el', 'g', 'sp', 'sl', 'l', 'lw', 'hip', 'tw', 'lean', 'drop', 'hf', 'fl', 'fr', 'ik', 'pole', 'free'];
-const STAFF_DEF = { h: [.2, .98, .1], d: [165, 40], g: .35, sp: 180, sl: 40, l: .6, lw: 0, hip: 0, tw: 0, lean: 0, drop: 0, hf: 0, fl: 0, fr: 0, ik: 1, pole: 0, free: 0 };
+const STAFF_CH = ['r', 'u', 'f', 'az', 'el', 'g', 'sp', 'sl', 'l', 'lw', 'hip', 'tw', 'lean', 'drop', 'hf', 'fl', 'fr', 'ik', 'pole', 'free', 'xr', 'xu', 'xf', 'xw'];
+const STAFF_DEF = { h: [.2, .98, .1], d: [165, 40], g: .35, sp: 180, sl: 40, l: .6, lw: 0, hip: 0, tw: 0, lean: 0, drop: 0, hf: 0, fl: 0, fr: 0, ik: 1, pole: 0, free: 0, x: [-.2, 1.05, .2], xw: 0 };
 function staffKeys(list) {
   let cur = { ...STAFF_DEF }; const t = [], v = STAFF_CH.map(() => []);
   for (const [time, o] of list) {
     cur = { ...cur, ...o }; t.push(time);
-    const flat = { r: cur.h[0], u: cur.h[1], f: cur.h[2], az: cur.d[0] * D2R, el: cur.d[1] * D2R, g: cur.g, sp: cur.sp * D2R, sl: cur.sl * D2R, l: cur.l, lw: cur.lw, hip: cur.hip, tw: cur.tw, lean: cur.lean, drop: cur.drop, hf: cur.hf, fl: cur.fl, fr: cur.fr, ik: cur.ik, pole: cur.pole, free: cur.free };
+    const flat = { r: cur.h[0], u: cur.h[1], f: cur.h[2], az: cur.d[0] * D2R, el: cur.d[1] * D2R, g: cur.g, sp: cur.sp * D2R, sl: cur.sl * D2R, l: cur.l, lw: cur.lw, hip: cur.hip, tw: cur.tw, lean: cur.lean, drop: cur.drop, hf: cur.hf, fl: cur.fl, fr: cur.fr, ik: cur.ik, pole: cur.pole, free: cur.free, xr: cur.x[0], xu: cur.x[1], xf: cur.x[2], xw: cur.xw };
     STAFF_CH.forEach((c, i) => v[i].push(flat[c]));
   }
   return { t, v };
@@ -28,7 +28,7 @@ function staffSample(K, t, out = {}) {
     const V = K.v[k], tan = j => j <= 0 || j >= n - 1 ? 0 : (V[j + 1] - V[j - 1]) / (T[j + 1] - T[j - 1]);
     out[c] = h00 * V[i] + h10 * h * tan(i) + h01 * V[i + 1] + h11 * h * tan(i + 1);
   });
-  out.lw = clamp(out.lw, 0, 1); out.ik = clamp(out.ik, 0, 1); out.pole = clamp(out.pole, 0, 1); out.free = clamp(out.free, 0, 1); out.g = clamp(out.g, 0, 1); out.l = clamp(out.l, 0, 1);
+  out.lw = clamp(out.lw, 0, 1); out.ik = clamp(out.ik, 0, 1); out.pole = clamp(out.pole, 0, 1); out.free = clamp(out.free, 0, 1); out.xw = clamp(out.xw, 0, 1); out.g = clamp(out.g, 0, 1); out.l = clamp(out.l, 0, 1);
   return out;
 }
 const SKS = staffKeys;
@@ -213,7 +213,7 @@ function bendStaff(mesh, dt, drive, zeta = .5) {
   d.bend = Math.hypot(d.bx, d.by);
   applyStaffBend(d);
 }
-function staffPoint(mesh, z, out = new THREE.Vector3()) { const d = mesh.userData.staff, [x, y] = staffBendAt(d, z); return mesh.localToWorld(out.set(x, y, z)); }
+function staffPoint(mesh, z, out = new THREE.Vector3()) { const d = mesh.userData.staff; if (!d) return mesh.localToWorld(out.set(0, 0, z)); const [x, y] = staffBendAt(d, z); return mesh.localToWorld(out.set(x, y, z)); }
 function staffLine(mesh, z, out = new THREE.Vector3()) { return mesh.localToWorld(out.set(0, 0, z)); }
 
 // ---------- 骨骼工具 ----------
@@ -601,8 +601,8 @@ function updateStaffEchoes(dt) {
   staffInitFx();
   for (const e of STAFF_ECHOES) { e.life -= dt; e.mesh.visible = e.life > 0; if (e.mesh.visible) e.mesh.material.opacity = e.peak * (e.life / .2) ** 1.5; }
   updateStaffGhosts(dt); staffGhostTick(player, dt);
-  const p = player, m = p.move, w = p.weapon, d = w?.mesh.userData.staff;
-  const swinging = !!d && !cutscene && !gameOver && (p.state === 'attack' && m?.staff && m.hits.some(h => Math.abs(p.mt - h) < .2) || p.state === 'staffSpin') && d.tipSpeed > 5.5;
+  const p = player, m = p.move, w = p.weapon, d = w?.mesh.userData.staff || w?.mesh.userData.blade, blade = !!w?.mesh.userData.blade;
+  const swinging = !!d && !cutscene && !gameOver && (p.state === 'attack' && (m?.staff || m?.blade) && m.hits.some(h => Math.abs(p.mt - h) < .2) || p.state === 'staffSpin') && d.tipSpeed > 5.5;
   // ① ribbon history (fixed ring buffer); ages advance with game time so hit-stop freezes it.
   for (const h of staffRibHist) h.age += dt;
   if (swinging) {
@@ -637,7 +637,8 @@ function updateStaffEchoes(dt) {
     if (M === R.ink) { M.material.color.setHex(0x0b0907); M.material.opacity = .62 * fade; }
     else { M.material.color.setHex(layer === 1 && mode.ink ? 0xffd27a : mode.col); M.material.opacity = (layer === 1 ? 1 : .55) * fade; }
   });
-  // ② shaft afterimages
+  // ② shaft afterimages (staff only)
+  if (blade) return;
   if (!swinging || (staffEchoT -= dt) > 0) { if (!swinging) staffEchoT = 0; return; }
   staffEchoT = m?.staff === 'twirl' || p.state === 'staffSpin' ? .045 : .03;
   const e = STAFF_ECHOES[staffEchoIndex++ % STAFF_ECHOES.length], a = e.mesh.geometry.attributes.position.array;
@@ -660,7 +661,7 @@ let staffGhostI = 0;
 let staffGhostAtk = -1, staffGhostN = 0, staffGhostCD = 0;
 function staffGhostTick(p, dt) {
   const m = p.move; staffGhostCD -= dt;
-  if (p.state !== 'attack' || !m?.staff || !m.finisher || p.view !== 'third' || cutscene) return;
+  if (p.state !== 'attack' || !(m?.staff || m?.blade) || !m.finisher || p.view !== 'third' || cutscene) return;
   if (staffGhostAtk !== p.atkN) { staffGhostAtk = p.atkN; staffGhostN = 0; }
   const last = m.hits[m.hits.length - 1], first = m.ring ? m.hits[0] - .12 : last - .24;
   if (staffGhostN < 3 && p.mt > first && p.mt < last + .04 && staffGhostCD <= 0) { staffGhost(p, m); staffGhostN++; staffGhostCD = .05; }

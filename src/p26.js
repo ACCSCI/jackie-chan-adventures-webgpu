@@ -89,9 +89,9 @@ function driveSkinPlayer(p, dt) {
   } else if (st === 'attack') {
     const m = p.move, map = m === MOVES.sweep ? ['crouch_idle', 0, null, 0.1] : SKM[m.skKey] || SKM.jab1, t = Math.min(1, p.mt);
     const ct = skMap(map, t, m.hits[0]), id2 = 'atk' + p.atkN;
-    if (m.staff) {
+    if (m.staff || m.blade && !m.bladeClip) {
       // 下半身用格斗站姿，重心/踏步/转腰由 driveStaff 程序化叠加；立棍与跳劈换全身片段
-      const ph = m.pole ? (t < .42 ? null : t < .58 ? ['crouch_idle', 0] : t < .88 ? ['kick_hurricane', .25 + (t - .58) / .3 * 1.1] : null) : m.jump && !p.grounded ? ['jump', .55 + t * .6] : null;
+      const ph = m.pole ? (t < .42 ? null : t < .58 ? ['crouch_idle', 0] : t < .88 ? ['kick_hurricane', .25 + (t - .58) / .3 * 1.1] : null) : (m.jump || m.air) && !p.grounded ? ['jump', .55 + t * .6] : null;
       if (ph && SKIN.clips[ph[0]]) { sk.set(id2 + ph[0], { [ph[0]]: 1 }, null, .08); if (ph[1]) sk.time(ph[0], ph[1]); }
       else { const lower = m.low ? 'crouch_idle' : 'idle_box'; sk.set(id2, { [lower]: 1 }, { idle_box: 1 }, .065); sk.speed(lower, 1); }
     } else if (map[4]) sk.set(id2, { [map[4]]: 1 }, { [map[0]]: 1 }, 0.06); else sk.set(id2, { [map[0]]: 1 }, null, 0.06);
@@ -126,55 +126,50 @@ function driveSkinPlayer(p, dt) {
     skDown(sk, p.downClip === DOWN.front, tt, p.downClip.dur, st === 'dead');
   }
   if (st !== 'attack') rig.inner.rotation.y = 0;
-  sk.update(dt); skSprings(rig, A);
-  if (st === 'attack' && p.move === MOVES.sweep) skLowSweep(rig, p.mt);
-  driveStaff(p, dt);
+  const sweep = st === 'attack' && p.move === MOVES.sweep;
+  sk.update(dt); if (!sweep) skSprings(rig, A); // 扫腿姿势完全程序化，弹簧会把旧招式关键帧的冲量带进来
+  if (sweep) skLowSweep(rig, p.mt);
+  driveStaff(p, dt); driveBlade(p, dt);
 }
-// Keep the supporting leg folded; extend the outside leg in world space so
-// retargeted bone axes cannot turn the sweep into an upright spinning kick.
+// 扫堂腿：单腿全蹲（支撑腿膝盖朝前外）、扫腿贴地伸直勾脚、上身前俯双手探地、绕支撑脚整圈旋转。
+// 整套姿势用 IK 程序化求解后再按权重与蹲姿片段混合，起落各有过渡。
 function skLowSweep(rig, t) {
-  const B = rig.bones;
-  if (!B.Hips || !B.RightUpLeg || !B.RightLeg || !B.RightFoot) return;
-  const smooth = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
-  const w = smooth(t / 0.16) * smooth((1 - t) / 0.18);
+  const B = rig.bones, need = ['Hips', 'Spine', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'RightUpLeg', 'RightLeg', 'RightFoot'];
+  if (need.some(n => !B[n])) return;
+  const w = staffEase(t / .13) * staffEase((1 - t) / .22);
+  if (w <= .001) return;
+  const names = ['Hips', 'Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'RightUpLeg', 'RightLeg', 'RightFoot', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand'].filter(n => B[n]);
+  const orig = names.map(n => B[n].quaternion.clone()), hip0 = B.Hips.position.clone();
   rig.root.updateMatrixWorld(true);
-  const hip = B.Hips.getWorldPosition(new THREE.Vector3());
-  const floor = rig.root.getWorldPosition(new THREE.Vector3()).y;
-  hip.y = lerp(hip.y, floor + 0.48, w);
-  B.Hips.position.copy(B.Hips.parent.worldToLocal(hip.clone()));
+  const fq = rig.inner.getWorldQuaternion(new THREE.Quaternion()), base = rig.root.getWorldPosition(new THREE.Vector3()), S = rig.root.scale.x;
+  const P = (x, y, z) => new THREE.Vector3(x, y, z).applyQuaternion(fq).multiplyScalar(S).add(base);
+  const D = (x, y, z) => new THREE.Vector3(x, y, z).normalize().applyQuaternion(fq);
+  const X = D(1, 0, 0), Y = new THREE.Vector3(0, 1, 0);
+  // 扫腿过程中重心随旋转再压低一点，出腿瞬间身体前俯最深
+  const k = staffEase((t - .1) / .25), dip = Math.sin(Math.PI * clamp((t - .1) / .7, 0, 1));
+  B.Hips.position.copy(B.Hips.parent.worldToLocal(P(-.02, .43 - .03 * dip, -.05))); B.Hips.updateWorldMatrix(false, true);
+  // 躯干逐节对准绝对方向（不叠加片段自身的弯腰）：前俯、略向扫腿一侧拧
+  boneRotWorld(B.Hips, Y, -.25);
+  const chain = [['Hips', 'Spine', .55], ['Spine', 'Spine1', .75], ['Spine1', 'Spine2', .85], ['Spine2', 'Neck', .8], ['Neck', 'Head', .45]];
+  for (const [a, c, th] of chain) if (B[a] && B[c]) { const t2 = th + (a === 'Neck' ? 0 : .08 * dip); staffAimBone(B[a], B[c], D(-.06, Math.cos(t2), Math.sin(t2))); }
   rig.root.updateMatrixWorld(true);
-  const facing = rig.inner.getWorldQuaternion(new THREE.Quaternion());
-  function aim(bone, child, dir) {
-    const from = bone.getWorldPosition(new THREE.Vector3());
-    const current = child.getWorldPosition(new THREE.Vector3()).sub(from).normalize();
-    const desired = dir.normalize().applyQuaternion(facing);
-    const world = bone.getWorldQuaternion(new THREE.Quaternion());
-    world.premultiply(new THREE.Quaternion().setFromUnitVectors(current, desired));
-    const local = bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(world);
-    bone.quaternion.slerp(local, w);
-    rig.root.updateMatrixWorld(true);
-  }
-  if (B.LeftUpLeg && B.LeftLeg && B.LeftFoot) {
-    const start = B.LeftUpLeg.getWorldPosition(new THREE.Vector3());
-    const knee = B.LeftLeg.getWorldPosition(new THREE.Vector3());
-    const ankle = B.LeftFoot.getWorldPosition(new THREE.Vector3());
-    const a = start.distanceTo(knee), b = knee.distanceTo(ankle);
-    const end = new THREE.Vector3(-0.16, 0, 0).applyQuaternion(facing).add(hip);
-    end.y = floor + 0.10;
-    const axis = end.clone().sub(start), d = clamp(axis.length(), Math.abs(a - b) + 0.001, a + b - 0.001);
-    axis.normalize();
-    const bend = new THREE.Vector3(0, 0, 1).applyQuaternion(facing);
-    bend.addScaledVector(axis, -bend.dot(axis)).normalize();
-    const along = (a * a - b * b + d * d) / (2 * d);
-    const joint = start.clone().addScaledVector(axis, along).addScaledVector(bend, Math.sqrt(Math.max(0, a * a - along * along)));
-    const inverse = facing.clone().invert();
-    aim(B.LeftUpLeg, B.LeftLeg, joint.sub(start).applyQuaternion(inverse));
-    const actualKnee = B.LeftLeg.getWorldPosition(new THREE.Vector3());
-    aim(B.LeftLeg, B.LeftFoot, end.sub(actualKnee).applyQuaternion(inverse));
-  }
-  aim(B.RightUpLeg, B.RightLeg, new THREE.Vector3(1, -0.42, 0.12));
-  aim(B.RightLeg, B.RightFoot, new THREE.Vector3(1, -0.30, 0.12));
-  if (B.RightToeBase) aim(B.RightFoot, B.RightToeBase, new THREE.Vector3(1, 0, 0.12));
+  // 支撑腿：全蹲，脚掌贴地，膝盖朝前外侧
+  staffTwoBone(B.LeftUpLeg, B.LeftLeg, B.LeftFoot, P(.17, .085, .12), D(.55, .15, 1));
+  if (B.LeftToeBase) staffAimBone(B.LeftFoot, B.LeftToeBase, D(.35, -.08, 1));
+  // 扫腿：贴地伸直，膝盖朝上，勾脚以脚掌内侧领扫
+  const reachZ = lerp(.05, .3, k);
+  staffTwoBone(B.RightUpLeg, B.RightLeg, B.RightFoot, P(-.9, .1, reachZ), D(0, 1, .25));
+  if (B.RightToeBase) staffAimBone(B.RightFoot, B.RightToeBase, D(-.25, .75, .6));
+  // 双手向前下方探地保持平衡
+  if (B.LeftArm && B.LeftForeArm && B.LeftHand) staffTwoBone(B.LeftArm, B.LeftForeArm, B.LeftHand, P(.28, .16, .5), D(1, .2, -.4));
+  if (B.RightArm && B.RightForeArm && B.RightHand) staffTwoBone(B.RightArm, B.RightForeArm, B.RightHand, P(-.14, .2, .56), D(-1, .2, -.4));
+  for (const [side, x] of [['Left', .1], ['Right', -.1]]) { const h = B[side + 'Hand'], c = h && h.children.find(o => o.isBone); if (c) staffAimBone(h, c, D(x, -.9, .4)); }
+  // 抬头盯住前方
+  if (B.Head && B.HeadTop_End) staffAimBone(B.Head, B.HeadTop_End, D(.02, .9, .42));
+  // 与片段姿势按权重混合
+  names.forEach((n, i) => { const q = B[n].quaternion.clone(); B[n].quaternion.copy(orig[i]).slerp(q, w); });
+  B.Hips.position.lerpVectors(hip0, B.Hips.position.clone(), w);
+  rig.root.updateMatrixWorld(true);
 }
 function driveSkinEnemy(e, dt, cut) {
   const rig = e.rig, sk = rig.sk; if (!sk || !sk.mixer) return;

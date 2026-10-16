@@ -331,13 +331,15 @@ function weaponMesh(i) {
   if (kind === 'katana') {
     cyl(0.018, 0.018, 0.26, 0x22101a, 0.02, 8);
     const gd = cyl(0.05, 0.05, 0.015, 0, 0.16, 12, metal(0xb08a3a)); gd.rotation.x = Math.PI / 2;
-    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.036, 0.78), MS(0xd8dee8, { metalness: .9, roughness: .15 })); bl.position.z = 0.56; bl.rotation.x = 0.04; g.add(bl);
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.036, 0.78), MS(0xe4e9f0, { metalness: .55, roughness: .18, emissive: 0x1a1d22 })); bl.position.z = 0.56; bl.rotation.x = 0.04; g.add(bl);
   }
   if (kind === 'sword') {
     cyl(0.016, 0.016, 0.2, 0x3a2416, 0.0, 8); cyl(0.028, 0.028, 0.04, 0, -0.11, 8, metal(0xc9a03a));
-    const gd = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.035, 0.035), metal(0xc9a03a, .25)); gd.position.z = 0.12; g.add(gd);
-    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.008, 0.7), MS(0xcfd6dc, { metalness: .9, roughness: .2 })); bl.position.z = 0.48; g.add(bl);
-    const tp = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.08, 4), MS(0xcfd6dc, { metalness: .9, roughness: .2 })); tp.rotation.x = Math.PI / 2; tp.position.z = 0.87; tp.scale.set(1, 0.25, 1); g.add(tp);
+    const steel = MS(0xe2e8ee, { metalness: .55, roughness: .22, emissive: 0x1a1d22 });
+    const gd = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.16, 0.035), metal(0xc9a03a, .25)); gd.position.z = 0.12; g.add(gd);
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.04, 0.7), steel); bl.position.z = 0.48; g.add(bl);
+    const rid = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.006, 0.66), metal(0xaab2ba, .3)); rid.position.z = 0.47; g.add(rid);
+    const tp = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.08, 4), steel); tp.rotation.x = Math.PI / 2; tp.position.z = 0.87; tp.scale.set(0.2, 1, 1); g.add(tp);
     const ts = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.16, 6), M(0xd02a2a)); ts.position.set(0, -0.08, -0.15); g.add(ts);
   }
   if (kind === 'bottle') {

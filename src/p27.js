@@ -86,6 +86,17 @@ for (const c of ['staff', 'blade', 'short']) {
   S.A = wm({ name: '凌空劈', sk: SD, dur: .45, hit: .45, range: 1.7, arc: 1.0, dmg: 14, kb: 4, cost: 8, air: 1 });
   S.AH = wm({ name: '流星坠', sk: ['slash_down', .1, .8, 1.3], dur: .55, hit: .4, range: 1.8, arc: 1.2, dmg: 20, kb: 6, cost: 14, heavy: 1, kd: 1, air: 1 });
 }
+// 刀剑类：全部换成程序化刀剑姿态（blade.js），踢腿两招保留全身片段、刀只跟手
+{
+  const B = WMOVES.blade, S = WSHARED.blade;
+  [['chop', 'diag', 'sweepR', 'tornado'], ['stab1', 'stab2', 'pierce', 'flurry'], ['drunk1', 'drunk2', null, null]].forEach((names, s) => ['L1', 'L2', 'L3', 'H'].forEach((k, i) => { const m = B[s][k]; if (names[i]) { m.blade = names[i]; SKM[m.skKey] = ['idle_box', 0, null, .2]; } else Object.assign(m, { blade: 'clip', bladeClip: 1 }); }));
+  Object.assign(B[0].L1, { stop: .055, fov: 1.6 }); Object.assign(B[0].L3, { stop: .06, fov: 1.8 }); Object.assign(B[0].H, { finisher: 1, stop: .07, fov: 3 });
+  Object.assign(B[1].L3, { stop: .07, fov: 2.2, finisher: 1 }); Object.assign(B[1].H, { finisher: 1, stop: .03 });
+  Object.assign(B[2].H, { finisher: 1 });
+  for (const k of ['CL', 'CH', 'A', 'AH']) SKM[S[k].skKey] = ['idle_box', 0, null, .2];
+  Object.assign(S.CL, { blade: 'low' }); Object.assign(S.CH, { blade: 'rise', finisher: 1, stop: .08, fov: 3 });
+  Object.assign(S.A, { blade: 'air', name: '凌空劈斩' }); Object.assign(S.AH, { blade: 'meteor', name: '流星坠剑', finisher: 1, stop: .09, fov: 3.5 });
+}
 Object.assign(WSHARED.staff.CL, { staff: 'low', spin360: null });
 Object.assign(WSHARED.staff.CH, { staff: 'rise' });
 Object.assign(WSHARED.staff.A, { staff: 'chop', name: '凌空劈棍' });

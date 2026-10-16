@@ -288,7 +288,7 @@ function updatePlayer(dt) {
   // 按住轻击：棍花
   if (p.lmbHeld && now - p.lmbT > .28 && p.state !== 'staffSpin' && wcls() === 'staff' && tryStaffFlower()) buffer.type = null;
   // 输入缓冲
-  const inputWindow = p.state === 'attack' && p.move?.staff ? .6 : .35;
+  const inputWindow = p.state === 'attack' && (p.move?.staff || p.move?.blade) ? .6 : .35;
   if (buffer.type && now - buffer.t > inputWindow) buffer.type = null;
   if (buffer.type && canAct(p)) {
     const type = buffer.type; buffer.type = null;
@@ -456,7 +456,8 @@ function playerHitCheck(m, hi, staffTargets = null) {
     impact('hit', { heavy: !!m.heavy, mat: wk ? MAT[wk] : null, counter: counter || sneak, kill: killN > 0, armor: armorN > 0 && !killN, pos: hitPos, fallback: sound });
     // 停顿：重击/反击/击杀更长，打霸体更短更“弹手”
     hitstop = killN ? 0.11 : counter ? 0.1 : m.stop ?? (m.heavy ? 0.085 : armorN ? 0.025 : 0.045);
-    if (m.staff && hitPos) staffCamPunch(hitPos.clone().sub(p.pos).setY(0), m.heavy ? .07 : .035, m.fov || 1.5);
+    if ((m.staff || m.blade) && hitPos) staffCamPunch(hitPos.clone().sub(p.pos).setY(0), m.heavy ? .06 : .03, m.fov || (m.heavy ? 2.5 : 1.2));
+    if (m.blade) bladeOnHit(p, m);
     shake = Math.max(shake, killN ? 0.24 : m.heavy || counter ? 0.2 : 0.07);
     if (killN && !enemies.some(e => !e.dead && e.type !== 'dummy')) slowmo = Math.max(slowmo, 0.35); // 本波最后一击
     p.anim.kick('sx', m.heavy ? 1.5 : 0.8); // 打实的反作用
