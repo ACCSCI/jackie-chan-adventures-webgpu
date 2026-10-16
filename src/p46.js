@@ -229,7 +229,15 @@ const Story = {
   toStreet() { this.setArea('street'); this.putPlayer(0, -24.5, 0); uncle.hide(); jade.place(-1.6, -26.3, 0.3); },
   play(lines, done) {
     this.lines = lines; this.i = -1; this.done = done; cutscene = true; this.camSnap = !this.camPos; this.prevWho = null;
-    document.body.classList.add('cine'); keys.KeyQ = false; player.guard = false; buffer.type = null;
+    document.body.classList.add('cine'); keys.KeyQ = false;
+    player.guard = player.crouch = false; buffer.type = null;
+    player.move = player.clip = null; player.jumpUntil = -Infinity; player.chargeT = 0; player.staffTrace = null; player.mt = 0; player.combo = 0;
+    player.vel.set(0, 0, 0); player.vy = 0; player.pos.y = 0; player.grounded = true;
+    player.yawTarget = player.yaw; player.rig.inner.rotation.y = 0;
+    setState(player, 'loco', 0.12);
+    for (const k in player.anim.sp) player.anim.sp[k] = 0;
+    for (const k in player.anim.sv) player.anim.sv[k] = 0;
+    mouseDX = mouseDY = 0; refreshChips();
     for (const k in keys) keys[k] = false;
     this.advance();
   },

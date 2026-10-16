@@ -527,8 +527,8 @@ function movesHTML() {
     const w = WEAPONS[player.weapon.type], WC = WCLASS[c], X = WMOVES[c][player.style], H = WSHARED[c];
     const ws = WEAPONS.filter(x => x.cls === c).map(x => x.name).join(' / ');
     return `<h3>招式表 · ${w.name} · <span style="color:${st.css}">${WC.styles[player.style]}</span> <small>（${WC.name}：1/2/3 切换 ${WC.styles.join(' / ')}）</small></h3><table>
-  ${row('左键 连按', `${X.L1.name} → ${X.L2.name} → ${X.L3.name}`, '器械三连')}
-  ${row('右键', X.H.name, X.H.hits.length > 1 ? `${X.H.hits.length} 段连击` : X.H.kd ? '击倒' : '重击')}
+  ${row('左键 连按', `${[X.L1, X.L2, X.L3, X.L4].filter(Boolean).map(m => m.name).join(' → ')}`, X.L4 ? '器械四连' : '器械三连')}
+  ${row(c === 'staff' ? '右键按住蓄力 / 松开释放' : '右键', X.H.name, X.H.hits.length > 1 ? `${X.H.hits.length} 段连击` : X.H.kd ? '击倒' : '重击')}
   ${H.KL1 ? row('Caps 切腿法 · 左键连按', `${H.KL1.name} → ${H.KL2.name} → ${H.KL3.name}`, '棍类独有') + row('腿法 · 右键', H.KH.name, '跳起飞踢 · 击倒') : row('Caps 切腿法', '普通腿法', '只有棍类能撑棍踢')}
   ${row('C 蹲下 · 左键', H.CL.name, H.CL.kd ? '击倒' : '低位')}
   ${row('C 蹲下 · 右键', H.CH.name, '把敌人挑飞')}
@@ -603,11 +603,12 @@ const Menu = {
     for (const w of groundWeapons) w.mesh.removeFromParent(); groundWeapons.length = 0;
     for (const w of this.initialWeapons || []) spawnWeapon(w.type, w.x, w.z, w.dur);
     for (const w of [player.weapon, player.weapon2]) if (w && w.mesh) w.mesh.removeFromParent();
-    Object.assign(player, { hp: 200, maxHp: 200, st: 100, stDelay: 0, weapon: null, weapon2: null, mode: 'fist', crouch: false, guard: false, guardPress: -9, grounded: true, vy: 0, iframe: 0, move: null, clip: null, downClip: null, mt: 0, hitDone: [], combo: 0, comboT: 0, counterT: -9, buffs: {}, hurtT: -99, prevHp: 200, regen: false });
+    Object.assign(player, { hp: 200, maxHp: 200, st: 100, stDelay: 0, weapon: null, weapon2: null, mode: 'fist', crouch: false, guard: false, guardPress: -9, grounded: true, vy: 0, jumpUntil: -Infinity, chargeT: 0, staffTrace: null, iframe: 0, move: null, clip: null, downClip: null, mt: 0, hitDone: [], combo: 0, comboT: 0, counterT: -9, buffs: {}, hurtT: -99, prevHp: 200, regen: false });
     player.rig.root.visible = true; player.rig.root.scale.setScalar(1);
     player.rig.mats.forEach(m => m.emissive.setRGB(0, 0, 0));
     for (const k in keys) keys[k] = false;
     buffer.type = null; mouseDX = mouseDY = 0; lockTarget = null;
+    for (const e of STAFF_ECHOES) { e.life = 0; e.mesh.visible = false; }
     shake = hitstop = slowmo = 0; wave = -1; waveDone = true; waveDelay = 0; kills = 0; playTime = 0;
     Dojo.on = false; Dojo.dummies.length = 0; Dojo.spar = null; Dojo.log.length = 0;
     for (const f of floaters) f.d.remove(); floaters.length = 0;

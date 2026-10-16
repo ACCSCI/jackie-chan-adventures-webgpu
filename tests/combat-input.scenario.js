@@ -1,0 +1,30 @@
+(() => {
+ const g = window.__game, p = g.player, checks = [];
+ const check = (name, pass, detail) => { checks.push({name, pass, detail}); if (!pass) throw new Error(JSON.stringify(checks)); };
+ document.getElementById('menu').classList.add('hide');
+ g.started = true; g.locked = false; g.Dojo.begin(); g.locked = false;
+ const mode = p.mode;
+ window.dispatchEvent(new WheelEvent('wheel', {deltaY:100, cancelable:true}));
+ check('paused wheel ignored',p.mode === mode);
+ g.locked = true;
+ const style = p.style;
+ window.dispatchEvent(new WheelEvent('wheel', {deltaY:100, cancelable:true}));
+ check('wheel toggles mode only',p.mode !== mode && p.style === style);
+ check('HUD follows mode',document.getElementById('combatMode').dataset.mode === p.mode);
+ check('only current combat icon visible',[...document.querySelectorAll('#combatMode .mode-option')].filter(e=>getComputedStyle(e).display!=='none').length===1);
+ check('HUD assets loaded',[...document.querySelectorAll('#combatMode img, #styles img')].every(e=>e.complete&&e.naturalWidth>0));
+ const changed = p.mode;
+ window.dispatchEvent(new WheelEvent('wheel', {deltaY:100}));
+ check('wheel burst debounced',p.mode === changed);
+ g.locked = false; p.crouch = true; p.st = 100; g.startMove(g.MOVES.sweep); g.step(12);
+ p.rig.root.updateMatrixWorld(true);
+ const point = name => {const v=p.pos.clone();p.rig.bones[name].getWorldPosition(v);return v;};
+ const hip=point('Hips'), knee=point('RightLeg'), foot=point('RightFoot'), origin=p.pos;
+ check('sweep low hips',hip.y-origin.y < .55,hip.y-origin.y);
+ check('sweep foot near ground',foot.y-origin.y < .3 && foot.y-origin.y > -.1,foot.y-origin.y);
+ check('sweep leg extends outside',Math.hypot(foot.x-hip.x,foot.z-hip.z)>.6,Math.hypot(foot.x-hip.x,foot.z-hip.z));
+ const support=point('LeftFoot');
+ check('support foot stays grounded',Math.abs(support.y-origin.y-.1)<.03,support.y-origin.y);
+ window.__sweepChecks=checks;
+ return checks;
+})()

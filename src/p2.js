@@ -233,7 +233,7 @@ const BASE = {
 // 所有基准姿态补全为完整姿态（缺省关节为 0），避免出现 NaN
 for (const k in BASE) { if (Array.isArray(BASE[k])) BASE[k] = BASE[k].map(b => Object.assign(zeroPose(), b)); else BASE[k] = Object.assign(zeroPose(), BASE[k]); }
 const STYLES = [
-  { name: '龙形拳', key: '龙', color: 0xffbf3c, css: '#ffbf3c', spd: 1.0, dmg: 1.2, kb: 1.5, cost: 1.0 },
+  { name: '龙形拳', key: '龙', color: 0xffbf3c, css: '#ffbf3c', spd: 1.0, dmg: 1.44, taken: .85, kb: 1.5, cost: 1.0 },
   { name: '蛇形拳', key: '蛇', color: 0x4be37a, css: '#4be37a', spd: 1.3, dmg: 0.8, kb: 0.8, cost: 0.7 },
   { name: '醉拳', key: '醉', color: 0xc889ff, css: '#c889ff', spd: 0.92, dmg: 1.05, kb: 1.2, cost: 0.9 },
 ];
@@ -313,7 +313,7 @@ const WEAPONS = [
 ];
 function weaponMesh(i) {
   const g = new THREE.Group(), kind = WEAPONS[i].kind || ['stick', 'umbrella', 'pan'][i];
-  const cyl = (r1, r2, len, col, z, seg = 8, mat) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, len, seg), mat || M(col)); m.rotation.x = Math.PI / 2; m.position.z = z; g.add(m); return m; };
+  const cyl = (r1, r2, len, col, z, seg = 8, mat) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, len, seg, WEAPONS[i].cls === 'staff' ? 24 : 1), mat || M(col)); m.rotation.x = Math.PI / 2; m.position.z = z; g.add(m); return m; };
   const metal = (c, r = .3) => MS(c, { metalness: .85, roughness: r });
   if (kind === 'stick') cyl(0.028, 0.028, 1.8, 0x7a4a22, 0.45);
   if (kind === 'umbrella') { cyl(0.015, 0.015, 1.1, 0x333333, 0.45, 6); cyl(0.0, 0.12, 0.75, 0xd23a3a, 0.7); }

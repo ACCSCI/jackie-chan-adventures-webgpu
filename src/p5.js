@@ -88,16 +88,19 @@ refreshChips();
 const trails = [new Trail(), new Trail(), new Trail(), new Trail(), new Trail()];
 const _a = new THREE.Vector3(), _b = new THREE.Vector3(), lastTip = [0, 0, 0, 0, 0].map(() => new THREE.Vector3());
 function updateTrails(dt) {
+  updateStaffEchoes(dt);
   const r = player.rig, col = new THREE.Color(STYLES[player.style].color);
   const eff = [[r.lHand, r.lE], [r.rHand, r.rE], [r.lFoot, r.lK], [r.rFoot, r.rK], [player.weapon ? player.weapon.mesh : null, r.rHand]];
   eff.forEach(([tip, base], i) => {
     const t = trails[i]; t.color.copy(col);
     if (!tip) { t.push(_a.set(0, -99, 0), _a, false); return; }
     tip.getWorldPosition(_a); base.getWorldPosition(_b);
-    if (i === 4) { _b.copy(_a); const ext = new THREE.Vector3(0, 0, WEAPONS[player.weapon.type].len || 0.9).applyQuaternion(tip.getWorldQuaternion(new THREE.Quaternion())); _a.add(ext); _b.addScaledVector(ext, 0.4); }
+    if (i === 4 && player.weapon?.mesh.userData.staff) { const mesh = player.weapon.mesh, d = mesh.userData.staff; staffPoint(mesh, d.max, _a); staffPoint(mesh, d.min, _b); t.mesh.material.opacity = .35; }
+    else if (i === 4) { t.mesh.material.opacity = 1; _b.copy(_a); const ext = new THREE.Vector3(0, 0, WEAPONS[player.weapon.type].len || 0.9).applyQuaternion(tip.getWorldQuaternion(new THREE.Quaternion())); _a.add(ext); _b.addScaledVector(ext, 0.4); }
     else _b.lerpVectors(_a, _b, 0.45);
     const spd = _a.distanceTo(lastTip[i]) / Math.max(dt, 1e-4); lastTip[i].copy(_a);
-    const on = player.state === 'attack' && spd > 5 && player.view === 'third' || (player.state === 'attack' && spd > 5 && i !== 1 && i !== 0);
+    const active = !cutscene && player.state === 'attack' && (!player.move?.staff || player.move.hits.some(h => Math.abs(player.mt - h) < .18));
+    const on = active && spd > 5 && (player.view === 'third' || i > 1);
     t.mesh.visible = player.view === 'third' || i >= 2;
     t.push(_a, _b, on);
   });
@@ -155,5 +158,5 @@ renderer.init().then(() => {
 Menu.initialWeapons = groundWeapons.map(w => ({ type: w.type, x: w.pos.x, z: w.pos.z, dur: w.dur }));
 window.__game = { SFX, sfx, Impact, impact, Stealth, cases, MU, get snakeAltar() { return snakeAltar; }, Voice, BGM, AudioBus, get AC() { return AC; }, fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
   step(n, dt = 1 / 60) { for (let i = 0; i < n; i++) { now += dt; updatePlayer(dt); if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.update(dt)); updateWaves(dt); } updatePickups(dt); Story.update(dt); } updateCamera(dt); updateTrails(dt); },
-  Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
+  Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, tryJump, tryStaffCharge, releaseStaffCharge, equipMesh, STAFF_ECHOES, STYLES, staffPose, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
   get now() { return now; } };

@@ -29,18 +29,19 @@ function wm(o) {
 const SD = ['slash_down', .2, .8, 1.25], SO = ['slash_out', .3, 1.0, 1.8], ST = ['stab', .6, 1.13, 1.8], SI = ['slash_in', .3, .9, 1.6], SIF = ['slash_in', 0, null, 2.2], UP = ['upper', 0, .57, 1.25], QD = ['quad', .1, null, 2.1];
 const WMOVES = {
   staff: [
-    { L1: wm({ name: '劈山棍', sk: SD, dur: .46, hit: .45, range: 1.7, arc: .8, dmg: 12, kb: 3, lunge: [.2, .45, 2.5] }),
-      L2: wm({ name: '横扫千军', sk: SO, kf: _WK.L2, dur: .5, hit: .45, range: 1.7, arc: 1.5, dmg: 13, kb: 4, cost: 8 }),
-      L3: wm({ name: '龙抬头', sk: UP, kf: _WK.L3, dur: .55, hit: .45, range: 1.7, arc: 1.0, dmg: 15, kb: 3, cost: 9, launch: 7 }),
-      H: wm({ name: '神龙摆尾', sk: ['kick_spin', 1.0, 1.83, 2.6], kf: _WK.H, dur: .8, hit: .5, range: 1.9, arc: 1.2, dmg: 24, kb: 9, cost: 18, heavy: 1, kd: 1, lunge: [.2, .6, 5] }) },
-    { L1: wm({ name: '吐信', sk: ST, kf: _WK.L3, dur: .34, hit: .45, range: 1.9, arc: .6, dmg: 9, kb: 1.5, cost: 5, lunge: [.2, .45, 3] }),
-      L2: wm({ name: '连环刺', sk: ST, kf: _WK.L3, dur: .32, hit: .45, range: 1.9, arc: .6, dmg: 9, kb: 1.5, cost: 5, lunge: [.2, .45, 3] }),
-      L3: wm({ name: '灵蛇出洞', sk: ST, kf: _WK.L3, dur: .5, hit: .5, range: 2.0, arc: .6, dmg: 15, kb: 6, cost: 8, lunge: [.2, .55, 9] }),
-      H: wm({ name: '百蛇乱舞', sk: QD, kf: _WK.L3, dur: 1.0, hits: [.15, .32, .5, .68, .85], range: 1.8, arc: .9, dmg: 7, kb: 1.2, cost: 18, heavy: 1, lunge: [.1, .8, 2.5] }) },
-    { L1: wm({ name: '醉卧扫', sk: SI, kf: _WK.L2, dur: .5, hit: .5, range: 1.7, arc: 1.4, dmg: 12, kb: 3 }),
-      L2: wm({ name: '倒挂金钩', sk: SO, kf: _WK.L2, dur: .5, hit: .45, range: 1.7, arc: 1.4, dmg: 13, kb: 4, cost: 8 }),
-      L3: wm({ name: '醉里回身', sk: ['kick_round', .1, .68, 1.45], kf: _WK.H, dur: .62, hit: .55, range: 1.9, arc: Math.PI, dmg: 16, kb: 6, cost: 9, spin: 1, spin360: [.05, .6] }),
-      H: wm({ name: '醉八仙·旋棍', sk: ['kick_hurricane', 0, null, 1.8], kf: _WK.H, dur: .95, hits: [.35, .55, .75], range: 1.9, arc: Math.PI, dmg: 11, kb: 5, cost: 20, heavy: 1, spin: 1, jump: 5 }) },
+    { L1: wm({ name: '游龙斜劈', staff: 'chop', sk: ['idle_box', 0, null, .2], dur: .48, hit: .46, dmg: 12, cost: 6, lunge: [.22, .55, 2.8] }),
+      L2: wm({ name: '横扫千军', staff: 'sweep', sk: ['idle_box', 0, null, .2], dur: .49, hit: .45, dmg: 13, cost: 7, arc: 2.3 }),
+      L3: wm({ name: '回身盘龙', staff: 'reverse', sk: ['idle_box', 0, null, .2], dur: .57, hit: .50, dmg: 15, cost: 8, arc: 2.6 }),
+      L4: wm({ name: '降龙劈山', staff: 'slam', sk: ['idle_box', 0, null, .2], dur: .68, hit: .55, dmg: 22, cost: 10, kd: 1, kb: 7, lunge: [.25, .56, 4] }),
+      H: wm({ name: '蓄势劈山', staff: 'slam', sk: ['idle_box', 0, null, .2], dur: .8, hit: .51, dmg: 30, cost: 20, heavy: 1, kd: 1, kb: 9, lunge: [.25, .53, 4] }) },
+    { L1: wm({ name: '灵蛇点首', staff: 'thrust', sk: ['idle_box', 0, null, .2], dur: .32, hit: .44, dmg: 10, cost: 4, lunge: [.2, .5, 3] }),
+      L2: wm({ name: '回抽再刺', staff: 'thrust', sk: ['idle_box', 0, null, .2], dur: .34, hit: .46, dmg: 11, cost: 5, lunge: [.2, .5, 3] }),
+      L3: wm({ name: '穿云出洞', staff: 'thrust', sk: ['idle_box', 0, null, .2], dur: .5, hit: .50, dmg: 19, cost: 8, kb: 6, lunge: [.2, .5, 6] }),
+      H: wm({ name: '蓄势穿云', staff: 'thrust', sk: ['idle_box', 0, null, .2], dur: .7, hit: .5, dmg: 28, cost: 18, heavy: 1, kb: 8, lunge: [.2, .5, 7] }) },
+    { L1: wm({ name: '醉卧扫庭', staff: 'low', sk: ['crouch_idle', 0, null, .2], dur: .52, hit: .46, dmg: 13, cost: 6, low: 1 }),
+      L2: wm({ name: '借步回身', staff: 'reverse', sk: ['idle_box', 0, null, .2], dur: .54, hit: .48, dmg: 14, cost: 7 }),
+      L3: wm({ name: '醉里挑月', staff: 'rise', sk: ['idle_box', 0, null, .2], dur: .6, hit: .52, dmg: 18, cost: 9, launch: 7 }),
+      H: wm({ name: '醉仙盘棍', staff: 'spin', sk: ['crouch_idle', 0, null, .2], dur: 1.0, hits: [.32, .62], dmg: 17, cost: 20, heavy: 1, kd: 1, arc: Math.PI }) },
   ],
   blade: [
     { L1: wm({ name: '力劈华山', sk: SD, dur: .42, hit: .45, range: 1.6, arc: .8, dmg: 12, kb: 3, lunge: [.2, .45, 2.5] }),
@@ -71,7 +72,7 @@ const WMOVES = {
       H: wm({ name: '醉八仙·回旋', sk: SIF, kf: _WK.H, dur: .85, hits: [.35, .6], range: 1.6, arc: Math.PI, dmg: 15, kb: 7, cost: 18, heavy: 1, kd: 1, spin: 1, spin360: [.15, .85] }) },
   ],
 };
-for (const c in WMOVES) for (const s of WMOVES[c]) { s.L1.nextM = s.L2; s.L2.nextM = s.L3; }
+for (const c in WMOVES) for (const s of WMOVES[c]) { s.L1.nextM = s.L2; s.L2.nextM = s.L3; if (s.L4) s.L3.nextM = s.L4; }
 const WSHARED = {};
 for (const c of ['staff', 'blade', 'short']) {
   const S = WSHARED[c] = {};
@@ -82,6 +83,10 @@ for (const c of ['staff', 'blade', 'short']) {
   S.A = wm({ name: '凌空劈', sk: SD, dur: .45, hit: .45, range: 1.7, arc: 1.0, dmg: 14, kb: 4, cost: 8, air: 1 });
   S.AH = wm({ name: '流星坠', sk: ['slash_down', .1, .8, 1.3], dur: .55, hit: .4, range: 1.8, arc: 1.2, dmg: 20, kb: 6, cost: 14, heavy: 1, kd: 1, air: 1 });
 }
+Object.assign(WSHARED.staff.CL, { staff: 'low', spin360: null });
+Object.assign(WSHARED.staff.CH, { staff: 'rise' });
+Object.assign(WSHARED.staff.A, { staff: 'chop', name: '凌空劈棍' });
+Object.assign(WSHARED.staff.AH, { staff: 'slam', name: '落地劈山' });
 { // 棍类：撑棍踢
   const S = WSHARED.staff;
   S.KL1 = wm({ name: '撑棍正蹬', sk: ['kick_front', .4, 1.0, 1.5], kf: _WK.L3, dur: .4, hit: .45, range: 2.0, arc: .8, dmg: 11, kb: 3, cost: 7, lunge: [.2, .5, 2] });

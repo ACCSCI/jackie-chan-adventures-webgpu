@@ -1,0 +1,15 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+const { buildSync } = require('esbuild');
+process.chdir(path.join(__dirname, '..'));
+for (const dir of ['build', 'dist']) fs.mkdirSync(dir, { recursive: true });
+const python = process.platform === 'win32' ? 'python' : 'python3';
+for (const name of ['glbdata', 'audiodata']) execFileSync(python, [`tools/${name}.py`, `build/${name}.js`], { stdio: 'inherit' });
+const parts = ['src/p1.js', 'src/p2.js', 'build/glbdata.js', ...['p25','p26','p27','staff','p3','p4','p45','p46','p47','p48','p49'].map(n => `src/${n}.js`), 'build/audiodata.js', ...['p50','websfx','p51','p52','p5'].map(n => `src/${n}.js`)];
+fs.writeFileSync('build/main.js', parts.map(p => fs.readFileSync(p, 'utf8')).join('\n'));
+buildSync({ entryPoints: ['build/main.js'], bundle: true, format: 'iife', minify: true, target: 'es2022', outfile: 'build/bundle.js', logLevel: 'warning' });
+const bundle = fs.readFileSync('build/bundle.js', 'utf8').replaceAll('</script', '<\\/script');
+const shell = fs.readFileSync('src/shell.html', 'utf8').replace(/hud-asset:([a-z-]+)/g, (_, name) => 'data:image/png;base64,' + fs.readFileSync(`assets/hud/${name}.png`).toString('base64'));
+fs.writeFileSync('dist/index.html', shell.replace('/*GAME*/', () => bundle));
+console.log('Built dist/index.html');

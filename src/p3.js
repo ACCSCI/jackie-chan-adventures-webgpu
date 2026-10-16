@@ -35,7 +35,7 @@ addEventListener('keydown', e => {
 addEventListener('keyup', e => {
   if (KEYSTOP.includes(e.code) || e.key === 'Alt' || (started && !gameOver)) e.preventDefault();
   keys[e.code] = false;
-  if (started && e.code === 'CapsLock' && isMac) toggleMode();
+  if (started && locked && !cutscene && !Bag.open && !gameOver && e.code === 'CapsLock' && isMac) toggleMode();
 }, { capture: true });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 addEventListener('contextmenu', e => e.preventDefault());
@@ -43,13 +43,23 @@ addEventListener('mousedown', e => {
   if (!started || !locked) return;
   if (cutscene) { if (e.button === 0) Story.next(); return; }
   if (e.button === 0) { buffer.type = 'light'; buffer.t = now; }
-  if (e.button === 2) { buffer.type = 'heavy'; buffer.t = now; }
+  if (e.button === 2) { if (!tryStaffCharge()) { buffer.type = 'heavy'; buffer.t = now; } }
   if (e.button === 1) { e.preventDefault(); toggleLock(); }
 });
-addEventListener('wheel', e => { if (started) setStyle((player.style + (e.deltaY > 0 ? 1 : 2)) % 3); });
+addEventListener('mouseup', e => { if (e.button === 2 && player.state === 'staffCharge') releaseStaffCharge(); });
+let lastModeWheel = -Infinity;
+addEventListener('wheel', e => {
+  if (!started || !locked || cutscene || Bag.open || gameOver || !e.deltaY) return;
+  e.preventDefault();
+  // A wheel gesture/trackpad burst changes mode once, rather than flickering every event.
+  const time = performance.now();
+  if (time - lastModeWheel >= 220) toggleMode();
+  lastModeWheel = time;
+}, { passive: false });
 addEventListener('mousemove', e => { if (locked) { mouseDX += e.movementX; mouseDY += e.movementY; } });
 document.addEventListener('pointerlockchange', () => {
   locked = document.pointerLockElement === renderer.domElement;
+  if (!locked && player.state === 'staffCharge') { setState(player, 'loco'); player.chargeT = 0; }
   if (started && !locked && !gameOver && !Bag.open) Menu.pause();
 });
 // ================= HUD 工具 =================
@@ -100,6 +110,8 @@ function setState(p, s, blend = 0.12) { p.state = s; p.stateT = 0; p.anim.blend(
 
 function setChip(id, val, on) { const c = $(id); c.querySelector('b').textContent = val; c.classList.toggle('on', !!on); }
 function refreshChips() {
+  $('combatMode').dataset.mode = player.mode;
+  $('combatMode').setAttribute('aria-label', player.mode === 'fist' ? '当前拳法，滚轮切换腿法' : '当前腿法，滚轮切换拳法');
   setChip('cMode', player.mode === 'fist' ? '拳法' : '腿法', player.mode === 'kick');
   setChip('cStance', player.crouch ? '蹲下' : '站立', player.crouch);
   setChip('cParry', player.guard ? '举架中' : '按住 Q', player.guard);
@@ -123,7 +135,7 @@ function useStamina(c) {
   player.st -= c; player.stDelay = 0.7; return true;
 }
 function canAct(p) {
-  if (p.state === 'loco') return true;
+  if (p.state === 'loco' || p.state === 'staffCharge') return true;
   if (p.state === 'attack') return p.mt >= p.move.cancel;
   if (p.state === 'block') return p.stateT > 0.12;
   return false;
@@ -170,10 +182,15 @@ function tryDodge() {
   setState(p, 'dodge', 0.06); p.iframe = Runes.has('sheep') ? 0.54 : 0.36; p.crouch = false; p.move = null;
   sfx('whoosh'); refreshChips();
 }
-function tryJump() {
-  const p = player; if (!p.grounded || !canAct(p)) return;
-  if (p.state !== 'loco') setState(p, 'loco', 0.1);
-  p.vy = Runes.has('rooster') ? 8.6 : 7.5; p.grounded = false; p.crouch = false; p.anim.kick('hy', -2.5); refreshChips();
+function tryJump(buffered = false) {
+  const p = player;
+  if (cutscene || gameOver || !['loco', 'attack', 'block', 'parryHit', 'staffCharge'].includes(p.state)) { p.jumpUntil = -Infinity; return false; }
+  if (!p.grounded) { if (!buffered) p.jumpUntil = now + .15; return false; }
+  p.jumpUntil = -Infinity; buffer.type = null; p.move = p.clip = null;
+  p.chargeT = 0; p.staffTrace = null; p.guard = false;
+  setState(p, 'loco', .055); hitstop = 0;
+  p.vy = Runes.has('rooster') ? 8.6 : 7.5; p.grounded = false; p.crouch = false;
+  p.anim.kick('hy', -1.2); refreshChips(); return true;
 }
 function moveInput() {
   if (cutscene) return { x: 0, z: 0 };
@@ -244,6 +261,17 @@ function hitSide(yaw, fromX, fromZ, x, z) {
 
 function updatePlayer(dt) {
   const p = player, A = p.anim;
+  if (cutscene) {
+    buffer.type = null;
+    p.vel.set(0, 0, 0); p.vy = 0; p.pos.y = 0; p.grounded = true;
+    const target = A.target || (A.target = zeroPose());
+    Object.assign(target, zeroPose(), BASE.stand[0]);
+    A.update(target, dt);
+    p.rig.root.position.copy(p.pos); p.rig.root.rotation.y = p.yaw;
+    driveSkinPlayer(p, dt);
+    return;
+  }
+  if (p.jumpUntil >= now && p.grounded) tryJump(true);
   p.stDelay -= dt; if (p.stDelay <= 0) p.st = Math.min(100, p.st + dt * (p.guard ? 12 : 28));
   if (Runes.has('horse') && p.state !== 'dead' && p.hp > 0) p.hp = Math.min(p.maxHp, p.hp + 1.5 * dt);
   p.iframe -= dt; p.comboT -= dt; if (p.comboT <= 0) p.combo = 0;
@@ -257,7 +285,8 @@ function updatePlayer(dt) {
     refreshChips();
   }
   // 输入缓冲
-  if (buffer.type && now - buffer.t > 0.35) buffer.type = null;
+  const inputWindow = p.state === 'attack' && p.move?.staff ? .45 : .35;
+  if (buffer.type && now - buffer.t > inputWindow) buffer.type = null;
   if (buffer.type && canAct(p)) {
     const type = buffer.type; buffer.type = null;
     let m = chooseMove(type);
@@ -294,6 +323,11 @@ function updatePlayer(dt) {
     if (p.style === 1 && !p.guard && !p.crouch) { target.lsy += Math.sin(now * 2.5) * 0.25; target.rsy += Math.sin(now * 2.5 + 2) * 0.25; }
     if (!p.grounded) { const up = clamp(p.vy / 7, -1, 1); target.lhx = -0.9 - up * 0.3; target.lkx = 1.5 + up * 0.4; target.rhx = -0.3; target.rkx = 1.1; target.lsx -= 0.4 * up; target.rsx -= 0.4 * up; }
     p.yaw += angDiff(p.yaw, p.yawTarget) * (1 - Math.exp(-dt * 13));
+  } else if (p.state === 'staffCharge') {
+    p.chargeT = Math.min(1.1, p.chargeT + dt);
+    if (p.chargeT >= 1.1 && !p.chargeFull) { p.chargeFull = true; showMove('棍势已满 · 松开右键', STYLES[p.style].css); }
+    p.vel.multiplyScalar(Math.exp(-dt * 15));
+    Object.assign(target, p.baseSm);
   } else if (p.state === 'attack') {
     const m = p.move, ms = moveSpeed(), step = dt / (m.dur / ms);
     p.mt += step;
@@ -307,7 +341,7 @@ function updatePlayer(dt) {
     const tgt = findSoftTarget();
     if (tgt && Math.hypot(tgt.pos.x - p.pos.x, tgt.pos.z - p.pos.z) < 1.0 + tgt.radius) ls = Math.min(ls, 0); // 贴身不再前冲
     p.vel.x = Math.sin(p.yaw) * ls; p.vel.z = Math.cos(p.yaw) * ls;
-    m.hits.forEach((ht, i) => { if (t >= ht && t - step < ht + 0.001) playerHitCheck(m, i); });
+    if (!m.staff) m.hits.forEach((ht, i) => { if (t >= ht && t - step < ht + 0.001) playerHitCheck(m, i); });
     // 收招阶段可被移动打断
     if (t >= m.cancel + 0.08 && moving && !buffer.type) setState(p, 'loco', 0.2);
     else if (p.mt >= 1 || (m.air && p.grounded && p.mt > 0.3)) setState(p, 'loco', 0.18);
@@ -359,6 +393,7 @@ function updatePlayer(dt) {
   if (p.pos.y <= 0) {
     if (!p.grounded && p.vy < -4) { shake = Math.max(shake, 0.05); A.kick('hy', -1.5); A.kick('sx', 2); }
     p.pos.y = 0; p.vy = 0; p.grounded = true;
+    if (p.jumpUntil >= now) tryJump(true);
   } else p.grounded = false;
   for (const e of enemies) {
     if (e.dead) continue;
@@ -369,9 +404,10 @@ function updatePlayer(dt) {
   p.rig.root.position.copy(p.pos);
   p.rig.root.rotation.y = p.yaw;
   driveSkinPlayer(p, dt);
+  if (p.state === 'attack' && p.move?.staff) staffHitCheck(p, dt);
 }
 
-function playerHitCheck(m, hi) {
+function playerHitCheck(m, hi, staffTargets = null) {
   const p = player, st = STYLES[p.style];
   let range = m.range, dmgMul = st.dmg, sound = m.heavy ? 'heavy' : 'hit';
   if (m.shockW && hi === 0) { const sp = p.pos.clone(); sp.y = 0.1; sp.x += Math.sin(p.yaw) * 1.2; sp.z += Math.cos(p.yaw) * 1.2; shock(sp, st.color, 2.2); burst(sp, 0xc9a27a, 18, 4); shake = Math.max(shake, 0.25); }
@@ -386,10 +422,10 @@ function playerHitCheck(m, hi) {
     if (e.dead || p.hitDone[hi].has(e)) continue;
     const dx = e.pos.x - p.pos.x, dz = e.pos.z - p.pos.z;
     const d = Math.hypot(dx, dz) - e.radius;
-    if (d > range) continue;
-    if (Math.abs(e.pos.y - p.pos.y) > 1.6) continue;
+    if (staffTargets ? !staffTargets.has(e) : d > range) continue;
+    if (!staffTargets && Math.abs(e.pos.y - p.pos.y) > 1.6) continue;
     const a = Math.abs(angDiff(p.yaw, Math.atan2(dx, dz)));
-    if (m.arc < Math.PI && a > m.arc) continue;
+    if (!staffTargets && m.arc < Math.PI && a > m.arc) continue;
     p.hitDone[hi].add(e); any = true;
     const dmg = Math.round(m.dmg * dmgMul * rand(0.9, 1.1));
     const kbDir = new THREE.Vector2(dx, dz).normalize();
@@ -420,7 +456,8 @@ function playerHitCheck(m, hi) {
 
 function playerTakeHit(e, dmg, opts = {}) {
   const p = player, A = p.anim;
-  if (p.state === 'dead') return;
+  if (p.state === 'dead' || cutscene) return;
+  dmg = Math.max(1, Math.round(dmg * (STYLES[p.style].taken ?? 1)));
   const pos = p.pos.clone().setY(1.3);
   const side = hitSide(p.yaw, e.pos.x, e.pos.z, p.pos.x, p.pos.z);
   if (p.iframe > 0) {

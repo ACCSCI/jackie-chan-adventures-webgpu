@@ -58,6 +58,14 @@ function skDown(sk, front, tt, dur, dead) {
 function driveSkinPlayer(p, dt) {
   const rig = p.rig, sk = rig.sk; if (!sk || !sk.mixer) return;
   const st = p.state, A = p.anim;
+  if (cutscene) {
+    rig.inner.rotation.y = 0;
+    const speaking = Story.lines && Story.lines[Story.i]?.who === 'jackie';
+    sk.set('cinematic', { idle_rel: 1 }, speaking ? { npc_talk: 1 } : null, 0.18);
+    sk.speed('idle_rel', 0.65); sk.speed('npc_talk', 0.65);
+    sk.update(dt); driveStaff(p, dt);
+    return;
+  }
   if (st === 'loco' || !started) {
     if (!p.grounded) {
       const t = clamp(0.62 + (7.5 - p.vy) / 15 * 0.55, 0.5, 1.15);
@@ -69,16 +77,23 @@ function driveSkinPlayer(p, dt) {
       if (p.crouch) o = { v, idle: 'crouch_idle', walk: 'crouch_walk', walkV: 1.2 };
       else if (p.style === 2 && !p.weapon) o = { v, idle: 'drunk_idle', walk: 'drunk_walk', walkV: 1.4, run: 'run_drunk', runV: 5.4, walkMax: 3.5 };
       else o = { v, idle: p.style === 1 && !p.weapon ? 'capo_idle' : 'idle_box', walk: 'walk', walkV: 1.5, run: ['run_dragon', 'run_snake', 'run_drunk'][p.style], runV: p.style === 1 ? 6.6 : 6.0, walkMax: p.style === 1 ? 4.1 : 3.5 };
+      if (p.weapon && wcls() === 'staff' && !p.crouch) o.idle = 'idle_rel';
       if (Runes.has('rabbit')) o.walkMax *= 1.15;
       if (lockTarget && !p.crouch) Object.assign(o, { dir: 1, fwd, side, back: 'walk_back', strafe: ['strafe_l', 'strafe_r'] });
       if (!started) o.idle = 'idle_box';
       const W = skLoco(sk, o);
       if (p.guard) sk.set('guard', W, { block: 1 }, 0.12); else sk.set('loco', W, null, 0.18);
     }
+  } else if (st === 'staffCharge') {
+    sk.set('staffCharge', { idle_box: 1 }, null, .12); sk.speed('idle_box', .6);
   } else if (st === 'attack') {
-    const m = p.move, map = SKM[m.skKey] || SKM.jab1, t = Math.min(1, p.mt);
+    const m = p.move, map = m === MOVES.sweep ? ['crouch_idle', 0, null, 0.1] : SKM[m.skKey] || SKM.jab1, t = Math.min(1, p.mt);
     const ct = skMap(map, t, m.hits[0]), id2 = 'atk' + p.atkN;
-    if (map[4]) sk.set(id2, { [map[4]]: 1 }, { [map[0]]: 1 }, 0.06); else sk.set(id2, { [map[0]]: 1 }, null, 0.06);
+    if (m.staff) {
+      const lower = m.low ? 'crouch_idle' : m.lunge && p.grounded ? 'walk' : 'idle_box';
+      sk.set(id2, { [lower]: 1 }, { idle_box: 1 }, .065);
+      if (lower === 'walk') sk.time('walk', t * .65); else sk.speed(lower, 1);
+    } else if (map[4]) sk.set(id2, { [map[4]]: 1 }, { [map[0]]: 1 }, 0.06); else sk.set(id2, { [map[0]]: 1 }, null, 0.06);
     sk.time(map[0], ct); if (map[4]) sk.speed(map[4], 1);
     // 程序化 360° 转体（Mixamo 片段为原地动作，转身被去掉了）
     const s3 = m.spin360;
@@ -111,6 +126,54 @@ function driveSkinPlayer(p, dt) {
   }
   if (st !== 'attack') rig.inner.rotation.y = 0;
   sk.update(dt); skSprings(rig, A);
+  if (st === 'attack' && p.move === MOVES.sweep) skLowSweep(rig, p.mt);
+  driveStaff(p, dt);
+}
+// Keep the supporting leg folded; extend the outside leg in world space so
+// retargeted bone axes cannot turn the sweep into an upright spinning kick.
+function skLowSweep(rig, t) {
+  const B = rig.bones;
+  if (!B.Hips || !B.RightUpLeg || !B.RightLeg || !B.RightFoot) return;
+  const smooth = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+  const w = smooth(t / 0.16) * smooth((1 - t) / 0.18);
+  rig.root.updateMatrixWorld(true);
+  const hip = B.Hips.getWorldPosition(new THREE.Vector3());
+  const floor = rig.root.getWorldPosition(new THREE.Vector3()).y;
+  hip.y = lerp(hip.y, floor + 0.48, w);
+  B.Hips.position.copy(B.Hips.parent.worldToLocal(hip.clone()));
+  rig.root.updateMatrixWorld(true);
+  const facing = rig.inner.getWorldQuaternion(new THREE.Quaternion());
+  function aim(bone, child, dir) {
+    const from = bone.getWorldPosition(new THREE.Vector3());
+    const current = child.getWorldPosition(new THREE.Vector3()).sub(from).normalize();
+    const desired = dir.normalize().applyQuaternion(facing);
+    const world = bone.getWorldQuaternion(new THREE.Quaternion());
+    world.premultiply(new THREE.Quaternion().setFromUnitVectors(current, desired));
+    const local = bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(world);
+    bone.quaternion.slerp(local, w);
+    rig.root.updateMatrixWorld(true);
+  }
+  if (B.LeftUpLeg && B.LeftLeg && B.LeftFoot) {
+    const start = B.LeftUpLeg.getWorldPosition(new THREE.Vector3());
+    const knee = B.LeftLeg.getWorldPosition(new THREE.Vector3());
+    const ankle = B.LeftFoot.getWorldPosition(new THREE.Vector3());
+    const a = start.distanceTo(knee), b = knee.distanceTo(ankle);
+    const end = new THREE.Vector3(-0.16, 0, 0).applyQuaternion(facing).add(hip);
+    end.y = floor + 0.10;
+    const axis = end.clone().sub(start), d = clamp(axis.length(), Math.abs(a - b) + 0.001, a + b - 0.001);
+    axis.normalize();
+    const bend = new THREE.Vector3(0, 0, 1).applyQuaternion(facing);
+    bend.addScaledVector(axis, -bend.dot(axis)).normalize();
+    const along = (a * a - b * b + d * d) / (2 * d);
+    const joint = start.clone().addScaledVector(axis, along).addScaledVector(bend, Math.sqrt(Math.max(0, a * a - along * along)));
+    const inverse = facing.clone().invert();
+    aim(B.LeftUpLeg, B.LeftLeg, joint.sub(start).applyQuaternion(inverse));
+    const actualKnee = B.LeftLeg.getWorldPosition(new THREE.Vector3());
+    aim(B.LeftLeg, B.LeftFoot, end.sub(actualKnee).applyQuaternion(inverse));
+  }
+  aim(B.RightUpLeg, B.RightLeg, new THREE.Vector3(1, -0.42, 0.12));
+  aim(B.RightLeg, B.RightFoot, new THREE.Vector3(1, -0.30, 0.12));
+  if (B.RightToeBase) aim(B.RightFoot, B.RightToeBase, new THREE.Vector3(1, 0, 0.12));
 }
 function driveSkinEnemy(e, dt, cut) {
   const rig = e.rig, sk = rig.sk; if (!sk || !sk.mixer) return;

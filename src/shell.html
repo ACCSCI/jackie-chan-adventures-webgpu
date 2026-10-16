@@ -23,11 +23,17 @@ canvas{display:block}
 .chip b{color:#ffd34d;margin-left:4px}
 .chip.on{border-color:#4fd1ff;box-shadow:0 0 10px rgba(79,209,255,.5)}
 .chip.on b{color:#4fd1ff}
-#styles{position:absolute;right:28px;bottom:28px;display:flex;gap:8px}
-.sty{width:74px;padding:8px 0;text-align:center;background:rgba(10,10,14,.6);border:1px solid rgba(255,255,255,.18);border-radius:10px;font-size:12px;opacity:.55;transition:.15s}
-.sty .k{font-size:22px;font-weight:900;display:block}
-.sty.act{opacity:1;transform:translateY(-6px);border-color:var(--c);box-shadow:0 0 14px var(--c)}
-.sty.act .k{color:var(--c)}
+#combatMode{position:absolute;right:70px;bottom:150px;width:112px;height:112px;filter:drop-shadow(0 2px 2px #15150fe0)}
+#combatMode .mode-option{display:none;width:112px;text-align:center;font:13px KaiTi,STKaiti,serif;letter-spacing:.25em;color:#eee8d6dd}
+#combatMode[data-mode="fist"] .fist,#combatMode[data-mode="kick"] .kick{display:block}
+#combatMode img{display:block;width:100px;height:100px;margin:auto;object-fit:contain;opacity:.82}
+#styles{position:absolute;right:28px;bottom:30px;display:flex;gap:10px;filter:drop-shadow(0 2px 2px #15150fbb)}
+.sty{width:70px;padding:0;text-align:center;font-size:10px;opacity:.62;transition:opacity .18s,transform .18s}
+.sty .k{display:block;width:66px;height:66px;margin:0 auto 4px;object-fit:contain;filter:drop-shadow(0 0 1px #f2e9d3aa)}
+.sty .l{display:block;color:#e5ddc2;font:12px KaiTi,STKaiti,serif;white-space:nowrap}
+.sty.act{opacity:1;transform:translateY(-4px)}
+.sty.act:after{content:"";display:block;width:3px;height:3px;margin:7px auto 0;background:#d7bf88;transform:rotate(45deg)}
+@media(prefers-reduced-motion:reduce){.sty{transition:none}}
 #wave{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:15px;letter-spacing:3px;background:rgba(0,0,0,.45);padding:6px 18px;border-radius:20px}
 #move{position:absolute;left:50%;top:64%;transform:translateX(-50%);font-size:26px;font-weight:900;letter-spacing:4px;text-shadow:0 0 12px rgba(0,0,0,.9),0 2px 0 #000;opacity:0;transition:opacity .25s}
 #move.show{opacity:1;transition:none}
@@ -169,22 +175,26 @@ body.menu #hud{display:none}
     <div class="chip" id="cMusic">音乐<b>原创BGM</b></div>
     <div class="chip" id="cRune">符文<b>无</b></div>
   </div>
-  <div id="styles">
-    <div class="sty" style="--c:#ffbf3c"><span class="k">龙</span><span class="l">1 · 龙形拳</span></div>
-    <div class="sty" style="--c:#4be37a"><span class="k">蛇</span><span class="l">2 · 蛇形拳</span></div>
-    <div class="sty" style="--c:#c889ff"><span class="k">醉</span><span class="l">3 · 醉拳</span></div>
+  <div id="combatMode" data-mode="fist" role="status" aria-label="当前拳法，滚轮切换腿法">
+    <span class="mode-option fist"><img src="hud-asset:fist" alt="">拳法</span>
+    <span class="mode-option kick"><img src="hud-asset:kick" alt="">腿法</span>
+  </div>
+  <div id="styles" aria-label="当前套路">
+    <div class="sty"><img class="k" src="hud-asset:dragon" alt="水墨龙形"><span class="l">1 · 龙形拳</span></div>
+    <div class="sty"><img class="k" src="hud-asset:snake" alt="水墨灵蛇"><span class="l">2 · 蛇形拳</span></div>
+    <div class="sty"><img class="k" src="hud-asset:gourd" alt="向左倾倒的酒葫芦"><span class="l">3 · 醉拳</span></div>
   </div>
   <div id="help">
     <h4>操作（H 隐藏）</h4>
     <kbd>WASD</kbd>移动 · <kbd>Shift</kbd>疾跑<br>
     <kbd>左键</kbd>轻击 · <kbd>右键</kbd>重击<br>
-    <kbd>Caps</kbd>拳法 / 腿法切换<br>
+    <kbd>滚轮 / Caps</kbd>拳法 / 腿法切换<br>
     <kbd>C</kbd>蹲下 / 站起<br>
     <kbd>Q</kbd>按住格挡（被击前一瞬按下=完美格挡）<br>
     <kbd>1 2 3</kbd>龙形 / 蛇形 / 醉拳（持武器=器械套路）<br>
     4 秒不掉血会自动回血<br>
     <kbd>Tab</kbd>装备 / 背包（符文、武器）<br>
-    <kbd>Alt</kbd>闪避翻滚（倒地时=快速起身）<br><kbd>Space</kbd>跳跃<br>
+    <kbd>Alt</kbd>闪避翻滚（倒地时=快速起身）<br><kbd>Space</kbd>跳跃 / 打断攻击<br>
     <kbd>E</kbd>拾取武器 / 换备用武器 · <kbd>R</kbd>锁定<br>
     <kbd>X</kbd>备用拳腿切换 · <kbd>M</kbd>音乐开关
   </div>
@@ -217,7 +227,7 @@ body.menu #hud{display:none}
     <span><b>R</b>锁定敌人</span><span><b>Tab</b>装备 / 背包</span><span><b>K</b>招式表</span>
     <span><b>M</b>音乐开关</span><span><b>H</b>隐藏提示</span><span><b>Esc</b>暂停菜单</span>
    </div>
-   <p>敌人发红光、出手前一瞬按 Q = 完美格挡；在最后时刻闪避 = 完美闪避，之后的重击是 2.2 倍伤害的反击。蹲下能躲过黑手帮的高位拳。<br>三种拳法各有特性：龙形拳连击越多伤害越高；蛇形拳打中能偷体力，走跑更快；醉拳挨打时有 80% 几率自动闪开（出招中也能闪）。<br>收集十二生肖符文，按 Tab 在背包里装备（最多 3 个，一直生效）；背包还能放 1 把备用武器，附近没武器时按 E 就能换手。<br>主界面点“全屏游戏”后，浏览器快捷键会被拦截；按住 Esc 退出全屏。完美格挡 / 闪避成功会让体力瞬间回满。只要 4 秒内没掉血，生命就会自动快速恢复（挨打立即中断）。<br>捡起武器后，1/2/3 变成该类武器的三种套路：棍类（龙形棍/灵蛇棍/醉棍）、刀剑类（龙形刀/蛇形剑/醉剑）、短打类（龙形短打/蛇形短打/醉八仙），按 K 查看当前招式。</p>
+   <p>敌人发红光、出手前一瞬按 Q = 完美格挡；在最后时刻闪避 = 完美闪避，之后的重击是 2.2 倍伤害的反击。蹲下能躲过黑手帮的高位拳。<br>三种拳法各有特性：龙形拳基础伤害系数 1.44、受到伤害降低 15%，连击越多伤害越高；蛇形拳打中能偷体力，走跑更快；醉拳挨打时有 80% 几率自动闪开（出招中也能闪）。<br>收集十二生肖符文，按 Tab 在背包里装备（最多 3 个，一直生效）；背包还能放 1 把备用武器，附近没武器时按 E 就能换手。<br>主界面点“全屏游戏”后，浏览器快捷键会被拦截；按住 Esc 退出全屏。完美格挡 / 闪避成功会让体力瞬间回满。只要 4 秒内没掉血，生命就会自动快速恢复（挨打立即中断）。<br>捡起武器后，1/2/3 变成该类武器的三种套路：棍类（龙形棍/灵蛇棍/醉棍）、刀剑类（龙形刀/蛇形剑/醉剑）、短打类（龙形短打/蛇形短打/醉八仙），按 K 查看当前招式。</p>
    <button class="back" data-a="back">← 返回</button></div>
   <div class="msub" id="mSettings"><h4>设置</h4>
    <div class="row"><span>画质</span><button class="sm" data-a="hq" id="setHq">标准</button><small>高清 = 最高 2 倍分辨率，更吃显卡</small></div>

@@ -45,11 +45,11 @@ const Bag = {
 $('bag').addEventListener('mousedown', e => e.stopPropagation());
 $('bag').addEventListener('click', e => { const b = e.target.closest('[data-b]'); if (b) { e.stopPropagation(); Bag.click(b.dataset.b); } else if (e.target.id === 'bag') Bag.toggle(false); });
 const STYLE_PASSIVE = [
-  '龙威：连击数越高伤害越高（每次连击 +2%，最多 +40%）。力量最大、击退最远。',
+  '龙威：基础伤害系数 1.44，受到伤害 -15%；连击数越高伤害越高（每次连击 +2%，最多 +40%）。力量最大、击退最远。',
   '灵蛇：打中敌人就偷取体力（轻击 +4，重击 +8）；走路 +15%、跑步 +20% 更快。出手最快、最省体力。',
   '醉步：受到攻击时有 80% 几率自动闪开（无冷却、不耗体力，出拳出腿中也能闪）。招式刁钻、重击能撞倒敌人。',
 ];
-function equipMesh(w) { const mesh = weaponMesh(w.type); mesh.rotation.set(0.25, 0, 0); player.rig.grip.add(mesh); w.mesh = mesh; return w; }
+function equipMesh(w) { const mesh = weaponMesh(w.type); mesh.rotation.set(0.25, 0, 0); if (WEAPONS[w.type].cls === 'staff') { player.rig.root.add(mesh); initStaffMesh(mesh, w.type); } else player.rig.grip.add(mesh); w.mesh = mesh; return w; }
 function swapWeapons() {
   const p = player, a = p.weapon, b = p.weapon2;
   if (a) { a.mesh.removeFromParent(); a.mesh = null; }
