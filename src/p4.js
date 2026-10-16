@@ -172,6 +172,11 @@ class Enemy {
         else if (dist < want * 0.7) { fx = -dx / dist * 0.6; fz = -dz / dist * 0.6; }
         else { fx = -dz / dist * this.strafe * 0.45; fz = dx / dist * this.strafe * 0.45; if (Math.random() < dt * 0.4) this.strafe *= -1; }
       }
+      // 群体协作：没拿到出手令牌的敌人去各自的包围站位（由 Squad 分配），不再挤成一团
+      if (this.slot && !this.holdToken && p.state !== 'dead' && !(this.cd <= 0 && dist < T.range + 1.2)) {
+        const sx = this.slot.x - this.pos.x, sz = this.slot.z - this.pos.z, sd = Math.hypot(sx, sz);
+        if (sd > .35) { const k = Math.min(1, sd / 1.4); fx = sx / sd * k; fz = sz / sd * k; } else { fx *= .15; fz *= .15; }
+      }
       for (const o of enemies) { if (o === this || o.dead) continue; const ox = this.pos.x - o.pos.x, oz = this.pos.z - o.pos.z, od = Math.hypot(ox, oz); if (od < 1.6 && od > 0.01) { fx += ox / od * (1.6 - od); fz += oz / od * (1.6 - od); } }
       const sp = T.spd * (dist > 6 ? 1.3 : 1);
       this.vel.x = lerp(this.vel.x, fx * sp, 1 - Math.exp(-dt * 5)); this.vel.z = lerp(this.vel.z, fz * sp, 1 - Math.exp(-dt * 5));
@@ -360,14 +365,14 @@ function updateWaves(dt) {
 let gameEndTimer = null;
 function gameEnd(win, ep = 1) {
   gameOver = true;
-  try { if (win) { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); if (ep === 1) saveProgress(6); else if (ep === 2) { saveProgress(9); localStorage.setItem('jc_clear2', '1'); } else localStorage.setItem('jc_clear3', '1'); } else sessionStorage.setItem('jc_ch', String(Math.max(0, wave))); } catch (e) { }
+  try { if (win) { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); if (ep === 1) saveProgress(6); else if (ep === 2) { saveProgress(9); localStorage.setItem('jc_clear2', '1'); } else { localStorage.setItem('jc_clear3', '1'); saveProgress(12); } } else sessionStorage.setItem('jc_ch', String(Math.max(0, wave))); } catch (e) { }
   const mins = Math.floor(playTime / 60), secs = Math.floor(playTime % 60);
   clearTimeout(gameEndTimer);
   gameEndTimer = setTimeout(() => {
     document.exitPointerLock(); $('pause').classList.remove('show');
     $('ov').style.display = 'flex';
     $('ov').querySelector('.box').innerHTML = win && ep === 3
-      ? `<h1>完</h1><h2>第三集 · 蛇之护身符</h2><p>击倒敌人 ${kills} 名 · 撞碎展柜 ${Story.mBroken || 0} 个 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“三个找回来了……还有九个！”</p><p style="color:#7dffb0">蛇符觉醒！装备蛇符后，完美闪避 / 完美格挡会让你隐身 2.5 秒，第一击伤害 ×1.8</p><p style="opacity:.6;font-size:13px">下一集预告：敬请期待</p><div class="obtns"><div class="go" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房试试蛇隐</div></div>`
+      ? `<h1>完</h1><h2>第三集 · 蛇之护身符</h2><p>击倒敌人 ${kills} 名 · 撞碎展柜 ${Story.mBroken || 0} 个 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“三个找回来了……还有九个！”</p><p style="color:#7dffb0">蛇符觉醒！装备蛇符后，完美闪避 / 完美格挡会让你隐身 2.5 秒，第一击伤害 ×1.8</p><p style="opacity:.6;font-size:13px">下一集：鼠之护身符——潜入第十三区，小心会学习的机器人！</p><div class="obtns"><div class="go" data-a="ep4">继续第四集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房试试蛇隐</div></div>`
       : win && ep === 2
       ? `<h1>完</h1><h2>第二集 · 龙之护身符</h2><p>击倒敌人 ${kills} 名 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“两个找回来了……还有十个！”</p><p style="opacity:.6;font-size:13px">下一集：蛇之护身符——看不见的敌人，最危险！</p><div class="obtns"><div class="go" data-a="ep3">继续第三集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
       : win
