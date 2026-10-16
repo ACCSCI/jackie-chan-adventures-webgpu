@@ -501,12 +501,12 @@ function updateAllyRats(dt) {
   gameEnd = function (win, ep = 1) {
     if (!(win && ep === 4)) return _ge(win, ep);
     gameOver = true;
-    try { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); localStorage.setItem('jc_clear4', '1'); saveProgress(17); } catch (e) { }
+    try { sessionStorage.removeItem('jc_ch'); localStorage.setItem('jc_clear', '1'); localStorage.setItem('jc_clear4', '1'); saveProgress(18); } catch (e) { }
     const mins = Math.floor(playTime / 60), secs = Math.floor(playTime % 60), r = Story.b13;
     clearTimeout(gameEndTimer);
     gameEndTimer = setTimeout(() => {
       document.exitPointerLock(); $('pause').classList.remove('show'); $('ov').style.display = 'flex';
-      $('ov').querySelector('.box').innerHTML = `<h1>完</h1><h2>第四集 · 鼠之护身符</h2><p>击倒敌人 ${kills} 名 ·${r ? ` 潜入评价「${r.n}」（${r.d}）·` : ''} 用时 ${mins} 分 ${secs} 秒<br>老爹：“四个找回来了……还有八个！”</p><p style="color:#9adf7a">鼠符觉醒！装备鼠符后，完美闪避 / 完美格挡会召唤两只铜鼠帮你咬敌人</p><p style="opacity:.6;font-size:13px">下一集预告：敬请期待</p><div class="obtns"><div class="go" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`;
+      $('ov').querySelector('.box').innerHTML = `<h1>完</h1><h2>第四集 · 鼠之护身符</h2><p>击倒敌人 ${kills} 名 ·${r ? ` 潜入评价「${r.n}」（${r.d}）·` : ''} 用时 ${mins} 分 ${secs} 秒<br>老爹：“四个找回来了……还有八个！”</p><p style="color:#9adf7a">鼠符觉醒！装备鼠符后，完美闪避 / 完美格挡会召唤两只铜鼠帮你咬敌人</p><p style="opacity:.75;font-size:13px">下一集：虎之护身符——喜马拉雅山上的古寺，和另一个自己</p><div class="obtns"><div class="go" data-a="ep5">开始第五集</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`;
     }, 1500);
   };
   const _act = Menu.act.bind(Menu);
