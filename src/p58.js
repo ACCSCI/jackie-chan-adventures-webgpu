@@ -143,7 +143,7 @@ Object.assign(Story, {
     clearTimeout(gameEndTimer);
     gameEndTimer = setTimeout(() => {
       document.exitPointerLock(); $('pause').classList.remove('show'); $('ov').style.display = 'flex';
-      $('ov').querySelector('.box').innerHTML = `<h1>完</h1><h2>第五集 · 虎之护身符</h2><p>击倒敌人 ${kills} 名 · 打下悬崖 ${SNOW.falls || 0} 人 · 大钟用了 ${BELL.used || 0} 次 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“五个了……还有七个！”</p><p style="color:#ffb84a">虎符觉醒！装备虎符后，完美格挡 / 完美闪避后 4 秒内，每次命中都有影子追击（50% 伤害）</p><p style="opacity:.6;font-size:13px">下一集预告：敬请期待</p><div class="obtns"><div class="go" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`;
+      $('ov').querySelector('.box').innerHTML = `<h1>完</h1><h2>第五集 · 虎之护身符</h2><p>击倒敌人 ${kills} 名 · 打下悬崖 ${SNOW.falls || 0} 人 · 大钟用了 ${BELL.used || 0} 次 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“五个了……还有七个！”</p><p style="color:#ffb84a">虎符觉醒！装备虎符后，完美格挡 / 完美闪避后 4 秒内，每次命中都有影子追击（50% 伤害）</p><p style="opacity:.75;font-size:13px">下一集：牛之护身符——新开的家具城，和力大无穷的拉索</p><div class="obtns"><div class="go" data-a="ep6">开始第六集</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`;
     }, 1500);
   };
   const _act = Menu.act.bind(Menu);

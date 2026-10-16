@@ -33,7 +33,7 @@ function rayLen(ax, az, dx, dz, L) {
 
 // ---------- 地面预警 ----------
 // 颜色语义：红 = 必须闪/跳（不可格挡）  琥珀 = 可格挡/可完美格挡  青 = 提示（无伤害或可蹲防）  紫 = 抓取（破防，不可格挡）
-const TELE_COL = { red: 0xff2a2a, amber: 0xffa21e, cyan: 0x2ee6ff, purple: 0xc04dff };
+const TELE_COL = { red: 0xff2a2a, amber: 0xffa21e, cyan: 0x2ee6ff, purple: 0xc04dff, green: 0x4dff7a, gold: 0xffd84a };
 const TELE_MAT = {};
 for (const k in TELE_COL) {
   const c = new THREE.Color(TELE_COL[k]);
