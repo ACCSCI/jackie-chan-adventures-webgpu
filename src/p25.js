@@ -79,7 +79,7 @@ function makeSkinRig(name, scale = 1) {
   const ghost = ghostRig();
   const rig = { skin: true, name, root, inner, ghost, mats: [], bones: {}, get cur() { return ghost.cur; } };
   for (const k in SK_BONES) rig[k] = new THREE.Group();
-  rig.grip = new THREE.Group(); rig.grip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), SK_GRIP); rig.rHand.add(rig.grip);
+  rig.grip = new THREE.Group(); rig.grip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), SK_GRIP); rig.grip.position.set(.01, .062, .02); rig.rHand.add(rig.grip); // 握持中心在拳心而非手腕
   let headHidden = false;
   rig.headParts = [{ set visible(v) { headHidden = !v; if (rig.bones.Head) rig.bones.Head.scale.setScalar(v ? 1 : 0.001); } }];
   rig.sk = new SkinAnim(rig);

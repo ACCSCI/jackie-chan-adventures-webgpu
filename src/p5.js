@@ -60,6 +60,8 @@ function updateCamera(dt) {
     camera.position.x += rand(-1, 1) * shake * 0.3; camera.position.y += rand(-1, 1) * shake * 0.3;
     shake = Math.max(0, shake - dt * 1.2);
   }
+  staffCamApply(dt);
+  if (window.__camO) { camera.position.copy(window.__camO.p); camera.lookAt(window.__camO.l); camera.fov = window.__camO.fov || 45; } // 调试/截图用固定机位
   camera.updateProjectionMatrix();
   const le = $('lock');
   if (lockTarget) { const s = toScreen(lockTarget.pos.clone().setY(1.2 * lockTarget.scale)); le.style.display = s.vis ? 'block' : 'none'; le.style.left = s.x + 'px'; le.style.top = s.y + 'px'; }
@@ -87,8 +89,8 @@ refreshChips();
 // 拖尾
 const trails = [new Trail(), new Trail(), new Trail(), new Trail(), new Trail()];
 const _a = new THREE.Vector3(), _b = new THREE.Vector3(), lastTip = [0, 0, 0, 0, 0].map(() => new THREE.Vector3());
-function updateTrails(dt) {
-  updateStaffEchoes(dt);
+function updateTrails(dt, gdt = dt) {
+  updateStaffEchoes(gdt); updateStaffCracks(gdt);
   const r = player.rig, col = new THREE.Color(STYLES[player.style].color);
   const eff = [[r.lHand, r.lE], [r.rHand, r.rE], [r.lFoot, r.lK], [r.rFoot, r.rK], [player.weapon ? player.weapon.mesh : null, r.rHand]];
   eff.forEach(([tip, base], i) => {
@@ -100,7 +102,7 @@ function updateTrails(dt) {
     else _b.lerpVectors(_a, _b, 0.45);
     const spd = _a.distanceTo(lastTip[i]) / Math.max(dt, 1e-4); lastTip[i].copy(_a);
     const active = !cutscene && player.state === 'attack' && (!player.move?.staff || player.move.hits.some(h => Math.abs(player.mt - h) < .18));
-    const on = active && spd > 5 && (player.view === 'third' || i > 1);
+    const on = active && spd > 5 && (player.view === 'third' || i > 1) && !(i === 4 && player.weapon?.mesh.userData.staff);
     t.mesh.visible = player.view === 'third' || i >= 2;
     t.push(_a, _b, on);
   });
@@ -140,7 +142,7 @@ function loop() {
     player.anim.update(locoPose(zeroPose(), BASE.stand[0], 0, 0), rdt); driveSkinPlayer(player, rdt);
   }
   updateCamera(rdt);
-  updateTrails(rdt);
+  updateTrails(rdt, started && locked && !gameOver || gameOver ? dt : 0);
   updateParts(dt); updateRings(dt); updateFloaters(rdt); updateHUD(rdt);
   warmTick(); updateBatchVis(); updateAreas(rdt);
   if (QS.has('nopost')) renderer.render(scene, camera); else pipeline.render();
@@ -158,5 +160,5 @@ renderer.init().then(() => {
 Menu.initialWeapons = groundWeapons.map(w => ({ type: w.type, x: w.pos.x, z: w.pos.z, dur: w.dur }));
 window.__game = { SFX, sfx, Impact, impact, Stealth, cases, MU, get snakeAltar() { return snakeAltar; }, Voice, BGM, AudioBus, get AC() { return AC; }, fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
   step(n, dt = 1 / 60) { for (let i = 0; i < n; i++) { now += dt; updatePlayer(dt); if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.update(dt)); updateWaves(dt); } updatePickups(dt); Story.update(dt); } updateCamera(dt); updateTrails(dt); },
-  Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, tryJump, tryStaffCharge, releaseStaffCharge, equipMesh, STAFF_ECHOES, STYLES, staffPose, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
+  Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, tryJump, tryStaffCharge, releaseStaffCharge, equipMesh, STAFF_ECHOES, STYLES, staffPose, STAFF_POSES, staffSample, tryStaffFlower, STAFF_RIBBONS, STAFF_GHOSTS, STAFF_CRACKS, staffResetFx, staffGhost, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
   get now() { return now; } };

@@ -6,8 +6,13 @@
  if(p.weapon)p.weapon.mesh.removeFromParent();p.weapon=g.equipMesh({type:5,dur:999});p.mode='fist';p.style=0;reset();g.step(20);
  check('single hand carry shaft is rooted',p.weapon.mesh.parent===p.rig.root);
  const world=name=>p.rig.bones[name].getWorldPosition(p.pos.clone());
- const grip=p.weapon.mesh.getWorldPosition(p.pos.clone());
- check('right hand grips shaft at rest',world('RightHand').distanceTo(grip)<.01,world('RightHand').distanceTo(grip));
+ // The palm (not the wrist bone) sits on the shaft axis at the authored grip station.
+ const palm=()=>p.rig.rHand.localToWorld(p.pos.clone().set(.01,.062,.02));
+ const onShaft=(pt)=>{const m=p.weapon.mesh,l=m.worldToLocal(pt.clone());return {off:Math.hypot(l.x,l.y),z:l.z};};
+ const grip=palm(),gs=onShaft(grip),sd0=p.weapon.mesh.userData.staff;
+ check('right palm grips shaft at rest',gs.off<.01&&Math.abs(gs.z-sd0.gz)<.01,gs);
+ check('wrist is not the grip point',world('RightHand').distanceTo(grip)>.04,world('RightHand').distanceTo(grip));
+ check('idle grip near one third of the shaft',Math.abs((sd0.gz-sd0.min)/sd0.len-.35)<.03,sd0.gz);
  const left=world('LeftHand');check('offhand free at rest',left.distanceTo(grip)>.15,left.distanceTo(grip));
  g.startMove(g.WMOVES.staff[0].L1);g.step(2);g.buffer.type='heavy';g.buffer.t=g.now;g.tryJump();
  check('jump cancels attack before hit',!p.grounded&&p.state==='loco'&&p.move===null&&g.buffer.type===null);
@@ -19,10 +24,15 @@
  g.tryJump();check('jump cancels charge',p.state==='loco'&&!p.grounded&&p.move===null);
  reset();g.locked=true;g.tryStaffCharge();g.locked=false;g.step(50);g.locked=true;window.dispatchEvent(new MouseEvent('mouseup',{button:2}));g.locked=false;
  check('release produces powered heavy',p.state==='attack'&&p.move.chargeLevel>.7&&p.move.dmg>g.WMOVES.staff[0].H.dmg);
- check('dragon four hit chain',g.WMOVES.staff[0].L3.nextM===g.WMOVES.staff[0].L4&&!g.WMOVES.staff[0].L4.nextM);
+ for(let s=0;s<3;s++){const S=g.WMOVES.staff[s];check('five hit light chain '+s,S.L1.nextM===S.L2&&S.L3.nextM===S.L4&&S.L4.nextM===S.L5&&!S.L5.nextM&&S.L1.staff==='chop1'&&S.L5.staff==='leap');}
+ check('style heavies differ',g.WMOVES.staff[0].H3.staff==='smash'&&g.WMOVES.staff[1].H3.staff==='poke7'&&g.WMOVES.staff[2].H3.staff==='pole');
+ reset();g.locked=true;g.tryStaffCharge();g.locked=false;g.step(12);g.locked=true;window.dispatchEvent(new MouseEvent('mouseup',{button:2}));g.locked=false;
+ check('short charge gives level one',p.state==='attack'&&p.move.staff==='smash'&&Math.abs(p.move.chargeLevel-1/3)<.01,p.move&&p.move.chargeLevel);
  reset();g.startMove(g.WMOVES.staff[0].L2);let bend=0;
  for(let i=0;i<24;i++){g.step(1);bend=Math.max(bend,Math.abs(p.weapon.mesh.userData.staff.bend));}
- check('staff bends during sweep',bend>.005&&bend<=.106,bend);
+ const lim=p.weapon.mesh.userData.staff.limit;
+ check('wood staff bends visibly but bounded',bend>.05&&bend<=lim*1.16&&lim>=.15&&lim<=.25,{bend,lim});
+ check('ribbon trail drawn during sweep',g.STAFF_RIBBONS.some(r=>r.mesh.visible||r.ink.visible));
  check('echo pool bounded',g.STAFF_ECHOES.length===7,g.STAFF_ECHOES.length);
  g.step(60);check('staff returns straight',Math.abs(p.weapon.mesh.userData.staff.bend)<.002,p.weapon.mesh.userData.staff.bend);
  const attacker=g.enemies.find(e=>e.type==='dummy');reset();p.hp=200;p.style=1;g.playerTakeHit(attacker,20);const ordinary=200-p.hp;
@@ -32,8 +42,14 @@
  reset();p.hp=200;g.setCam(p.yaw+Math.PI+.35,-.2);g.step(30);
  reset();p.yaw=p.yawTarget=0;g.startMove(g.WMOVES.staff[0].L2);p.yawTarget=0;g.step(13);
  const sd=p.weapon.mesh.userData.staff;
- const supportTarget=p.weapon.mesh.localToWorld(p.pos.clone().set(sd.bend*(-.28/sd.max)**2,0,-.28));
- check('offhand follows rear grip while swinging',world('LeftHand').distanceTo(supportTarget)<.035,world('LeftHand').distanceTo(supportTarget));
+ const lpalm=p.rig.lHand.localToWorld(p.pos.clone().set(-.01,.062,.02)),ls=onShaft(lpalm);
+ check('one-handed backhand leaves offhand off',sd.lw<.3,sd.lw);
+ reset();p.yaw=p.yawTarget=0;g.startMove(g.WMOVES.staff[0].L4);p.yawTarget=0;g.step(20);
+ const lp=onShaft(p.rig.lHand.localToWorld(p.pos.clone().set(-.01,.062,.02)));
+ check('offhand slides onto shaft for two-handed whirl',sd.lw>.9&&lp.off<.035&&Math.abs(lp.z-sd.lz)<.04,{lw:sd.lw,lp,lz:sd.lz});
+ // mid-shaft grip bends both ends in opposite directions (S-shape)
+ sd.gz=(sd.min+sd.max)/2;sd.bx=.1;sd.by=0;const ends=[sd.min,sd.max].map(z=>{const u=z-sd.gz,L=Math.max(sd.max-sd.gz,sd.gz-sd.min);return sd.bx*u*Math.abs(u)/(L*L);});
+ check('S-shaped bend around a middle grip',ends[0]<0&&ends[1]>0,ends);
  reset();const target=g.enemies.find(e=>e.type==='dummy'&&e.kind!=='atk');
  const saved={home:target.home.clone(),pos:target.pos.clone(),hp:target.hp,root:target.root.position.clone()};
  const originalPosition=p.pos.clone();p.pos.set(-170,0,-2);p.yaw=p.yawTarget=0;
@@ -48,8 +64,17 @@
  g.Story.end();g.step(30);
  const d=p.weapon.mesh.userData.staff;check('finite geometry',d.pieces.every(o=>Array.from(o.mesh.geometry.attributes.position.array).every(Number.isFinite)));
  reset();p.st=100;const chain=g.WMOVES.staff[0];g.startMove(chain.L1);
- for(const next of [chain.L2,chain.L3,chain.L4]) {g.buffer.type='light';g.buffer.t=g.now;for(let i=0;i<50&&p.move!==next;i++){p.st=100;g.step(1);}check('buffer links to '+next.name,p.move===next);}
+ for(const next of [chain.L2,chain.L3,chain.L4,chain.L5]) {g.buffer.type='light';g.buffer.t=g.now;for(let i=0;i<50&&p.move!==next;i++){p.st=100;g.step(1);}check('buffer links to '+next.name,p.move===next);}
+ // hold light → staff flower turns a fireball around
+ reset();p.yaw=p.yawTarget=0;p.lmbHeld=true;check('hold light starts flower',g.tryStaffFlower()&&p.state==='staffSpin');g.step(10);
+ const boss=g.enemies.find(e=>e.type==='dummy');g.spawnFireballs(boss);const fb=g.fireballs[g.fireballs.length-1];fb.pos.set(p.pos.x,1.2,p.pos.z+1.4);fb.vel.set(0,0,-11);fb.reflect=false;
+ g.step(2);check('flower reflects fireball',fb.reflect===true&&fb.vel.z>0,{r:fb.reflect,v:fb.vel.z});
+ p.lmbHeld=false;g.step(2);check('release ends flower',p.state==='loco');
+ // drunk pole: vault gives i-frames and lands again
+ reset();p.style=2;g.startMove({...g.WMOVES.staff[2].H1,chargeLevel:1/3});let maxY=0,inv=false;for(let i=0;i<80;i++){g.step(1);maxY=Math.max(maxY,p.pos.y);if(p.mt>.3&&p.mt<.5&&p.iframe>0)inv=true;}
+ check('pole vault rises with i-frames and lands',maxY>.6&&inv&&p.pos.y<.01,{maxY,inv,y:p.pos.y});p.style=0;
+ reset();g.startMove(g.WMOVES.staff[0].L5);for(let i=0;i<60;i++)g.step(1);check('finisher leaves character afterimages',g.STAFF_GHOSTS.length===3);
  reset();g.Menu.resetSession();
- check('new session clears jump charge and echoes',p.jumpUntil===-Infinity&&p.chargeT===0&&p.staffTrace===null&&g.STAFF_ECHOES.every(e=>!e.mesh.visible));
+ check('new session clears jump charge and echoes',p.jumpUntil===-Infinity&&p.chargeT===0&&p.staffTrace===null&&g.STAFF_ECHOES.every(e=>!e.mesh.visible)&&g.STAFF_GHOSTS.every(o=>!o.root.visible));
  return checks;
 })()

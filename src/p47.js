@@ -527,8 +527,9 @@ function movesHTML() {
     const w = WEAPONS[player.weapon.type], WC = WCLASS[c], X = WMOVES[c][player.style], H = WSHARED[c];
     const ws = WEAPONS.filter(x => x.cls === c).map(x => x.name).join(' / ');
     return `<h3>招式表 · ${w.name} · <span style="color:${st.css}">${WC.styles[player.style]}</span> <small>（${WC.name}：1/2/3 切换 ${WC.styles.join(' / ')}）</small></h3><table>
-  ${row('左键 连按', `${[X.L1, X.L2, X.L3, X.L4].filter(Boolean).map(m => m.name).join(' → ')}`, X.L4 ? '器械四连' : '器械三连')}
-  ${row(c === 'staff' ? '右键按住蓄力 / 松开释放' : '右键', X.H.name, X.H.hits.length > 1 ? `${X.H.hits.length} 段连击` : X.H.kd ? '击倒' : '重击')}
+  ${row('左键 连按', `${[X.L1, X.L2, X.L3, X.L4, X.L5].filter(Boolean).map(m => m.name).join(' → ')}`, X.L5 ? '轻棍五连 · 三派通用' : X.L4 ? '器械四连' : '器械三连')}
+  ${c === 'staff' ? row('左键 按住', '棍花', '挡下正面攻击 · 弹回火球 · 持续耗体力') : ''}
+  ${c === 'staff' ? row('右键按住蓄力 1–3 段 / 松开释放', `${X.H1.name} / ${X.H2.name} / ${X.H3.name}`, ['劈棍砸地 · 裂地尘环', '戳棍连刺 · 3/5/7 连', '立棍撑起（无敌）· 离棍扫踢'][player.style]) : row('右键', X.H.name, X.H.hits.length > 1 ? `${X.H.hits.length} 段连击` : X.H.kd ? '击倒' : '重击')}
   ${H.KL1 ? row('Caps 切腿法 · 左键连按', `${H.KL1.name} → ${H.KL2.name} → ${H.KL3.name}`, '棍类独有') + row('腿法 · 右键', H.KH.name, '跳起飞踢 · 击倒') : row('Caps 切腿法', '普通腿法', '只有棍类能撑棍踢')}
   ${row('C 蹲下 · 左键', H.CL.name, H.CL.kd ? '击倒' : '低位')}
   ${row('C 蹲下 · 右键', H.CH.name, '把敌人挑飞')}
@@ -608,7 +609,7 @@ const Menu = {
     player.rig.mats.forEach(m => m.emissive.setRGB(0, 0, 0));
     for (const k in keys) keys[k] = false;
     buffer.type = null; mouseDX = mouseDY = 0; lockTarget = null;
-    for (const e of STAFF_ECHOES) { e.life = 0; e.mesh.visible = false; }
+    staffResetFx(); player.lmbHeld = false;
     shake = hitstop = slowmo = 0; wave = -1; waveDone = true; waveDelay = 0; kills = 0; playTime = 0;
     Dojo.on = false; Dojo.dummies.length = 0; Dojo.spar = null; Dojo.log.length = 0;
     for (const f of floaters) f.d.remove(); floaters.length = 0;

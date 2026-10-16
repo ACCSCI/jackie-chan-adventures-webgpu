@@ -42,11 +42,11 @@ addEventListener('contextmenu', e => e.preventDefault());
 addEventListener('mousedown', e => {
   if (!started || !locked) return;
   if (cutscene) { if (e.button === 0) Story.next(); return; }
-  if (e.button === 0) { buffer.type = 'light'; buffer.t = now; }
+  if (e.button === 0) { buffer.type = 'light'; buffer.t = now; player.lmbHeld = true; player.lmbT = now; }
   if (e.button === 2) { if (!tryStaffCharge()) { buffer.type = 'heavy'; buffer.t = now; } }
   if (e.button === 1) { e.preventDefault(); toggleLock(); }
 });
-addEventListener('mouseup', e => { if (e.button === 2 && player.state === 'staffCharge') releaseStaffCharge(); });
+addEventListener('mouseup', e => { if (e.button === 0) player.lmbHeld = false; if (e.button === 2 && player.state === 'staffCharge') releaseStaffCharge(); });
 let lastModeWheel = -Infinity;
 addEventListener('wheel', e => {
   if (!started || !locked || cutscene || Bag.open || gameOver || !e.deltaY) return;
@@ -60,6 +60,7 @@ addEventListener('mousemove', e => { if (locked) { mouseDX += e.movementX; mouse
 document.addEventListener('pointerlockchange', () => {
   locked = document.pointerLockElement === renderer.domElement;
   if (!locked && player.state === 'staffCharge') { setState(player, 'loco'); player.chargeT = 0; }
+  if (!locked) player.lmbHeld = false;
   if (started && !locked && !gameOver && !Bag.open) Menu.pause();
 });
 // ================= HUD 工具 =================
@@ -135,7 +136,7 @@ function useStamina(c) {
   player.st -= c; player.stDelay = 0.7; return true;
 }
 function canAct(p) {
-  if (p.state === 'loco' || p.state === 'staffCharge') return true;
+  if (p.state === 'loco' || p.state === 'staffCharge' || p.state === 'staffSpin') return true;
   if (p.state === 'attack') return p.mt >= p.move.cancel;
   if (p.state === 'block') return p.stateT > 0.12;
   return false;
@@ -184,7 +185,7 @@ function tryDodge() {
 }
 function tryJump(buffered = false) {
   const p = player;
-  if (cutscene || gameOver || !['loco', 'attack', 'block', 'parryHit', 'staffCharge'].includes(p.state)) { p.jumpUntil = -Infinity; return false; }
+  if (cutscene || gameOver || !['loco', 'attack', 'block', 'parryHit', 'staffCharge', 'staffSpin'].includes(p.state)) { p.jumpUntil = -Infinity; return false; }
   if (!p.grounded) { if (!buffered) p.jumpUntil = now + .15; return false; }
   p.jumpUntil = -Infinity; buffer.type = null; p.move = p.clip = null;
   p.chargeT = 0; p.staffTrace = null; p.guard = false;
@@ -284,8 +285,10 @@ function updatePlayer(dt) {
     if (p.state === 'attack') setState(p, 'loco', 0.1);
     refreshChips();
   }
+  // 按住轻击：棍花
+  if (p.lmbHeld && now - p.lmbT > .28 && p.state !== 'staffSpin' && wcls() === 'staff' && tryStaffFlower()) buffer.type = null;
   // 输入缓冲
-  const inputWindow = p.state === 'attack' && p.move?.staff ? .45 : .35;
+  const inputWindow = p.state === 'attack' && p.move?.staff ? .6 : .35;
   if (buffer.type && now - buffer.t > inputWindow) buffer.type = null;
   if (buffer.type && canAct(p)) {
     const type = buffer.type; buffer.type = null;
@@ -324,9 +327,11 @@ function updatePlayer(dt) {
     if (!p.grounded) { const up = clamp(p.vy / 7, -1, 1); target.lhx = -0.9 - up * 0.3; target.lkx = 1.5 + up * 0.4; target.rhx = -0.3; target.rkx = 1.1; target.lsx -= 0.4 * up; target.rsx -= 0.4 * up; }
     p.yaw += angDiff(p.yaw, p.yawTarget) * (1 - Math.exp(-dt * 13));
   } else if (p.state === 'staffCharge') {
-    p.chargeT = Math.min(1.1, p.chargeT + dt);
-    if (p.chargeT >= 1.1 && !p.chargeFull) { p.chargeFull = true; showMove('棍势已满 · 松开右键', STYLES[p.style].css); }
+    staffChargeTick(p, dt);
     p.vel.multiplyScalar(Math.exp(-dt * 15));
+    Object.assign(target, p.baseSm);
+  } else if (p.state === 'staffSpin') {
+    staffFlowerTick(p, dt);
     Object.assign(target, p.baseSm);
   } else if (p.state === 'attack') {
     const m = p.move, ms = moveSpeed(), step = dt / (m.dur / ms);
@@ -341,6 +346,10 @@ function updatePlayer(dt) {
     const tgt = findSoftTarget();
     if (tgt && Math.hypot(tgt.pos.x - p.pos.x, tgt.pos.z - p.pos.z) < 1.0 + tgt.radius) ls = Math.min(ls, 0); // 贴身不再前冲
     p.vel.x = Math.sin(p.yaw) * ls; p.vel.z = Math.cos(p.yaw) * ls;
+    if (m.pole) { // 立棍：撑上棍顶（无敌）→ 离棍扫踢 → 落地
+      const y = t < .18 ? 0 : t < .42 ? .92 * staffEase((t - .18) / .24) : t < .82 ? .92 - .12 * Math.sin((t - .42) / .4 * Math.PI) : .92 * (1 - staffEase((t - .82) / .13));
+      p.vy = (y - p.pos.y) / Math.max(dt, 1e-4) + 22 * dt; if (t > .14 && t < .7) p.iframe = Math.max(p.iframe, .06);
+    }
     if (!m.staff) m.hits.forEach((ht, i) => { if (t >= ht && t - step < ht + 0.001) playerHitCheck(m, i); });
     // 收招阶段可被移动打断
     if (t >= m.cancel + 0.08 && moving && !buffer.type) setState(p, 'loco', 0.2);
@@ -446,7 +455,8 @@ function playerHitCheck(m, hi, staffTargets = null) {
     const wk = m.wpn && p.weapon ? (WEAPONS[p.weapon.type].kind || ['stick', 'umbrella', 'pan'][p.weapon.type]) : null;
     impact('hit', { heavy: !!m.heavy, mat: wk ? MAT[wk] : null, counter: counter || sneak, kill: killN > 0, armor: armorN > 0 && !killN, pos: hitPos, fallback: sound });
     // 停顿：重击/反击/击杀更长，打霸体更短更“弹手”
-    hitstop = killN ? 0.11 : counter ? 0.1 : m.heavy ? 0.085 : armorN ? 0.025 : 0.045;
+    hitstop = killN ? 0.11 : counter ? 0.1 : m.stop ?? (m.heavy ? 0.085 : armorN ? 0.025 : 0.045);
+    if (m.staff && hitPos) staffCamPunch(hitPos.clone().sub(p.pos).setY(0), m.heavy ? .07 : .035, m.fov || 1.5);
     shake = Math.max(shake, killN ? 0.24 : m.heavy || counter ? 0.2 : 0.07);
     if (killN && !enemies.some(e => !e.dead && e.type !== 'dummy')) slowmo = Math.max(slowmo, 0.35); // 本波最后一击
     p.anim.kick('sx', m.heavy ? 1.5 : 0.8); // 打实的反作用
@@ -468,6 +478,7 @@ function playerTakeHit(e, dmg, opts = {}) {
     return;
   }
   if (opts.high && p.crouch) { floatText(pos, '蹲闪!', '#9ff'); return; }
+  if (p.state === 'staffSpin' && side === 0 && !opts.unblockable) { p.st -= dmg * .6; p.stDelay = .6; impact('block', { pos }); burst(pos, STAFF_STYLE_COL[p.style], 10, 3); floatText(pos, '棍花挡下!', STYLES[p.style].css, 22); const s = p.weapon?.mesh.userData.staff; if (s) { s.vx += 2; s.vy += 1.5; } if (p.st <= 0) { p.st = 0; setState(p, 'loco'); } return; }
   if (p.style === 2 && p.grounded && !p.guard && (p.state === 'loco' || p.state === 'hit' || p.state === 'attack') && Math.random() < 0.8) {
     // 醉步：80% 自动闪开（无冷却、不耗体力，出拳出腿时也能闪）
     p.drunkT = now; floatText(pos, '醉步闪避!', '#c889ff', 24);

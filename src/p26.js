@@ -84,15 +84,16 @@ function driveSkinPlayer(p, dt) {
       const W = skLoco(sk, o);
       if (p.guard) sk.set('guard', W, { block: 1 }, 0.12); else sk.set('loco', W, null, 0.18);
     }
-  } else if (st === 'staffCharge') {
-    sk.set('staffCharge', { idle_box: 1 }, null, .12); sk.speed('idle_box', .6);
+  } else if (st === 'staffCharge' || st === 'staffSpin') {
+    sk.set(st, { idle_box: 1 }, null, .12); sk.speed('idle_box', .6);
   } else if (st === 'attack') {
     const m = p.move, map = m === MOVES.sweep ? ['crouch_idle', 0, null, 0.1] : SKM[m.skKey] || SKM.jab1, t = Math.min(1, p.mt);
     const ct = skMap(map, t, m.hits[0]), id2 = 'atk' + p.atkN;
     if (m.staff) {
-      const lower = m.low ? 'crouch_idle' : m.lunge && p.grounded ? 'walk' : 'idle_box';
-      sk.set(id2, { [lower]: 1 }, { idle_box: 1 }, .065);
-      if (lower === 'walk') sk.time('walk', t * .65); else sk.speed(lower, 1);
+      // 下半身用格斗站姿，重心/踏步/转腰由 driveStaff 程序化叠加；立棍与跳劈换全身片段
+      const ph = m.pole ? (t < .42 ? null : t < .58 ? ['crouch_idle', 0] : t < .88 ? ['kick_hurricane', .25 + (t - .58) / .3 * 1.1] : null) : m.jump && !p.grounded ? ['jump', .55 + t * .6] : null;
+      if (ph && SKIN.clips[ph[0]]) { sk.set(id2 + ph[0], { [ph[0]]: 1 }, null, .08); if (ph[1]) sk.time(ph[0], ph[1]); }
+      else { const lower = m.low ? 'crouch_idle' : 'idle_box'; sk.set(id2, { [lower]: 1 }, { idle_box: 1 }, .065); sk.speed(lower, 1); }
     } else if (map[4]) sk.set(id2, { [map[4]]: 1 }, { [map[0]]: 1 }, 0.06); else sk.set(id2, { [map[0]]: 1 }, null, 0.06);
     sk.time(map[0], ct); if (map[4]) sk.speed(map[4], 1);
     // 程序化 360° 转体（Mixamo 片段为原地动作，转身被去掉了）
