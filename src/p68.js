@@ -29,10 +29,10 @@ WORLD.reg({
   onNight(B, on) { WB.night(B, on); },
   build(G, d, B) {
     B.d = d; Object.assign(B, { lit: [], lampsM: [], lanterns: [], blink: [], nightOnly: [], dyn: [] });
-    const hf = (x, z) => { const w = walkDist(d, x, z); if (w < 2) return -0.05; return Math.min(260, Math.pow(w, 1.05) * 0.35 + fbm(x / 90, z / 90) * 60 * Math.min(1, w / 40)); };
+    const hf = (x, z) => { const w0 = walkDist(d, x, z); if (w0 < 12) return -0.05; const w = w0 - 12; return Math.min(260, Math.pow(w, 1.05) * 0.35 + fbm(x / 90, z / 90) * 60 * Math.min(1, w / 40)); };
     const cf = (h, x, z) => new THREE.Color(h < 2 ? 0xd89a68 : h < 60 ? 0xc87a4a : 0xb05a3a).lerp(new THREE.Color(0xe8b080), Math.max(0, Math.sin(h * 0.3)) * 0.3);
     terrainMesh(2400, 2400, 150, hf, cf, G, 0, 0);
-    WB.ground(G, 140, 400, '#d8a070', '#e0b080', 20);
+    WB.ground(G, 84, 400, '#d8a070', '#e0b080', 12);
     WB.strip(G, 0, -178, 0, 178, 9, 0x4a4a4c); WB.strip(G, 0, -178, 0, 178, 0.3, 0xffd04a, 0.03);
     let seed = 3; const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
     // 红色台地与石柱
@@ -143,8 +143,8 @@ WORLD.reg({
     // 南天门：巨大的牌楼
     WB.paifang(G, B, 0, 128, Math.PI, '南天門', 6); 
     // 天门神殿（在最北的岛后面）
-    { const K = new THREE.Group(); K.position.set(0, 0, 200); G.add(K); for (let i = 0; i < 4; i++) { const r = 34 - i * 7; mesh(new THREE.CylinderGeometry(r, r + 2, 14, 8), M(i % 2 ? 0xc8302a : 0xf4ecd8), 0, 7 + i * 16, 0, K, false); mesh(new THREE.CylinderGeometry(r * 0.6, r * 1.45, 6, 8), M(0xe0b040), 0, 16 + i * 16, 0, K, false); }
-      WB.island(G, 0, 0, 200, 40); mesh(new THREE.SphereGeometry(6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffe08a, toneMapped: false }), 0, 76, 0, K, false); }
+    { const K = new THREE.Group(); K.position.set(0, 0, 216); G.add(K); for (let i = 0; i < 4; i++) { const r = 34 - i * 7; mesh(new THREE.CylinderGeometry(r, r + 2, 14, 8), M(i % 2 ? 0xc8302a : 0xf4ecd8), 0, 7 + i * 16, 0, K, false); mesh(new THREE.CylinderGeometry(r * 0.6, r * 1.45, 6, 8), M(0xe0b040), 0, 16 + i * 16, 0, K, false); }
+      WB.island(G, 0, 0, 216, 40); mesh(new THREE.SphereGeometry(6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffe08a, toneMapped: false }), 0, 76, 0, K, false); }
     // 十二生肖神石：环绕仙山缓缓转动
     { const ring = new THREE.Group(); G.add(ring); ring.position.set(0, 0, 0); RUNES.forEach((R, i) => { const a = i / 12 * TAU, K = new THREE.Group(); K.position.set(Math.cos(a) * 340, 70 + Math.sin(i * 1.7) * 30, Math.sin(a) * 340); ring.add(K);
         WB.island(K, 0, -8, 0, 22, 0x8aba7a); const disc = mesh(new THREE.CylinderGeometry(16, 16, 3, 32), M(0xd8d0c0), 0, 14, 0, K, false); disc.rotation.x = Math.PI / 2;

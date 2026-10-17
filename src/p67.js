@@ -42,7 +42,7 @@ WB.shophouse = function (G, B, d, x, z, w, dp, fl, yaw, col, sign) {
   if (sign) { const s = labelSprite(sign, '#ffd04a', 0.9); s.position.set(0, 4.3, dp / 2 + 0.2); K.add(s); }
   for (let i = 0; i < 3; i++) WB.lantern(K, B, -w / 3 + i * w / 3, 2.7, dp / 2 + 1.4);
   WB.roof(K, 0, H + 0.4 + Math.min(w, dp) * 0.17, 0, w + 1, dp + 1, [0x2a5a3a, 0x7a2a22, 0x3a3a4a][Math.abs(Math.round(x + z)) % 3]);
-  const c = Math.abs(Math.cos(yaw)) > 0.5 ? [w, dp] : [dp, w]; WORLD.col(d, x - c[0] / 2, z - c[1] / 2, x + c[0] / 2, z + c[1] / 2, H);
+  const cs = Math.abs(Math.cos(yaw)), sn = Math.abs(Math.sin(yaw)), dg = Math.min(cs, sn) > 0.2 ? 0.8 : 1, c = [(cs * w + sn * dp) * dg, (sn * w + cs * dp) * dg]; WORLD.col(d, x - c[0] / 2, z - c[1] / 2, x + c[0] / 2, z + c[1] / 2, H);
   return K;
 };
 WB.paifang = function (G, B, x, z, yaw, title, s = 1) {
@@ -123,7 +123,7 @@ WORLD.reg({
     { id: 'relic', title: '失落的古董', goal: '在湾区各处找回 5 件散落的古董', type: 'collect', item: '古董', giver: { x: 30, z: 128, yaw: Math.PI, name: '收破烂的阿福', look: { hat: 'straw', cloth: 0x6a5a3a } }, spots: [[140, 100], [-168, 128], [-60, -150], [150, -146], [-60, 172]],
       intro: [{ who: 'npc', text: '哎呀，我那辆三轮车翻了，收来的老古董撒得满城都是！' }, { who: 'jackie', text: '古董？要是被老爹知道了，他会骂我见死不救的……我帮你找！' }, { who: 'npc', text: '一共五件，金光闪闪的就是！看小地图上的黄点！' }],
       done: [{ who: 'npc', text: '一件都不少！这件玉坠你拿去，就当谢礼。' }, { who: 'jackie', text: '老爹一定会喜欢……不对，我自己留着！' }], remind: '还差几件呢，金光闪闪的！', thanks: '下次收到好东西，先拿给你老爹看！', reward: { xp: 120, items: { relic: 1, tea: 1 } } },
-    { id: 'paper', title: '号外！号外！', goal: '40 秒内把报纸送到码头报亭', type: 'reach', time: 40, to: { x: 120, z: 150, label: '码头报亭' }, giver: { x: 5, z: 70, yaw: -Math.PI / 2, name: '报童小明', look: { hat: 'none', cloth: 0x8a3a3a, s: 0.75 } },
+    { id: 'paper', title: '号外！号外！', goal: '40 秒内把报纸送到码头报亭', type: 'reach', time: 40, to: { x: 121, z: 149, label: '码头报亭' }, giver: { x: 5, z: 70, yaw: -Math.PI / 2, name: '报童小明', look: { hat: 'none', cloth: 0x8a3a3a, s: 0.75 } },
       intro: [{ who: 'npc', text: '成龙叔叔！码头报亭等着要今天的号外，我腿短跑不动……你能帮我送过去吗？' }, { who: 'jackie', text: '没问题，四十秒？小意思！' }],
       thanks: '成龙叔叔跑得比报纸印得还快！', remind: '快跑快跑！', reward: { xp: 70, items: { bun: 1 } } },
     { id: 'duel', title: '拳馆踢馆', goal: '和拳馆的大师兄过过招', type: 'duel', foe: 'brute', giver: { x: 30, z: -92, yaw: Math.PI, name: '洪拳馆师傅', look: { hat: 'none', cloth: 0x1a1a1a } },

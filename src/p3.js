@@ -10,10 +10,11 @@ addEventListener('keydown', e => {
   // 游戏进行中拦截几乎所有浏览器快捷键（Alt+D、Ctrl+F、F5…）；全屏时再用键盘锁定拦 Ctrl+W 等
   if (KEYSTOP.includes(e.code) || e.key === 'Alt' || (started && !gameOver && !typing && e.code !== 'F12')) e.preventDefault();
   if (!started) return;
-  if (e.code === 'Escape') { if (Bag.open) { Bag.toggle(false); return; } if (locked) document.exitPointerLock(); return; }
+  if (e.code === 'Escape') { if (WMap.open) { WMap.toggle(false); return; } if (Bag.open) { Bag.toggle(false); return; } if (locked) document.exitPointerLock(); return; }
+  if (WMap.open) { if (e.code === 'KeyM' && !e.repeat) WMap.toggle(false); return; }
   if (Bag.open) { if (e.code === 'Tab' && !e.repeat) Bag.toggle(false); return; }
   if (e.code === 'Tab' && !cutscene && !e.repeat) { Bag.toggle(true); return; }
-  if (cutscene) { if (!e.repeat) { if (e.code === 'KeyM') Music.toggle(); else if (e.code === 'Tab') Story.skip(); else if (['Space', 'Enter', 'KeyE'].includes(e.code)) Story.next(); } return; }
+  if (cutscene) { if (!e.repeat) { if (e.code === 'KeyN') Music.toggle(); else if (e.code === 'Tab') Story.skip(); else if (['Space', 'Enter', 'KeyE'].includes(e.code)) Story.next(); } return; }
   keys[e.code] = true;
   if (e.repeat) return;
   switch (e.code) {
@@ -25,7 +26,8 @@ addEventListener('keydown', e => {
     case 'Digit3': setStyle(2); break;
     case 'AltLeft': case 'AltRight': tryDodge(); break;
     case 'Space': if (player.state === 'down') tryKipUp(); else tryJump(); break;
-    case 'KeyM': Music.toggle(); break;
+    case 'KeyM': WMap.toggle(true); break;
+    case 'KeyN': Music.toggle(); break;
     case 'KeyE': pickupOrDrop(); break;
     case 'KeyR': toggleLock(); break;
     case 'KeyH': $('help').classList.toggle('hide'); break;
@@ -61,7 +63,7 @@ document.addEventListener('pointerlockchange', () => {
   locked = document.pointerLockElement === renderer.domElement;
   if (!locked && player.state === 'staffCharge') { setState(player, 'loco'); player.chargeT = 0; }
   if (!locked) player.lmbHeld = false;
-  if (started && !locked && !gameOver && !Bag.open) Menu.pause();
+  if (started && !locked && !gameOver && !Bag.open && !WMap.open) Menu.pause();
 });
 // ================= HUD 工具 =================
 let moveTimer = 0;
