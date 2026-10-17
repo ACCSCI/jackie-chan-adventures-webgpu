@@ -38,7 +38,13 @@ function updateCamera(dt) {
     const want = tgt.clone().addScaledVector(fwd, -dist).addScaledVector(right, 0.55);
     want.y = Math.max(0.35, want.y);
     camPos.lerp(want, 1 - Math.exp(-dt * 14));
-    if (AREA.room) { camPos.x = clamp(camPos.x, AREA.cx - AREA.hx + 0.25, AREA.cx + AREA.hx - 0.25); camPos.z = clamp(camPos.z, AREA.cz - AREA.hz + 0.25, AREA.cz + AREA.hz - 0.25); camPos.y = Math.min(camPos.y, AREA.h - 0.3); }
+    if (AREA.room) { // 沿“人物→相机”射线收回，而不是逐轴硬夹（硬夹会把相机挤到人物身上 / 墙里）
+      let k = 1; const m = 0.3, X0 = AREA.cx - AREA.hx + m, X1 = AREA.cx + AREA.hx - m, Z0 = AREA.cz - AREA.hz + m, Z1 = AREA.cz + AREA.hz - m, dx = camPos.x - tgt.x, dz = camPos.z - tgt.z;
+      if (camPos.x > X1 && dx > 1e-4) k = Math.min(k, (X1 - tgt.x) / dx); if (camPos.x < X0 && dx < -1e-4) k = Math.min(k, (X0 - tgt.x) / dx);
+      if (camPos.z > Z1 && dz > 1e-4) k = Math.min(k, (Z1 - tgt.z) / dz); if (camPos.z < Z0 && dz < -1e-4) k = Math.min(k, (Z0 - tgt.z) / dz);
+      k = clamp(k, 0.1, 1); if (k < 1) { camPos.x = tgt.x + dx * k; camPos.z = tgt.z + dz * k; camPos.y = tgt.y + (camPos.y - tgt.y) * k; }
+      camPos.x = clamp(camPos.x, X0, X1); camPos.z = clamp(camPos.z, Z0, Z1); camPos.y = Math.min(camPos.y, (AREA.h || 9) - 0.3);
+    }
     camera.position.copy(camPos);
     camera.lookAt(tgt.clone().addScaledVector(right, 0.55).addScaledVector(fwd, 2));
     camera.fov = lerp(camera.fov, p.state === 'dodge' || (keys.ShiftLeft && Math.hypot(p.vel.x, p.vel.z) > 5) ? 72 : 65, 1 - Math.exp(-dt * 6));
@@ -134,7 +140,7 @@ function loop() {
   if (started && locked && !gameOver || gameOver) {
     now += dt;
     updatePlayer(dt);
-    if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.update(dt)); updateWaves(dt); }
+    if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.dormant ? dormantTick(e, dt) : e.update(dt)); updateWaves(dt); }
     updatePickups(dt);
     Story.update(dt);
   } else if (!started) {
@@ -159,6 +165,6 @@ renderer.init().then(() => {
 });
 Menu.initialWeapons = groundWeapons.map(w => ({ type: w.type, x: w.pos.x, z: w.pos.z, dur: w.dur }));
 window.__game = { SFX, sfx, Impact, impact, Foley, initAudio, staffSwish, WEB_SFX, Stealth, cases, MU, get snakeAltar() { return snakeAltar; }, Voice, BGM, AudioBus, get AC() { return AC; }, fireballs, spawnFireballs, TP, player, enemies, startMove, MOVES, MOVES_STYLE, setStyle, toggleView, toggleCrouch, toggleMode, startWave, keys, get started() { return started; }, set started(v) { started = v; }, set locked(v) { locked = v; }, setCam(y, p) { camYaw = y; camPitch = p; }, buffer, playerTakeHit,
-  step(n, dt = 1 / 60) { for (let i = 0; i < n; i++) { now += dt; updatePlayer(dt); if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.update(dt)); updateWaves(dt); } updatePickups(dt); Story.update(dt); } updateCamera(dt); updateTrails(dt); },
+  step(n, dt = 1 / 60) { for (let i = 0; i < n; i++) { now += dt; updatePlayer(dt); if (cutscene) Story.idleEnemies(dt); else { enemies.forEach(e => e.dormant ? dormantTick(e, dt) : e.update(dt)); updateWaves(dt); } updatePickups(dt); Story.update(dt); } updateCamera(dt); updateTrails(dt); },
   Story, Dojo, Menu, ETYPES, spawnTalisman, Runes, Bag, FS, RUNES, WMOVES, WSHARED, WEAPONS, chooseMove, weaponMove, groundWeapons, get MODE() { return MODE; }, get cutscene() { return cutscene; }, get wave() { return wave; }, AREA, tryDodge, tryJump, tryStaffCharge, releaseStaffCharge, equipMesh, STAFF_ECHOES, STYLES, staffPose, STAFF_POSES, staffSample, tryStaffFlower, STAFF_RIBBONS, STAFF_GHOSTS, STAFF_CRACKS, staffResetFx, staffGhost, BLADE_POSES, bladePose, pickupOrDrop, spawnWeapon, SKIN, makeSkinRig, set lock(v) { lockTarget = v; },
   get now() { return now; } };

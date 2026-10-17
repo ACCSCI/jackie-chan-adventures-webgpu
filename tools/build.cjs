@@ -8,7 +8,7 @@ const python = process.platform === 'win32' ? 'python' : 'python3';
 for (const name of ['glbdata', 'audiodata']) execFileSync(python, [`tools/${name}.py`, `build/${name}.js`], { stdio: 'inherit' });
 execFileSync(python, ['tools/audiodata.py', 'build/audiodata2.js', 'assets/audio/ep45'], { stdio: 'inherit' });
 if (fs.existsSync('assets/audio/ep69')) execFileSync(python, ['tools/audiodata.py', 'build/audiodata3.js', 'assets/audio/ep69'], { stdio: 'inherit' }); else fs.writeFileSync('build/audiodata3.js', '');
-const parts = ['src/p1.js', 'src/p2.js', 'build/glbdata.js', ...['p25','p26','p27','staff','blade','p3','p4','p45','p46','p47','p48','p49'].map(n => `src/${n}.js`), 'build/audiodata.js', 'build/audiodata2.js', 'build/audiodata3.js', ...['p50','websfx','websfx2','websfx3','websfx4','p51','p52','p53','p54','p55','p56','p57','p58','p59','p60','p60s', 'p61', 'p61s', 'p62', 'p62s', 'p63', 'p63s','kiai','touch','p5'].map(n => `src/${n}.js`)];
+const parts = ['src/p1.js', 'src/p2.js', 'build/glbdata.js', ...['p25','p26','p27','staff','blade','p3','p4','p45','p46','p47','p48','p49'].map(n => `src/${n}.js`), 'build/audiodata.js', 'build/audiodata2.js', 'build/audiodata3.js', ...['p50','websfx','websfx2','websfx3','websfx4','p51','p52','p53','p54','p55','p56','p57','p58','p59','p60','p60s', 'p61', 'p61s', 'p62', 'p62s', 'p63', 'p63s','kiai','touch','p64','p65','p66','p67','p68','p5'].map(n => `src/${n}.js`)];
 fs.writeFileSync('build/main.js', parts.map(p => fs.readFileSync(p, 'utf8')).join('\n'));
 buildSync({ entryPoints: ['build/main.js'], bundle: true, format: 'iife', minify: true, target: 'es2022', outfile: 'build/bundle.js', logLevel: 'warning' });
 const bundle = fs.readFileSync('build/bundle.js', 'utf8').replaceAll('</script', '<\\/script');

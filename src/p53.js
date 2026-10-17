@@ -443,7 +443,7 @@ const Squad = {
   const _uc = updateCamera;
   updateCamera = function (dt) {
     _uc(dt);
-    if (cutscene || !AREA.occl || player.view !== 'third' || window.__camO) return;
+    if (cutscene || player.view !== 'third' || window.__camO) return;
     const p = player, ty = 1.4 + p.pos.y * 0.8, tx = p.pos.x, tz = p.pos.z;
     const cx = camera.position.x, cy = camera.position.y, cz = camera.position.z;
     let best = 1;

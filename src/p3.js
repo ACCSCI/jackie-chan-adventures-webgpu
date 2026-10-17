@@ -180,7 +180,7 @@ function tryKipUp(buffered = false) {
 }
 function tryDodge() {
   const p = player;
-  if (p.state === 'down') return;
+  if (p.state === 'down') { tryKipUp(); return; }
   // 翻滚可随时打断出招（含出招前摇/判定中），这是本作的核心取消手段
   const cancelAtk = p.state === 'attack' || p.state === 'staffCharge' || p.state === 'staffSpin';
   if (!(canAct(p) || cancelAtk || p.state === 'hit' && p.stateT > 0.18)) return;
@@ -420,7 +420,7 @@ function updatePlayer(dt) {
     sampleKeys(p.downClip.keys, Math.min(1, tt / p.downClip.dur), target);
     if (p.state === 'down' && tt >= 0.36 && tt - dt < 0.36) { shake = Math.max(shake, 0.12); burst(p.pos.clone().setY(0.15), 0xc9a27a, 14, 3); }
     p.iframe = Math.max(p.iframe, p.state === 'down' ? 0.3 : 0);
-    if (p.state === 'down' && p.grounded && tt >= 0.34 && tt - dt < 0.34) tip('按 Space 快速起身', 0.9);
+    if (p.state === 'down' && p.grounded && tt >= 0.34 && tt - dt < 0.34) tip('按 Space / Alt 快速起身', 0.9);
     if (p.state === 'down' && tt >= p.downClip.dur) setState(p, 'loco', 0.15);
   }
   // 被动回血（类似使命召唤）：4 秒没掉血就自动快速回血，挨打立即中断

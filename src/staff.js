@@ -38,7 +38,7 @@ const STAFF_RUN = staffSample(SKS([[0, { h: [.24, .93, -.1], d: [176, -20], g: .
 const STAFF_CHARGE = [
   // 龙形：拖棍蓄势——棍身低横于身侧、棍梢斜指后下方，可边走边蓄
   staffSample(SKS([[0, { h: [.2, .96, .16], d: [158, -16], g: .3, sp: 0, l: .56, lw: 1, hip: .28, tw: .3, lean: .1, drop: .1, fl: .08 }], [1, {}]]), 0),
-  staffSample(SKS([[0, { h: [.24, 1.02, -.18], d: [2, 4], g: .08, sp: 0, l: .45, lw: 1, hip: .7, tw: .35, lean: .12, drop: .15, fl: .18, fr: -.05 }], [1, {}]]), 0),
+  staffSample(SKS([[0, { h: [.26, 1.0, .32], d: [2, 4], g: .08, sp: 0, l: .45, lw: 1, hip: .3, tw: .15, lean: .12, drop: .15, fl: .18, fr: -.05 }], [1, {}]]), 0),
   staffSample(SKS([[0, { h: [.06, 1.28, .38], d: [0, -84], g: .1, sp: 0, sl: 90, l: .3, lw: 1, hip: .1, tw: .15, lean: .18, drop: .14, fl: .1 }], [1, {}]]), 0),
 ];
 const STAFF_POSES = {
@@ -104,10 +104,10 @@ const STAFF_POSES = {
 };
 // 灵蛇·戳棍（重）：n 连刺，前手不动、棍身在左手里来回穿梭
 function pokeKeys(n) {
-  const L = [[0, { h: [.24, 1.02, -.18], d: [2, 4], g: .08, sp: 0, l: .45, lw: 1, hip: .7, tw: .35, lean: .12, drop: .15, fl: .18, fr: -.05 }]];
+  const L = [[0, { h: [.26, 1.0, .32], d: [2, 4], g: .08, sp: 0, l: .45, lw: 1, hip: .3, tw: .15, lean: .12, drop: .15, fl: .18, fr: -.05 }]];
   for (let i = 0; i < n; i++) {
     const a = .1 + .8 * i / n, b = .1 + .8 * (i + .5) / n, h = [1.12, 1.25, .95, 1.18, 1.32, 1.0, 1.2][i % 7], az = [0, -8, 6, -4, 8, -6, 2][i % 7];
-    L.push([a, { h: [.24, 1.0, -.16], d: [az * .4, 4], l: .45, hip: .7, tw: .35, lean: .1, drop: .15 }]);
+    L.push([a, { h: [.24, 1.0, .3], d: [az * .4, 4], l: .45, hip: .3, tw: .15, lean: .1, drop: .15 }]);
     L.push([b, { h: [.1, h - .05, .32], d: [az, (h - 1.1) * 25], l: .22, hip: .25, tw: .1, lean: .26, drop: .18, fl: .3 }]);
   }
   L.push([1, { h: [.18, 1.02, .2], d: [0, 0], l: .55, hip: .3, tw: .1, lean: .1, drop: .1 }]);
