@@ -593,7 +593,7 @@ const Menu = {
   resetSession() {
     started = false; locked = false; gameOver = false; cutscene = false;
     clearTimeout(gameEndTimer); gameEndTimer = null;
-    clearTimeout(Story._fadeTimer); clearTimeout(Story._bt);
+    clearTimeout(Story._fadeTimer); clearTimeout(Story._bt); if (typeof WORLD !== 'undefined') { Travel.dest = null; Travel.busy = false; WORLD.leave(); $('fade').style.opacity = 0; }
     Voice.stop(); SFX.stop(); Story.timers.length = 0;
     Object.assign(Story, { lines: null, done: null, i: 0, shown: 0, busy: false, camPos: null, prevWho: null, raged: false, broken: 0, barkT: 8 });
     for (const e of enemies) { e.rig.root.removeFromParent(); if (e.hb) e.hb.remove(); }

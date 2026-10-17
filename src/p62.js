@@ -228,10 +228,10 @@ function railScript(dt) {
     if (free.length) { const i = free[Math.floor(Math.random() * free.length)]; trainCall(i); if (RAIL.stage >= 1 && free.length > 2 && Math.random() < 0.5) trainCall(free.filter(j => j !== i)[Math.floor(Math.random() * 2)], undefined, 2.4); }
     RAIL.t = rand(5.5, 8);
   }
-  if (RAIL.stage === 0 && alive <= 2) { RAIL.stage = 1; banner('增援！<small>瓦尔蒙的手下从车厢里跳了下来</small>', 2); [['thug', -10, -9], ['brute', 10, 9], ['khan', -10, 9]].forEach(([t, x, z]) => { const e = spawnAt(t, RY.x + x, RY.z + z); e.cd = 1.4; }); }
+  if (RAIL.stage === 0 && alive <= 2) { RAIL.stage = 1; banner('增援！<small>瓦龙的手下从车厢里跳了下来</small>', 2); [['thug', -10, -9], ['brute', 10, 9], ['khan', -10, 9]].forEach(([t, x, z]) => { const e = spawnAt(t, RY.x + x, RY.z + z); e.cd = 1.4; }); }
   else if (RAIL.stage === 1 && alive <= 1) { RAIL.stage = 2; [['thug', 11, -9], ['thug', -11, -3], ['brute', 0, 10]].forEach(([t, x, z]) => { const e = spawnAt(t, RY.x + x, RY.z + z); e.cd = 1.4; }); Story.bark('thug', '把他推到铁轨上去！'); }
 }
-// ================= 调车转盘：瓦尔蒙 · 兔符 =================
+// ================= 调车转盘：瓦龙 · 兔符 =================
 const OIL = { list: [], told: 0 };
 const oilTex = canvasTex(256, 256, (g, W) => { const gr = g.createRadialGradient(W / 2, W / 2, 10, W / 2, W / 2, W / 2); gr.addColorStop(0, 'rgba(10,8,14,.95)'); gr.addColorStop(0.7, 'rgba(30,20,40,.85)'); gr.addColorStop(1, 'rgba(30,20,40,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, W); g.strokeStyle = 'rgba(120,80,200,.35)'; g.lineWidth = 6; g.beginPath(); g.arc(W / 2 - 20, W / 2 - 10, 50, 0.5, 2.5); g.stroke(); });
 function addOil(x, z, r = 2) {
@@ -277,9 +277,9 @@ function ttReset() { furnReset('turntable'); FURN.list.forEach(f => { if (f.oil)
   breakFurn = function (f, ...a) { const r = _bf(f, ...a); if (f && f.oil && f.broken && !f.oiled) { f.oiled = 1; addOil(f.x, f.z, 2.1); } return r; };
 }
 function ttWeapons() { [[-4, 6], [5, 6]].forEach(([x, z], i) => spawnWeapon([0, 3][i], TT.x + x, TT.z + z)); }
-// ---------- 瓦尔蒙 · 兔符：极速连环冲刺、残影、油瓶；完美闪避触发子弹时间 ----------
+// ---------- 瓦龙 · 兔符：极速连环冲刺、残影、油瓶；完美闪避触发子弹时间 ----------
 Object.assign(ETYPES, {
-  valm8: { name: '瓦尔蒙 · 兔符', hp: 1800, dmg: 16, spd: 4.6, radius: 0.44, scale: 1.06, beast: 1, elite: 1, rig: 'thug', tint: [0.78, 0.8, 0.9], kb: 0.25, dieMsg: '瓦尔蒙倒下了！<small>“我的……速度……”</small>' },
+  valm8: { name: '瓦龙 · 兔符', hp: 1800, dmg: 16, spd: 4.6, radius: 0.44, scale: 1.06, beast: 1, elite: 1, rig: 'thug', tint: [0.78, 0.8, 0.9], kb: 0.25, dieMsg: '瓦龙倒下了！<small>“我的……速度……”</small>' },
 });
 { const _ve = WHO.valmont.e; WHO.valmont.e = () => enemies.find(e => e.type === 'valm8') || _ve(); }
 const VAL = { told: {}, bt: 0, dodges: 0 };
@@ -359,7 +359,7 @@ function valScript(dt) {
   if (TT.disc) TT.disc.rotation.y += dt * 0.08;
   const I = VAL.imgs || []; for (let i = I.length - 1; i >= 0; i--) { const A = I[i]; A.t += dt; A.m.opacity = 0.4 * (1 - A.t / 0.45); if (A.t > 0.45) { scene.remove(A.g); I.splice(i, 1); } }
 }
-// 完美闪避瓦尔蒙的冲刺：子弹时间
+// 完美闪避瓦龙的冲刺：子弹时间
 {
   const _ge = gameEvent;
   gameEvent = function (k, d) {

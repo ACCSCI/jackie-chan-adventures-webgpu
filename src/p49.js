@@ -4,11 +4,11 @@ const TP = { x: -170, z: -170, hx: 16, hz: 12 };
 Object.assign(ETYPES, {
   ninja: Object.assign({}, ETYPES.khan, { name: '赤影忍者', hp: 62, dmg: 11, spd: 4.7, windup: 0.36, scale: 0.97, tint: [1.7, 0.5, 0.45] }),
   brute: Object.assign({}, ETYPES.thug, { base: 'thug', name: '铁臂打手', hp: 180, dmg: 18, spd: 2.4, windup: 0.6, scale: 1.24, tint: [0.7, 0.72, 0.8], poise: 1, elite: 1 }),
-  valmont: Object.assign({}, ETYPES.thug, { base: 'thug', name: '瓦尔蒙 · 龙之力', hp: 780, dmg: 20, spd: 3.0, windup: 0.5, scale: 1.08, tint: [1.55, 1.42, 1.15], poise: 1, elite: 1, fire: 1, dieMsg: '击败 瓦尔蒙！<small>“这……这不可能！”</small>' }),
+  valmont: Object.assign({}, ETYPES.thug, { base: 'thug', name: '瓦龙 · 龙之力', hp: 780, dmg: 20, spd: 3.0, windup: 0.5, scale: 1.08, tint: [1.55, 1.42, 1.15], poise: 1, elite: 1, fire: 1, dieMsg: '击败 瓦龙！<small>“这……这不可能！”</small>' }),
 });
 ETYPES.ninja.base = 'khan';
 Object.assign(WHO, {
-  valmont: { n: '瓦尔蒙', c: '#f0d890', e: () => enemies.find(e => e.type === 'valmont') || player },
+  valmont: { n: '瓦龙', c: '#f0d890', e: () => enemies.find(e => e.type === 'valmont') || player },
   brute: { n: '铁臂打手', c: '#b8c0d8', e: () => enemies.find(e => !e.dead && e.type === 'brute') || player },
 });
 RUNE_CLEAR[8] = 'dragon';
@@ -116,7 +116,7 @@ const EP2_PROLOGUE = [
   { who: 'jade', text: '龙王庙？就是那座半夜会闹鬼的老庙？酷！' },
   { who: 'jackie', text: '小玉，你——', to: 'jade' },
   { who: 'jade', text: '我知道我知道——待在家里。' },
-  { who: 'uncle', text: '还有！黑手帮的老大瓦尔蒙也在找它。要是让他先拿到龙之护身符……' },
+  { who: 'uncle', text: '还有！黑手帮的老大瓦龙也在找它。要是让他先拿到龙之护身符……' },
   { who: 'jackie', text: '会怎么样？', to: 'uncle' },
   { who: 'uncle', text: '他就能喷火！把我的店烧个精光！快去快去！', act: () => uncle.mood = 'scold' },
   { fade: () => Story.toTemple() },
@@ -143,9 +143,9 @@ const NINJA_INTRO = [
 const VALMONT_INTRO = [
   { who: 'narr', text: '（啪、啪、啪——大殿里传出一阵慢悠悠的掌声）', shot: () => [TP.x + 3, 2.5, TP.z - 2, TP.x, 2.4, TP.z - 13] },
   { who: 'valmont', text: '精彩，真精彩。成龙先生，谢谢你替我把院子打扫干净了。', act: () => { spawnWave(8); burst(new THREE.Vector3(TP.x, 1, TP.z - 5.5), 0x6a5aff, 30, 4); } },
-  { who: 'jackie', text: '你就是瓦尔蒙？黑手帮的老大？', to: 'valmont' },
+  { who: 'jackie', text: '你就是瓦龙？黑手帮的老大？', to: 'valmont' },
   { who: 'valmont', text: '正是在下。至于这个——' },
-  { who: 'narr', text: '（瓦尔蒙一把摘下龙王像上的护身符——火焰顺着他的手臂燃了起来！）', act: () => { if (dragonAltar) { burst(dragonAltar.getWorldPosition(new THREE.Vector3()), 0xffc850, 30, 4); dragonAltar.visible = false; } const v = enemies.find(e => e.type === 'valmont'); if (v) { burst(v.pos.clone().setY(1.3), 0xff7a2a, 50, 6); shock(v.pos.clone().setY(0.1), 0xff7a2a, 3); } shake = 0.4; sfx('heavy'); }, shot: () => [TP.x + 2.2, 1.9, TP.z - 2.8, TP.x, 1.5, TP.z - 5.5] },
+  { who: 'narr', text: '（瓦龙一把摘下龙王像上的护身符——火焰顺着他的手臂燃了起来！）', act: () => { if (dragonAltar) { burst(dragonAltar.getWorldPosition(new THREE.Vector3()), 0xffc850, 30, 4); dragonAltar.visible = false; } const v = enemies.find(e => e.type === 'valmont'); if (v) { burst(v.pos.clone().setY(1.3), 0xff7a2a, 50, 6); shock(v.pos.clone().setY(0.1), 0xff7a2a, 3); } shake = 0.4; sfx('heavy'); }, shot: () => [TP.x + 2.2, 1.9, TP.z - 2.8, TP.x, 1.5, TP.z - 5.5] },
   { who: 'valmont', text: '龙之力！哈哈哈哈——现在还有谁挡得住我？' },
   { who: 'uncle', text: '成龙！他会喷火球！蹲下或闪开——完美格挡还能把火球打回去！', act: () => { uncle.place(TP.x - 1.6, TP.z + 10.8, Math.PI); uncle.mood = 'scold'; } },
   { who: 'jackie', text: '把火球……打回去？老爹你是认真的吗？', to: 'uncle' },
@@ -153,9 +153,9 @@ const VALMONT_INTRO = [
   { who: 'jade', text: '狗符给你！撑不住了就去捡！', act: () => { if (!jade.rig.root.visible) jade.place(TP.x - 5.6, TP.z + 10.6, Math.PI); spawnTalisman(2, TP.x + 6, TP.z + 6); } },
 ];
 const EP2_ENDING = [
-  { who: 'narr', text: '（瓦尔蒙单膝跪地，龙之护身符从他手里滚落）', act: () => { const v = enemies.find(e => e.type === 'valmont'); burst((v ? v.pos : player.pos).clone().setY(0.5), 0xffc850, 30, 4); sfx('clang'); } },
+  { who: 'narr', text: '（瓦龙单膝跪地，龙之护身符从他手里滚落）', act: () => { const v = enemies.find(e => e.type === 'valmont'); burst((v ? v.pos : player.pos).clone().setY(0.5), 0xffc850, 30, 4); sfx('clang'); } },
   { who: 'jackie', text: '龙之力是很厉害——可惜用的人不怎么样。', to: 'narr' },
-  { who: 'narr', text: '（一阵黑烟升起……再散开时，瓦尔蒙已经不见了）', act: () => { burst(player.pos.clone().add(new THREE.Vector3(0, 1, -3)), 0x333344, 40, 4); sfx('whoosh'); } },
+  { who: 'narr', text: '（一阵黑烟升起……再散开时，瓦龙已经不见了）', act: () => { burst(player.pos.clone().add(new THREE.Vector3(0, 1, -3)), 0x333344, 40, 4); sfx('whoosh'); } },
   { who: 'jade', text: '他跑了！', act: () => { jade.place(player.pos.x - 2, player.pos.z + 2.4, 0); uncle.place(player.pos.x + 2, player.pos.z + 2.2, 0); } },
   { who: 'uncle', text: '让他跑！护身符才是最重要的！' },
   { who: 'narr', text: '（龙之护身符飘进了成龙的手里，暖得像一团小小的火）', act: () => { burst(player.pos.clone().setY(1.3), 0xffc850, 40, 4); shock(player.pos.clone().setY(0.1), 0xffc850, 2); } },

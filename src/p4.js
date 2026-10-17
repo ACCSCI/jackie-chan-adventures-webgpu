@@ -36,7 +36,7 @@ const EATK = {
     eatk('boss', { name: 'slam', dur: 1.7, wind: 1.0, hit: 1.1, range: 3.4, kd: 1, unblockable: 1, aoe: 1, keys: [[0, {}], [0.6, { lsx: -2.9, rsx: -2.9, lsz: 0.2, rsz: -0.2, lex: -0.5, rex: -0.5, sx: -0.35, hy: 0.0, nx: -0.3, lhx: -0.1, rhx: 0.1 }], [1.0, { lsx: -3.0, rsx: -3.0, lex: -0.4, rex: -0.4, sx: -0.45, hy: 0.02 }], [1.1, { lsx: -0.9, rsx: -0.9, lex: 0, rex: 0, sx: 0.75, hy: -0.4, lhx: -0.9, lkx: 1.1, rhx: 0.2, rkx: 0.6 }], [1.4, { lsx: -0.8, rsx: -0.8, sx: 0.65, hy: -0.38, lhx: -0.9, lkx: 1.1 }], [1.7, {}]] }),
   ],
 };
-// 瓦尔蒙（龙之力）：双掌推出火球
+// 瓦龙（龙之力）：双掌推出火球
 const FIRE_ATK = eatk('thug', { name: 'fire', dur: 1.25, wind: 0.72, hit: 0.8, range: 16, proj: 1, keys: [[0, {}], [0.4, { lsx: -0.6, rsx: -0.6, lex: -2.2, rex: -2.2, lsz: 0.5, rsz: -0.5, sx: -0.25, hy: -0.12, sy: 0.3 }], [0.72, { lsx: -0.7, rsx: -0.7, lex: -2.3, rex: -2.3, lsz: 0.55, rsz: -0.55, sx: -0.3, hy: -0.15, sy: 0.35 }], [0.8, { lsx: -1.55, rsx: -1.55, lex: -0.05, rex: -0.05, lsz: 0.1, rsz: -0.1, sx: 0.35, hy: -0.2, sy: 0, lhx: -0.6, lkx: 0.7, rhx: 0.4 }], [1.0, { lsx: -1.4, rsx: -1.4, lex: -0.2, rex: -0.2, sx: 0.25, hy: -0.18 }], [1.25, {}]] });
 const FB_GEO = new THREE.SphereGeometry(0.26, 14, 10), FB_MAT = glowMat(5, 1.5, 0.3);
 const FB_HALO = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.3, 0.4, 0.06), transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
@@ -186,7 +186,7 @@ class Enemy {
       this.ph += dt * vm * 3.4 * (fwdV < -0.2 ? -1 : 1);
       locoPose(tg, this.base, vm, this.ph, { noArmSwing: this.type !== 'thug' });
       const maxTok = T.elite ? 3 : 2;
-      if (T.fire && !this.raged && this.hp < this.maxHp * 0.5) { this.raged = true; this.fireCd = 0; banner('瓦尔蒙：“龙之力……全都是我的！”<small>火球变成三连发了——蹲下或闪避！</small>', 2.5); shock(this.pos.clone().setY(0.1), 0xff7a2a, 3); burst(this.pos.clone().setY(1.2), 0xff7a2a, 40, 6); shake = 0.3; }
+      if (T.fire && !this.raged && this.hp < this.maxHp * 0.5) { this.raged = true; this.fireCd = 0; banner('瓦龙：“龙之力……全都是我的！”<small>火球变成三连发了——蹲下或闪避！</small>', 2.5); shock(this.pos.clone().setY(0.1), 0xff7a2a, 3); burst(this.pos.clone().setY(1.2), 0xff7a2a, 40, 6); shake = 0.3; }
       if (T.fire && p.state !== 'dead' && (this.fireCd -= dt) <= 0 && dist > 3.2 && dist < 15) {
         this.atk = FIRE_ATK; this.fireCd = this.raged ? rand(2.2, 3.2) : rand(3.5, 5); this.setState('attack', 0.14); this.didHit = false;
       } else if (this.cd <= 0 && dist < T.range + 0.4 && p.state !== 'dead' && (attackTokens < maxTok || this.k === 'boss')) {
@@ -334,7 +334,7 @@ const WAVES = [
   { title: '第五章 · 仓库决战', sub: '刀鲁卷土重来——护身符就在他身后！', list: ['boss2', 'khan', 'khan'], at: [[0, -6], [-4, -3], [4, -3]], boss: 1 },
   { title: '第六章 · 龙王庙之夜', sub: '黑手帮已经先到一步', list: ['thug', 'thug', 'khan', 'thug', 'khan', 'thug'] },
   { title: '第七章 · 赤影忍者', sub: '红衣忍者出手更快——铁臂打手只有重击才打得动', list: ['ninja', 'ninja', 'brute', 'ninja', 'ninja'], at: [[-4, -4], [4, -4], [0, -5.5], [-7, 0], [7, 0]] },
-  { title: '第八章 · 龙之力 · 瓦尔蒙', sub: '火球可以蹲下躲开——完美格挡能把它打回去！', list: ['valmont', 'ninja', 'ninja'], at: [[0, -5.5], [-4.5, -3], [4.5, -3]], boss: 1 },
+  { title: '第八章 · 龙之力 · 瓦龙', sub: '火球可以蹲下躲开——完美格挡能把它打回去！', list: ['valmont', 'ninja', 'ninja'], at: [[0, -5.5], [-4.5, -3], [4.5, -3]], boss: 1 },
 ];
 // 章节（主界面“章节选择”用）：w = 从第几波开始
 const CHAPTERS = [
@@ -345,7 +345,7 @@ const CHAPTERS = [
   { w: 5, n: '第五章', t: '仓库决战', d: '暴怒的刀鲁守着公鸡护身符' },
   { w: 6, n: '第六章', t: '龙王庙之夜', d: '第二集 · 夜探唐人街龙王庙', ep: 2 },
   { w: 7, n: '第七章', t: '赤影忍者', d: '第二集 · 红衣忍者与铁臂打手', ep: 2 },
-  { w: 8, n: '第八章', t: '龙之力 · 瓦尔蒙', d: '第二集 · 黑手帮老大夺走了龙之护身符', ep: 2 },
+  { w: 8, n: '第八章', t: '龙之力 · 瓦龙', d: '第二集 · 黑手帮老大夺走了龙之护身符', ep: 2 },
 ];
 function chapterOf(w) { let c = 0; CHAPTERS.forEach((C, i) => { if (w >= C.w) c = i; }); return c; }
 let wave = -1, waveDelay = 0, kills = 0, gameOver = false, waveDone = true;
@@ -386,7 +386,7 @@ function gameEnd(win, ep = 1) {
       : win && ep === 2
       ? `<h1>完</h1><h2>第二集 · 龙之护身符</h2><p>击倒敌人 ${kills} 名 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“两个找回来了……还有十个！”</p><p style="opacity:.6;font-size:13px">下一集：蛇之护身符——看不见的敌人，最危险！</p><div class="obtns"><div class="go" data-a="ep3">继续第三集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
       : win
-      ? `<h1>完</h1><h2>第一集 · 公鸡护身符</h2><p>击倒敌人 ${kills} 名 · 打碎古董 ${Story.broken} 件 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“一个护身符找回来了……还有十一个！”</p><p style="opacity:.6;font-size:13px">下一集：龙之护身符——瓦尔蒙亲自出手了！</p><div class="obtns"><div class="go" data-a="ep2">继续第二集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
+      ? `<h1>完</h1><h2>第一集 · 公鸡护身符</h2><p>击倒敌人 ${kills} 名 · 打碎古董 ${Story.broken} 件 · 用时 ${mins} 分 ${secs} 秒<br>老爹：“一个护身符找回来了……还有十一个！”</p><p style="opacity:.6;font-size:13px">下一集：龙之护身符——瓦龙亲自出手了！</p><div class="obtns"><div class="go" data-a="ep2">继续第二集 ▶</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`
       : `<h1>糟了糟了！</h1><h2>成龙倒下了 · ${WAVES[wave] ? WAVES[wave].title : ''}</h2><p>击倒敌人 ${kills} 名。小提示：倒地后按 Space 或 Alt 快速起身；敌人发红光出手前一瞬按 Q 完美格挡；去练功房可以随便练连招。</p><div class="obtns"><div class="go" data-a="retry">从本章重来</div><div class="go alt" data-a="menu">返回主界面</div></div>`;
   }, win ? 1500 : 1800);
 }

@@ -174,7 +174,7 @@ Object.assign(Story, {
     clearTimeout(gameEndTimer);
     gameEndTimer = setTimeout(() => {
       document.exitPointerLock(); $('pause').classList.remove('show'); $('ov').style.display = 'flex';
-      $('ov').querySelector('.box').innerHTML = `<h1>完</h1><h2>第七集 · 马与羊</h2><p>击倒敌人 ${kills} 名 · 肉身剩余灵魂之力 ${sp}% · 巨眼前闭眼 ${DREAM.shut || 0} 次 · 用时 ${mins} 分 ${secs} 秒</p><p>老爹：“马符、羊符，一次两个！”<br>“八个了……还有四个！”</p><p style="color:#7dffb0">马符觉醒！完美格挡、完美闪避各回复 6 生命</p><p style="color:#e8e8ff">羊符觉醒！完美闪避留下灵魂残影，1 秒后爆开（25 伤害）</p><p style="opacity:.75;font-size:13px">下一集：猴与兔——会把人变成猴子的马戏团，和快得看不见的瓦尔蒙</p><div class="obtns"><div class="go" data-a="ep8">开始第八集</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`;
+      $('ov').querySelector('.box').innerHTML = `<h1>完</h1><h2>第七集 · 马与羊</h2><p>击倒敌人 ${kills} 名 · 肉身剩余灵魂之力 ${sp}% · 巨眼前闭眼 ${DREAM.shut || 0} 次 · 用时 ${mins} 分 ${secs} 秒</p><p>老爹：“马符、羊符，一次两个！”<br>“八个了……还有四个！”</p><p style="color:#7dffb0">马符觉醒！完美格挡、完美闪避各回复 6 生命</p><p style="color:#e8e8ff">羊符觉醒！完美闪避留下灵魂残影，1 秒后爆开（25 伤害）</p><p style="opacity:.75;font-size:13px">下一集：猴与兔——会把人变成猴子的马戏团，和快得看不见的瓦龙</p><div class="obtns"><div class="go" data-a="ep8">开始第八集</div><div class="go alt" data-a="menu">返回主界面</div><div class="go alt" data-a="dojo">去练功房</div></div>`;
     }, 1500);
   };
   const _act = Menu.act.bind(Menu);

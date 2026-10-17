@@ -58,7 +58,8 @@ Object.assign(WORLD, {
     scene.add(B.sky); scene.add(B.skyN); B.sky.visible = B.skyN.visible = false;
     d.build(G, d, B);
     for (const k in d.gates) { const g = d.gates[k]; const s = labelSprite(g.label, '#ffe28a', 1.5, g.sub); s.position.set(g.x, g.ly || 6.5, g.z); G.add(s); B.labels[k] = s; }
-    BATCH.push({ group: G, cx: d.x, cz: d.z, r: 900 });
+    const ex = new Set([...(B.dyn || []), ...(B.blink || []), ...(B.nightOnly || [])]); const SB = staticBatch([G], ex); B.merged = SB.merged;
+    BATCH.push({ group: G, cx: d.x, cz: d.z, r: 900 }, { group: SB.group, cx: d.x, cz: d.z, r: 900 });
     this.built[d.key] = B; return B;
   },
   enter(key, night) {
@@ -72,7 +73,7 @@ Object.assign(WORLD, {
   },
   leave() {
     if (!this.cur) return; const B = this.B;
-    B.sky.visible = B.skyN.visible = false; camera.far = 400; camera.near = 0.05; camera.updateProjectionMatrix();
+    B.sky.visible = B.skyN.visible = false; if (B.snow) B.snow.visible = false; camera.far = 400; camera.near = 0.05; camera.updateProjectionMatrix();
     for (let i = enemies.length - 1; i >= 0; i--) { const e = enemies[i]; if (e.world) { scene.remove(e.rig.root); e.hb && e.hb.remove(); enemies.splice(i, 1); } }
     this.ents.forEach(o => o.g && o.g.parent && o.g.parent.remove(o.g)); this.ents = [];
     Quest.cleanup(); this.cur = null; this.B = null; this._bgm = null; WHUD.show(false); Beacon.hide();
@@ -152,11 +153,11 @@ const WHUD = {
   bake(d) {
     const S = 2, W = d.hx * 2 * S + 40, H = d.hz * 2 * S + 40, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
     g.fillStyle = d.mapBg || '#1d3a5a'; g.fillRect(0, 0, W, H);
-    const X = x => (x + d.hx) * S + 20, Z = z => (d.hz - z) * S + 20; // 北（+z）在上
+    const X = x => (d.hx - x) * S + 20, Z = z => (d.hz - z) * S + 20; // 北（+z）在上；面朝北时屏幕右边是 -x
     g.fillStyle = d.mapLand || '#b8a582'; g.strokeStyle = d.mapLand || '#b8a582'; g.lineCap = 'round';
-    for (const s of d.walk) { if (s.t === 'rect') g.fillRect(X(s.x0), Z(s.z1), (s.x1 - s.x0) * S, (s.z1 - s.z0) * S); else if (s.t === 'circ') { g.beginPath(); g.arc(X(s.x), Z(s.z), s.r * S, 0, TAU); g.fill(); } else { g.lineWidth = s.w * S; g.beginPath(); g.moveTo(X(s.a[0]), Z(s.a[1])); g.lineTo(X(s.b[0]), Z(s.b[1])); g.stroke(); } }
+    for (const s of d.walk) { if (s.t === 'rect') g.fillRect(X(s.x1), Z(s.z1), (s.x1 - s.x0) * S, (s.z1 - s.z0) * S); else if (s.t === 'circ') { g.beginPath(); g.arc(X(s.x), Z(s.z), s.r * S, 0, TAU); g.fill(); } else { g.lineWidth = s.w * S; g.beginPath(); g.moveTo(X(s.a[0]), Z(s.a[1])); g.lineTo(X(s.b[0]), Z(s.b[1])); g.stroke(); } }
     g.fillStyle = 'rgba(40,30,30,.75)';
-    for (const c2 of colliders) { if (c2.h < 1.5) continue; const lx0 = c2.x0 - d.x, lx1 = c2.x1 - d.x, lz0 = c2.z0 - d.z, lz1 = c2.z1 - d.z; if (lx1 < -d.hx || lx0 > d.hx || lz1 < -d.hz || lz0 > d.hz) continue; g.fillRect(X(lx0), Z(lz1), (lx1 - lx0) * S, (lz1 - lz0) * S); }
+    for (const c2 of colliders) { if (c2.h < 1.5) continue; const lx0 = c2.x0 - d.x, lx1 = c2.x1 - d.x, lz0 = c2.z0 - d.z, lz1 = c2.z1 - d.z; if (lx1 < -d.hx || lx0 > d.hx || lz1 < -d.hz || lz0 > d.hz) continue; g.fillRect(X(lx1), Z(lz1), (lx1 - lx0) * S, (lz1 - lz0) * S); }
     this.img = c; this.S = S; this.d = d; this.X = X; this.Z = Z;
   },
   draw() {
@@ -170,7 +171,7 @@ const WHUD = {
     if (Travel.dest) { const G = Travel.dest.gate; dot(d.x + G.x, d.z + G.z, '#ffd04a', 6, '★'); }
     g.restore();
     // 玩家箭头（按镜头朝向）
-    g.save(); g.translate(95, 95); g.rotate(camYaw); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(0, -8); g.lineTo(5.5, 6); g.lineTo(0, 3); g.lineTo(-5.5, 6); g.closePath(); g.fill(); g.restore();
+    g.save(); g.translate(95, 95); g.rotate(-camYaw); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(0, -8); g.lineTo(5.5, 6); g.lineTo(0, 3); g.lineTo(-5.5, 6); g.closePath(); g.fill(); g.restore();
     g.fillStyle = 'rgba(255,220,140,.9)'; g.font = 'bold 12px sans-serif'; g.textAlign = 'center'; g.fillText('北', 95, 14);
   },
   obj() {
@@ -181,3 +182,205 @@ const WHUD = {
   },
 };
 $('wobj').addEventListener('pointerdown', e => { if (e.target.closest('.go')) { e.preventDefault(); e.stopPropagation(); Travel.fast(); } });
+// ---------- 每帧：宝箱、路人、地标、光柱、HUD ----------
+WORLD.tick = function (dt) {
+  const d = this.cur, p = player, S = this.save; if (!d) return;
+  for (const o of this.ents) {
+    if (o.kind === 'chest') {
+      const u = o.g.userData;
+      if (o.open) { u.lid.rotation.x = Math.max(-1.9, u.lid.rotation.x - dt * 4); u.glow.material.opacity = Math.max(0, u.glow.material.opacity - dt * 0.3); continue; }
+      u.glow.material.opacity = 0.14 + 0.08 * Math.sin(now * 3 + o.x);
+      if (!cutscene && Math.hypot(p.pos.x - o.x, p.pos.z - o.z) < 2.2) {
+        o.open = true; S.chest[o.c.id] = 1; this.saveNow(); sfx('whoosh'); Foley && Foley.at && Foley.at('wood', o.g.position, 0.6);
+        burst(new THREE.Vector3(o.x, 0.9, o.z), 0xffd04a, 26);
+        LV.gain(o.c.xp || 30, new THREE.Vector3(o.x, 1.6, o.z), '宝箱');
+        for (const k in (o.c.items || {})) Inv.add(k, o.c.items[k]);
+      }
+    } else if (o.kind === 'vil') {
+      if (o.talking) { o.spd = 0; } else if (o.path.length > 1) {
+        const [tx, tz] = o.path[o.pi], dx = tx - o.g.position.x, dz = tz - o.g.position.z, L = Math.hypot(dx, dz);
+        if (L < 0.4) o.pi = (o.pi + 1) % o.path.length; else { const sp = o.v.spd || 1.3; o.g.position.x += dx / L * sp * dt; o.g.position.z += dz / L * sp * dt; o.g.rotation.y = Math.atan2(dx, dz); o.spd = sp; }
+      } else o.spd = 0;
+      o.ph += dt * (o.spd ? 7 : 1.5); const sw = o.spd ? Math.sin(o.ph) * 0.55 : 0;
+      o.lL.rotation.x = sw; o.lR.rotation.x = -sw; o.aL.rotation.x = -sw * 0.8; o.aR.rotation.x = sw * 0.8; o.body.position.y = o.spd ? Math.abs(Math.sin(o.ph)) * 0.04 : Math.sin(o.ph) * 0.01;
+    }
+  }
+  // 地标
+  for (const m of d.marks || []) { const id = d.key + ':' + m.id; if (S.disc[id]) continue; if (Math.hypot(p.pos.x - d.x - m.x, p.pos.z - d.z - m.z) < (m.r || 14)) { S.disc[id] = 1; this.saveNow(); banner(`发现地标：${m.name}<small>${m.sub || ''}</small>`, 2.6); LV.gain(25, new THREE.Vector3(p.pos.x, 2.2, p.pos.z), '发现'); } }
+  if (this.B) { this.B.sky.position.copy(camera.position); this.B.skyN.position.copy(camera.position); for (const a of this.B.anim) a(dt); }
+  Beacon.tick(); Quest.tick(dt); WHUD.draw(); WHUD.obj();
+  // 到达目的地门口
+  const T = Travel.dest; if (T && !cutscene && !Travel.busy) { const G = T.gate; if (Math.hypot(p.pos.x - d.x - G.x, p.pos.z - d.z - G.z) < (G.r || 3.2)) Travel.arrive(); }
+};
+// ---------- 剧情衔接：场景之间改成在大地图上走过去 ----------
+const Travel = {
+  dest: null, busy: false, pass: null, tomap: null,
+  GROUPS: [['mall', 'kitchen', 'loading'], ['base', 'vault', 'shaft', 'deck'], ['spirit', 'dream', 'market'], ['rail', 'turntable'], ['ptemple', 'altar']],
+  enabled() { return MODE === 'story' && !WORLD.off && !window.__noTravel && !gameOver && !(typeof SOUL !== 'undefined' && SOUL.form); },
+  worldOf(a) { for (const k in WORLD.defs) if (WORLD.defs[k].gates[a]) return WORLD.defs[k]; return null; },
+  destOf(L) {
+    if (!this.tomap) { this.tomap = {}; for (const k in Story) if (/^to[A-Z]/.test(k) && typeof Story[k] === 'function') { const m = String(Story[k]).match(/setArea\(["'`](\w+)["'`]\)/); if (m) this.tomap[k] = m[1]; } }
+    const src = String(L.fade), re = /setArea\(["'`](\w+)["'`]\)|\b(to[A-Z]\w*)\(/g; let m;
+    while ((m = re.exec(src))) { const a = m[1] || this.tomap[m[2]]; if (a) return a; }
+    return null;
+  },
+  should(L) {
+    if (!this.enabled() || WORLD.cur || !L || !L.fade || L.noTravel) return null;
+    const to = this.destOf(L), from = AREA.name; if (!to || to === from) return null;
+    if (this.GROUPS.some(g => g.includes(from) && g.includes(to))) return null;
+    if (['spirit', 'dream'].includes(to)) return null;
+    return this.worldOf(to) ? to : null;
+  },
+  stopCut() { const S = Story; Voice.stop(); S.lines = null; S.done = null; S.busy = false; cutscene = false; document.body.classList.remove('cine'); $('dlg').classList.remove('show'); $('narr').classList.remove('show'); NPCS.forEach(n => n.talk = 0); },
+  begin(L, idx, to, skip) { const S = Story; this.go(to, AREA.name, { rest: S.lines.slice(idx), done: S.done, skip }); },
+  go(to, from, extra) {
+    this.stopCut(); this.busy = true; $('fade').style.opacity = 1;
+    setTimeout(() => {
+      const dT = this.worldOf(to), dF = this.worldOf(from), night = !!(AREA_DEF[to] && AREA_DEF[to]().night);
+      WORLD.enter(dT.key, night); uncle.hide(); jade.hide();
+      const G = dT.gates[to];
+      if (dF === dT && dF.gates[from]) { const F = dF.gates[from], y = F.yaw || 0; Story.putPlayer(dT.x + F.x + Math.sin(y) * 3.6, dT.z + F.z + Math.cos(y) * 3.6, y); }
+      else { const E = dT.entry; Story.putPlayer(dT.x + E.x, dT.z + E.z, E.yaw || 0); const c = $('wcard'); c.innerHTML = `${dT.title}<small>${dT.sub || ''}</small>`; c.style.display = 'flex'; setTimeout(() => c.style.display = 'none', 2600); }
+      this.dest = Object.assign({ to, gate: G }, extra); Beacon.show(dT.x + G.x, dT.z + G.z);
+      camYaw = player.yaw; $('fade').style.opacity = 0; this.busy = false;
+      banner(`前往：${G.label}<small>跟着金色光柱走 · 小地图 ★ · 按 T 直接前往</small>`, 3);
+    }, 650);
+  },
+  // 一集开头直接在某个场景里：先从古董店门口走过去
+  intro(ch, to) { this.go(to, 'shop', { onArrive: () => { this.bypass = true; try { Story.begin(ch); } finally { this.bypass = false; } } }); },
+  arrive() {
+    if (!this.dest || this.busy) return; const T = this.dest; this.busy = true; $('fade').style.opacity = 1; Beacon.hide();
+    setTimeout(() => {
+      this.dest = null; this.busy = false; WORLD.leave();
+      if (T.onArrive) { T.onArrive(); $('fade').style.opacity = 0; return; }
+      this.pass = T.rest[0]; Story.play(T.rest, T.done);
+      if (T.skip) { const k = () => { if (Story.busy) return setTimeout(k, 100); if (cutscene) Story.skip(); }; setTimeout(k, 100); }
+    }, 650);
+  },
+  fast() { if (this.dest && !this.busy && !cutscene) { player.vel.set(0, 0, 0); this.arrive(); } },
+};
+{
+  const _adv = Story.advance;
+  Story.advance = function () {
+    const L = this.lines && this.lines[this.i + 1];
+    if (L && L.fade) { if (Travel.pass === L) Travel.pass = null; else { const to = Travel.should(L); if (to) { Travel.begin(L, this.i + 1, to, false); return; } } }
+    return _adv.apply(this, arguments);
+  };
+  const _skip = Story.skip;
+  Story.skip = function () {
+    if (!cutscene || this.busy || !this.lines) return;
+    if (!Travel.enabled()) return _skip.apply(this, arguments);
+    for (let k = this.i + 1; k < this.lines.length; k++) {
+      const L = this.lines[k];
+      if (L.fade) { if (Travel.pass === L) Travel.pass = null; else { const to = Travel.should(L); if (to) { Travel.begin(L, k, to, true); return; } } }
+      if (L.act) L.act(); if (L.fade) L.fade();
+    }
+    this.i = this.lines.length; this.end();
+  };
+}
+{
+  const _begin = Story.begin;
+  Story.begin = function (ch) {
+    const r = _begin.apply(this, arguments); if (Travel.bypass || !Travel.enabled()) return r;
+    const c = this.chapter, a = AREA.name; if (![6, 9, 12, 18, 21, 24, 27, 30].includes(c) || a === 'shop' || !Travel.worldOf(a)) return r;
+    Travel.intro(c, a); return r;
+  };
+}
+addEventListener('keydown', e => { if (e.code === 'KeyT' && !e.repeat && WORLD.cur && !cutscene && Travel.dest) Travel.fast(); });
+// 大地图里被打倒：不结束游戏，在路边醒来
+{
+  const _ge = gameEnd;
+  gameEnd = function (win, ep) {
+    if (!win && WORLD.cur) {
+      const p = player; if (WORLD._ko) return; WORLD._ko = true;
+      setTimeout(() => { $('fade').style.opacity = 1; }, 1200);
+      setTimeout(() => {
+        WORLD._ko = false; const d = WORLD.cur; if (!d) return; p.hp = p.maxHp; setState(p, 'loco', 0.05);
+        for (const e of enemies) if (e.world && !e.dead) { e.dormant = true; e.pos.set(e.patrol.x, 0, e.patrol.z); e.hp = e.maxHp || e.hp; }
+        const E = d.entry; Story.putPlayer(d.x + E.x, d.z + E.z, E.yaw || 0); $('fade').style.opacity = 0;
+        toast('你被打倒了……一位好心的路人把你扶到了路边。', 3);
+      }, 1900);
+      return;
+    }
+    return _ge.apply(this, arguments);
+  };
+}
+{
+  const _pick = BGM.pick.bind(BGM);
+  BGM.pick = function () { const r = _pick(); if (WORLD.cur && WORLD._bgm && BGM_DATA[WORLD._bgm] && !enemies.some(e => e.world && !e.dead && !e.dormant)) return WORLD._bgm; return r; };
+}
+setTimeout(() => { if (window.__game) Object.assign(window.__game, { WORLD, Travel, Quest, LV, Inv, Runes, Beacon, camera, scene, THREE, colliders, jade, uncle, setState, Bag }); }, 0);
+// ---------- 支线任务 ----------
+// q: { id, title, giver:{x,z,name,look}, type:'clear'|'collect'|'reach'|'duel', intro:[], done:[], remind, at:{x,z,types}, spots:[[x,z]], item, to:{x,z,label}, time, foe, reward:{xp, items} }
+document.head.insertAdjacentHTML('beforeend', `<style>#wtalk{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);padding:6px 16px;border-radius:16px;background:rgba(0,0,0,.55);border:1px solid rgba(159,232,255,.6);color:#9fe8ff;font-size:15px;display:none;pointer-events:auto;cursor:pointer}body.cine #wtalk{display:none!important}</style>`);
+$('hud').insertAdjacentHTML('beforeend', '<div id="wtalk"></div>');
+const Quest = {
+  list: [], near: null, live: {},
+  st(q) { return WORLD.save.quest[q.id] || ''; }, set(q, v) { WORLD.save.quest[q.id] = v; WORLD.saveNow(); },
+  spawn(d) {
+    this.list = []; this.live = {};
+    for (const q of d.quests || []) {
+      const o = villager(q.giver.look || {}); o.g.position.set(d.x + q.giver.x, 0, d.z + q.giver.z); o.g.rotation.y = q.giver.yaw || 0; scene.add(o.g);
+      Object.assign(o, { kind: 'vil', v: {}, path: [], pi: 0 }); WORLD.ents.push(o);
+      const mk = labelSprite('!', '#ffd04a', 1.4); mk.position.set(0, 2.5, 0); o.g.add(mk);
+      const nm = labelSprite(q.giver.name, '#9fe8ff', 0.55); nm.position.set(0, 2.05, 0); o.g.add(nm);
+      const Q = { q, o, mk, d, objs: [], foes: [], got: 0, t: 0 }; this.list.push(Q);
+      WHO['q_' + q.id] = { n: q.giver.name, c: '#9fe8ff', e: () => ({ pos: o.g.position, scale: 1, get yaw() { return o.g.rotation.y; }, set yaw(v) { o.g.rotation.y = v; } }) };
+      if (this.st(q) === 'on') this.start(Q, true);
+    }
+  },
+  start(Q, quiet) {
+    const { q, d } = Q; this.set(q, 'on'); Q.got = 0; Q.t = q.time || 0;
+    if (q.type === 'clear') { Q.foes = q.at.types.map((t, k) => { const a = k / q.at.types.length * TAU, x = d.x + q.at.x + Math.sin(a) * 2.5, z = d.z + q.at.z + Math.cos(a) * 2.5; const e = spawnAt(t, x, z); Object.assign(e, { dormant: true, world: true, pack: 'q' + q.id, patrol: { x, z, r: 4 }, aggroR: 13 }); return e; }); }
+    if (q.type === 'duel') { const e = spawnAt(q.foe, Q.o.g.position.x + 3, Q.o.g.position.z + 3); Object.assign(e, { world: true, quest: q.id }); Q.foes = [e]; }
+    if (q.type === 'collect') Q.objs = q.spots.map(([x, z]) => { const g = new THREE.Group(); g.position.set(d.x + x, 0, d.z + z); const m = mesh(new THREE.OctahedronGeometry(0.32), M(0xd6a64a, { emissive: 0x5a3a00 }), 0, 0.9, 0, g); const gl = mesh(new THREE.SphereGeometry(0.6, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffd04a, transparent: true, opacity: 0.2, depthWrite: false, toneMapped: false }), 0, 0.9, 0, g, false); scene.add(g); return { g, m, x: d.x + x, z: d.z + z }; });
+    if (!quiet) { banner(`支线：${q.title}<small>${q.goal || ''}</small>`, 2.6); sfx('whoosh'); }
+  },
+  finish(Q) {
+    const { q } = Q; this.set(q, 'done'); Q.objs.forEach(o => scene.remove(o.g)); Q.objs = []; Q.mk.visible = false;
+    const R = q.reward || {}; banner(`支线完成：${q.title}`, 2.4);
+    LV.gain(R.xp || 80, new THREE.Vector3(player.pos.x, 2.2, player.pos.z), '支线'); for (const k in R.items || {}) Inv.add(k, R.items[k]);
+  },
+  talk(Q) {
+    const { q, o } = Q, s = this.st(q), W = 'q_' + q.id; o.talking = true; o.g.rotation.y = Math.atan2(player.pos.x - o.g.position.x, player.pos.z - o.g.position.z);
+    const fin = () => { o.talking = false; };
+    const conv = a => a.map(l => Object.assign({}, l, { who: l.who === 'npc' ? W : l.who }));
+    if (!s) Story.play(conv(q.intro), () => { fin(); this.start(Q); });
+    else if (s === 'ret') Story.play(conv(q.done), () => { fin(); this.finish(Q); });
+    else if (s === 'on') Story.play(conv([{ who: 'npc', text: q.remind || '拜托你啦！' }]), fin);
+    else Story.play(conv([{ who: 'npc', text: q.thanks || '多谢你啦，成龙！' }]), fin);
+  },
+  tick(dt) {
+    const p = player; let near = null;
+    for (const Q of this.list) {
+      const { q, o } = Q, s = this.st(q);
+      Q.mk.visible = s !== 'done' && s !== 'on'; Q.mk.material.color.set(s === 'ret' ? 0x7aff9a : 0xffffff); if (Q.mk.visible) Q.mk.position.y = 2.5 + Math.sin(now * 3) * 0.08;
+      if (Math.hypot(p.pos.x - o.g.position.x, p.pos.z - o.g.position.z) < 2.6) near = Q;
+      if (s !== 'on') continue;
+      if (q.type === 'clear' && Q.foes.length && Q.foes.every(e => e.dead)) { this.set(q, 'ret'); banner(`${q.title}：完成！<small>回去找${q.giver.name}</small>`, 2.2); }
+      if (q.type === 'duel' && Q.foes.length && Q.foes.every(e => e.dead)) { this.finish(Q); if (q.done) setTimeout(() => !cutscene && this.talkDone(Q), 900); }
+      if (q.type === 'collect') for (let i = Q.objs.length - 1; i >= 0; i--) { const c = Q.objs[i]; c.m.rotation.y += dt * 2; c.m.position.y = 0.9 + Math.sin(now * 3 + i) * 0.1; if (Math.hypot(p.pos.x - c.x, p.pos.z - c.z) < 1.5) { scene.remove(c.g); Q.objs.splice(i, 1); Q.got++; sfx('whoosh'); burst(new THREE.Vector3(c.x, 1, c.z), 0xffd04a, 14); toast(`${q.item || '物品'} ${Q.got}/${q.spots.length}`, 1.4); if (!Q.objs.length) { this.set(q, 'ret'); banner(`${q.title}：找齐了！<small>回去找${q.giver.name}</small>`, 2.2); } } }
+      if (q.type === 'reach') { Q.t -= dt; const T = q.to; if (Math.hypot(p.pos.x - Q.d.x - T.x, p.pos.z - Q.d.z - T.z) < 3) { this.set(q, 'ret'); this.finish(Q); } else if (Q.t <= 0) { this.set(q, ''); banner(`${q.title}：超时了……<small>再找${q.giver.name}试一次</small>`, 2.2); } }
+    }
+    this.near = cutscene ? null : near; const el = $('wtalk');
+    if (this.near) { const t = `E · 和${this.near.q.giver.name}说话`; if (el.textContent !== t) el.textContent = t; el.style.display = 'block'; } else el.style.display = 'none';
+  },
+  talkDone(Q) { const W = 'q_' + Q.q.id; Story.play(Q.q.done.map(l => Object.assign({}, l, { who: l.who === 'npc' ? W : l.who })), () => { }); },
+  objHTML() {
+    let h = ''; for (const Q of this.list) { const { q } = Q, s = this.st(q); if (s !== 'on' && s !== 'ret') continue;
+      let pr = s === 'ret' ? `回去找${q.giver.name}` : q.type === 'collect' ? `${q.item} ${Q.got}/${q.spots.length}` : q.type === 'reach' ? `送到${q.to.label} · 剩 ${Math.max(0, Math.ceil(Q.t))} 秒` : q.type === 'clear' ? `打跑 ${Q.foes.filter(e => !e.dead).length} 人` : '打赢他';
+      h += `<span class="q">◆ ${q.title}：${pr}</span>`; }
+    return h;
+  },
+  mapDots(dot) {
+    for (const Q of this.list) { const { q, o, d } = Q, s = this.st(q);
+      if (s === '' || s === 'ret') dot(o.g.position.x, o.g.position.z, s === 'ret' ? '#7aff9a' : '#9fe8ff', 5, s === 'ret' ? '?' : '!');
+      if (s !== 'on') continue;
+      if (q.type === 'clear') Q.foes.forEach(e => !e.dead && dot(e.pos.x, e.pos.z, '#ff5a4a', 3));
+      if (q.type === 'collect') Q.objs.forEach(c => dot(c.x, c.z, '#ffd04a', 3));
+      if (q.type === 'reach') dot(d.x + q.to.x, d.z + q.to.z, '#9fe8ff', 5, '◎'); }
+  },
+  cleanup() { for (const Q of this.list) { Q.objs.forEach(o => scene.remove(o.g)); for (const e of Q.foes) if (!e.dead && this.st(Q.q) === 'on' && Q.q.type !== 'clear') this.set(Q.q, ''); } this.list = []; this.near = null; $('wtalk').style.display = 'none'; },
+};
+addEventListener('keydown', e => { if (e.code === 'KeyE' && !e.repeat && WORLD.cur && !cutscene && Quest.near) { e.stopImmediatePropagation(); e.preventDefault(); Quest.talk(Quest.near); } }, true);
+$('wtalk').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (Quest.near && !cutscene) Quest.talk(Quest.near); });

@@ -64,7 +64,7 @@ const PIG9_INTRO = [
   { who: 'narr', text: '（不死犬被金光吞没，一枚刻着狗头的护身符落在了封印阵中央）', shot: () => [player.pos.x + 2.6, 2, player.pos.z + 2.6, player.pos.x, 1, player.pos.z] },
   { who: 'jackie', text: '狗符，到手。', to: 'narr', act: () => { const p = player.pos; burst(p.clone().setY(1.2), 0x8cff7a, 40, 4); Foley.at('magic', p, { vol: 0.6 }); } },
   { who: 'uncleP', text: '最后一个，猪符——在城外的猪神殿里，嵌在神像的额头上！' },
-  { fade: () => Story.toTemple() },
+  { fade: () => Story.toPTemple() },
   { who: 'narr', text: '猪神殿', act: () => spawnWave(31), shot: () => [PT.x + 6, 4, PT.z + 11, PT.x, 2.5, PT.z] },
   { who: 'jackie', text: '这尊神像……为什么一直盯着我看？', to: 'narr', shot: () => [PT.x + 1.6, 1.9, PT.z + PT.r - 4, PT.x, 2.6, PT.z] },
   { who: 'narr', text: '（神像的双眼亮起了红光）', act: () => { const i = enemies.find(e => e.type === 'pigIdol'); if (i) i.eyeM.color.setRGB(6, 1.2, 0.2); Foley.at('beam', player.pos, { vol: 0.5, rate: 0.7 }); }, shot: () => [PT.x + 1.2, 3.2, PT.z + 4, PT.x, 3.8, PT.z] },
@@ -108,7 +108,7 @@ const EP9_ENDING = [
 ];
 Object.assign(Story, {
   toGrave() { this.setArea('grave'); this.putPlayer(GY.x, GY.z + GY.hz - 2, Math.PI); uncle.hide(); jade.hide(); sealsClear(); [[-6, -2], [6, -3], [0, 5], [-7, 7], [7, 6]].forEach(([x, z]) => addSeal(GY.x + x, GY.z + z)); Object.assign(SEAL, { stage: 0, sealed: 0, revived: 0 }); graveWeapons(); },
-  toTemple() { sealsClear(); this.setArea('ptemple'); this.putPlayer(PT.x, PT.z + PT.r - 4.5, Math.PI); uncle.hide(); jade.hide(); furnReset('ptemple'); PIG.pillars.forEach(f => f.heat = 0); Object.assign(PIG, { st: 0, beams: 0, blocked: 0 }); templeWeapons(); },
+  toPTemple() { sealsClear(); this.setArea('ptemple'); this.putPlayer(PT.x, PT.z + PT.r - 4.5, Math.PI); uncle.hide(); jade.hide(); furnReset('ptemple'); PIG.pillars.forEach(f => f.heat = 0); Object.assign(PIG, { st: 0, beams: 0, blocked: 0 }); templeWeapons(); },
   toAltar() { this.setArea('altar'); this.putPlayer(ALT.x, ALT.z + ALT.r - 3, Math.PI); uncle.hide(); jade.hide(); Object.assign(FINAL, { allRunes: false, phase: 0, qte: null, qteN: 0, sealedOK: 0, meteors: 0 }); FINAL.peds.forEach(P => P.gm.color.copy(P.col).multiplyScalar(0.25)); qteDraw(); },
   toShopEnd() { FINAL.allRunes = false; this.setArea('shop'); this.putPlayer(SC.x + 0.4, SC.z - 1.6, Math.PI); uncle.place(SC.x, SC.z - 5.3, 0); jade.place(SC.x + 1.7, SC.z - 3.8, -0.6); },
   beginEp9(ch) {
@@ -117,7 +117,7 @@ Object.assign(Story, {
       uncle.place(SC.x, SC.z - 5.3, 0); jade.place(SC.x + 1.7, SC.z - 3.8, -0.6);
       this.play(EP9_PROLOGUE, () => startWave(30));
     } else if (ch === 31) { this.toGrave(); this.play(PIG9_INTRO.slice(2), () => startWave(31)); }
-    else { this.toTemple(); this.play(FINAL_INTRO.slice(2), () => startWave(32)); }
+    else { this.toPTemple(); this.play(FINAL_INTRO.slice(2), () => startWave(32)); }
   },
   onClearEp9(w, T) {
     if (w === 30) T(1.6, PIG9_INTRO, () => startWave(31));
@@ -159,7 +159,7 @@ function rollCredits(done) {
   <h3>配音</h3><p>VibeHub（成龙、老爹、小玉、旁白）</p><p>MiniMax Speech（反派、路人、广播）</p>
   <h3>配乐</h3><p>MiniMax Music</p>
   <h3>音效</h3><p>Mixkit · VibeHub（ElevenLabs）· Kenney Impact Sounds（CC0）· qubodup（CC0）</p><p>爆炸音效：Michel Baradari（CC-BY 3.0）</p>
-  <h3>主演</h3><p>成龙 · 老爹 · 小玉</p><p>瓦尔蒙 · 刀鲁 · 芬恩 · 拉索 · 阿周 · 刀龙 · 圣主</p>
+  <h3>主演</h3><p>成龙 · 老爹 · 小玉</p><p>瓦龙 · 刀鲁 · 芬恩 · 拉索 · 阿周 · 刀龙 · 圣主</p>
   <h3>特别感谢</h3><p>每一位玩到这里的你</p>
   <h3>&nbsp;</h3><p style="font-size:26px;color:#ffd84a">“还有一件事！”</p><p>—— 老爹</p></div><div class="x">返回</div>`;
   const el = document.createElement('div'); el.id = 'credits'; el.innerHTML = html; document.body.appendChild(el);

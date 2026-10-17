@@ -49,5 +49,12 @@ Mixkit 素材只以内嵌、经过处理的形式随游戏分发；请不要从�
 
 ## 第六~九集配音与配乐（`assets/audio/ep69/*.part` → `build/audiodata3.js`）
 
-- 配音：成龙、小玉、老爹（含电话）、旁白沿用 VibeHub 官方 CLI `voice-hd`（MiMo HD 语音，与前几集同一预设音色）；新角色与配角（芬恩、拉索、阿周、瓦尔蒙、马戏团长、圣主、商场广播、夜市摊主、打手等）使用 MiniMax `speech-2.6-hd` 官方系统音色 + 情绪 / 语速 / 音调参数，本项目自行生成，不克隆真人音色。
-- 配乐：MiniMax `music-2.6`（通过 mmx 接口，本项目自行生成的纯音乐）——家具城（mall）、拉索 Boss（ratso）、唐人街夜市（market）、灵界（spirit）、梦魇（nightmare）、马戏团（circus）、货运站列车（race）、瓦尔蒙兔符（rabbit）、猪神殿（shrine）、圣主终战（finale）、结局与致谢（ending）。
+- 配音：成龙、小玉、老爹（含电话）、旁白沿用 VibeHub 官方 CLI `voice-hd`（MiMo HD 语音，与前几集同一预设音色）；新角色与配角（芬恩、拉索、阿周、瓦龙、马戏团长、圣主、商场广播、夜市摊主、打手等）使用 MiniMax `speech-2.6-hd` 官方系统音色 + 情绪 / 语速 / 音调参数，本项目自行生成，不克隆真人音色。
+- 配乐：MiniMax `music-2.6`（通过 mmx 接口，本项目自行生成的纯音乐）——家具城（mall）、拉索 Boss（ratso）、唐人街夜市（market）、灵界（spirit）、梦魇（nightmare）、马戏团（circus）、货运站列车（race）、瓦龙兔符（rabbit）、猪神殿（shrine）、圣主终战（finale）、结局与致谢（ending）。
+
+## 大地图支线配音与「瓦龙」重配（`assets/audio/world/*.part` → `build/audiodata4.js`）
+
+- 8 个支线任务的 45 句对白：VibeHub 官方 CLI `voice-hd`（MiMo HD 语音，官方预设音色 白桦 / 苏打 / Milo / Dean / 茉莉 / 冰糖 + 角色导演提示），本项目自行生成。
+- 反派改名「瓦龙」后重配的 11 句台词（第二集 5 句在 `assets/audio/hd`，第八集 6 句在 `assets/audio/ep69`），音色与原句一致。
+- 所有语音经去首尾静音、响度归一后编码为 Opus 内嵌；不使用任何真人演员声音克隆。
+- 大地图沿用已有配乐（calm / base13 / snow / sky），未新增第三方素材。

@@ -2,12 +2,12 @@
 WAVES.push(
   { title: '第二十七章 · 马戏团 · 猴符', sub: '金色长条=变身光线：射中会变成猴子（伤害减半、拿不了武器）。团长也会把打手变成猴子', list: ['mc8', 'thug', 'thug'], at: [[0, -6], [-3, -3], [3, -3]], boss: 1, objective: () => { const m = enemies.find(e => e.type === 'mc8'); return !!m && m.dead && !enemies.some(e => !e.dead); }, script: (dt) => { if (!cutscene) circusScript(dt); } },
   { title: '第二十八章 · 货运站 · 横穿的列车', sub: '信号灯变红、地上亮红条就是列车要来了——离开那条轨道；把敌人打上轨道，让列车撞飞他们', list: ['thug', 'thug', 'khan', 'thug'], at: [[-5, -9], [5, -9], [0, -10], [-9, -3]], objective: () => RAIL.stage >= 2 && !enemies.some(e => !e.dead), script: (dt) => { if (!cutscene) railScript(dt); } },
-  { title: '第二十九章 · 调车转盘 · 瓦尔蒙', sub: '他极快：红线是冲刺（会连冲好几次）、红圈是兔子跳、紫圈是油瓶。完美闪避他的冲刺=子弹时间', list: ['valm8'], at: [[0, -7]], boss: 1, script: (dt) => { if (!cutscene) valScript(dt); } },
+  { title: '第二十九章 · 调车转盘 · 瓦龙', sub: '他极快：红线是冲刺（会连冲好几次）、红圈是兔子跳、紫圈是油瓶。完美闪避他的冲刺=子弹时间', list: ['valm8'], at: [[0, -7]], boss: 1, script: (dt) => { if (!cutscene) valScript(dt); } },
 );
 CHAPTERS.push(
   { w: 27, n: '第二十七章', t: '马戏团 · 猴符', d: '第八集 · 变身光线与小猴子', ep: 8 },
   { w: 28, n: '第二十八章', t: '货运站 · 横穿的列车', d: '第八集 · 红灯、铁轨与列车', ep: 8 },
-  { w: 29, n: '第二十九章', t: '调车转盘 · 瓦尔蒙', d: '第八集 · 兔符与子弹时间', ep: 8 },
+  { w: 29, n: '第二十九章', t: '调车转盘 · 瓦龙', d: '第八集 · 兔符与子弹时间', ep: 8 },
 );
 EP_TITLE[8] = '第八集 · 猴与兔';
 {
@@ -33,7 +33,7 @@ const EP8_PROLOGUE = [
   { who: 'uncle', text: '猴之护身符！能把人变成动物！一定是它！', act: () => uncle.mood = 'scold' },
   { who: 'jackie', text: '报纸上还说什么？', to: 'jade' },
   { who: 'jade', text: '还说——马戏团今晚加演！' },
-  { who: 'uncle', text: '还有！瓦尔蒙拿到了兔之护身符，速度快得连影子都看不见！' },
+  { who: 'uncle', text: '还有！瓦龙拿到了兔之护身符，速度快得连影子都看不见！' },
   { who: 'jackie', text: '一个变猴子，一个跑得快……今晚不会太轻松。', to: 'uncle' },
   { who: 'uncle', text: '去马戏团！小心别被变成猴子！一定要！', act: () => uncle.mood = null },
   { fade: () => Story.toCircus() },
@@ -48,9 +48,9 @@ const RAIL_INTRO = [
   { who: 'narr', text: '（团长倒在木屑里，帽子滚了老远——里面掉出一枚刻着猴头的护身符）', shot: () => { const d = enemies.find(e => e.type === 'mc8') || player; return [d.pos.x + 2.4, 1.7, d.pos.z + 2.2, d.pos.x, 0.9, d.pos.z]; } },
   { who: 'mc', text: '本场演出……到此结束……' },
   { who: 'jackie', text: '猴符，到手。', to: 'mc', act: () => { const p = player.pos; burst(p.clone().setY(1.2), 0xd8a060, 40, 4); Foley.at('magic', p, { vol: 0.6 }); } },
-  { who: 'uncleP', text: '成龙！小玉说瓦尔蒙在货运站，要坐火车离开龙城！' },
+  { who: 'uncleP', text: '成龙！小玉说瓦龙在货运站，要坐火车离开龙城！' },
   { who: 'jackie', text: '小玉？她又跑出去了？', to: 'narr' },
-  { who: 'uncleP', text: '……先抓瓦尔蒙，再抓小玉！' },
+  { who: 'uncleP', text: '……先抓瓦龙，再抓小玉！' },
   { fade: () => Story.toRail() },
   { who: 'narr', text: '龙城货运站 · 深夜', shot: () => [RY.x + 9, 6, RY.z + 12, RY.x, 1, RY.z] },
   { who: 'thug', text: '老大说了，在火车开走之前拦住成龙！', act: () => spawnWave(28), shot: () => [RY.x + 2, 2.4, RY.z + 6, RY.x, 1.2, RY.z - 5] },
@@ -66,18 +66,18 @@ const VAL8_INTRO = [
   { who: 'narr', text: '调车转盘', shot: () => [TT.x + 8, 5, TT.z + 9, TT.x, 1, TT.z] },
   { who: 'valmont', text: '成龙先生，你来得比我想的慢。', act: () => { spawnWave(29); const v = enemies.find(e => e.type === 'valm8'); if (v) { v.pos.set(TT.x, 0, TT.z - 6); v.yaw = 0; } }, shot: () => [TT.x + 1.6, 2.1, TT.z - 2.5, TT.x, 1.6, TT.z - 6] },
   { who: 'valmont', text: '也难怪——现在这个世界上，没有人比我更快。' },
-  { who: 'narr', text: '（瓦尔蒙身影一晃，下一秒已经站在了成龙身后）', act: () => { const v = enemies.find(e => e.type === 'valm8'); if (v) { afterImage(v); v.pos.set(player.pos.x + 0.4, 0, player.pos.z + 1.6); v.yaw = Math.PI; burst(v.pos.clone().setY(1), 0x7fe9ff, 30, 4); Foley.at('swishH', v.pos, { vol: 0.8, rate: 1.3 }); } }, shot: () => [player.pos.x + 2.6, 1.9, player.pos.z + 0.6, player.pos.x, 1.3, player.pos.z + 0.8] },
+  { who: 'narr', text: '（瓦龙身影一晃，下一秒已经站在了成龙身后）', act: () => { const v = enemies.find(e => e.type === 'valm8'); if (v) { afterImage(v); v.pos.set(player.pos.x + 0.4, 0, player.pos.z + 1.6); v.yaw = Math.PI; burst(v.pos.clone().setY(1), 0x7fe9ff, 30, 4); Foley.at('swishH', v.pos, { vol: 0.8, rate: 1.3 }); } }, shot: () => [player.pos.x + 2.6, 1.9, player.pos.z + 0.6, player.pos.x, 1.3, player.pos.z + 0.8] },
   { who: 'jackie', text: '……刚才那是什么？', to: 'valmont' },
   { who: 'uncleP', text: '兔符！他快，你要更准！完美闪避，就能看清他的动作！' },
   { who: 'uncleP', text: '还有，地上的油桶别乱打——打翻了会滑！' },
   { who: 'valmont', text: '说完了？那我们开始吧。', act: () => { const v = enemies.find(e => e.type === 'valm8'); if (v) { v.pos.set(TT.x, 0, TT.z - 5); v.yaw = 0; } } },
 ];
 const EP8_ENDING = [
-  { who: 'narr', text: '（瓦尔蒙终于停了下来，扶着膝盖大口喘气）', shot: () => { const d = enemies.find(e => e.type === 'valm8') || player; return [d.pos.x + 2.6, 1.7, d.pos.z + 2.2, d.pos.x, 0.9, d.pos.z]; } },
+  { who: 'narr', text: '（瓦龙终于停了下来，扶着膝盖大口喘气）', shot: () => { const d = enemies.find(e => e.type === 'valm8') || player; return [d.pos.x + 2.6, 1.7, d.pos.z + 2.2, d.pos.x, 0.9, d.pos.z]; } },
   { who: 'valmont', text: '我的……速度……' },
   { who: 'jackie', text: '跑得快，也要看路。', to: 'valmont' },
   { who: 'narr', text: '（兔符从他口袋里滑了出来，落在转盘上转了好几圈）', act: () => { const p = player.pos; burst(p.clone().setY(1.2), 0x7fe9ff, 50, 5); shock(p.clone().setY(0.1), 0xd8a060, 3); Foley.at('magic', p, { vol: 0.8 }); } },
-  { who: 'jade', text: '成龙！我抓到瓦尔蒙的火车票了！', act: () => { jade.place(player.pos.x - 2, player.pos.z + 2.4, 0); jade.mood = 'cheer'; } },
+  { who: 'jade', text: '成龙！我抓到瓦龙的火车票了！', act: () => { jade.place(player.pos.x - 2, player.pos.z + 2.4, 0); jade.mood = 'cheer'; } },
   { who: 'jackie', text: '小玉！你什么时候……', to: 'jade', act: () => jade.mood = null },
   { who: 'jade', text: '我一直躲在车厢里！还遇见了几只猴子，它们人很好。' },
   { who: 'uncleP', text: '猴符、兔符！十个了，还有两个！' },
