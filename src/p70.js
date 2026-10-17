@@ -29,7 +29,7 @@ const Board = {
   mount() {
     if (!this.can()) return; const p = player, kind = BOARD_KIND[WORLD.cur.key] || 'skate';
     if (!p.grounded) return tip('先落地再上板', 1);
-    this.kind = kind; this.on = true; this.heading = p.yaw; this.sp = Math.min(2, Math.hypot(p.vel.x, p.vel.z) / this.RUN); this.flipT = -1; this.ramT = 0;
+    this.kind = kind; this.on = true; this.heading = p.yaw; this.sp = Math.min(2, Math.hypot(p.vel.x, p.vel.z) / this.RUN); this.flipT = -1; this.ramT = 0; this._lean = 0; this._ph = null;
     p.guard = p.crouch = false; p.move = null; buffer.type = null; setState(p, 'board', 0.15); refreshChips && refreshChips();
     const g = this.mesh(kind); g.visible = true; g.position.copy(p.pos); g.rotation.set(0, this.heading, 0);
     burst(p.pos.clone().setY(0.3), kind === 'cloud' ? 0xffe08a : kind === 'snow' ? 0xffffff : 0xffb84a, 18, 2.5); sfx('whoosh');
@@ -98,7 +98,7 @@ const Board = {
     if (this.flipT >= 0) { this.flipT += dt; const k = Math.min(1, this.flipT / 0.5), e = k * k * (3 - 2 * k); K.rotation.z = e * TAU; K.position.y = Math.sin(k * Math.PI) * 0.25; spin = e * TAU; if (k >= 1) { this.flipT = -1; K.rotation.z = 0; K.position.y = 0; } }
     if (p.grounded && this.flipT >= 0) { this.flipT = -1; K.rotation.z = 0; K.position.y = 0; }
     K.rotation.x = this.kind === 'skate' && !p.grounded && this.flipT < 0 ? -0.25 : 0;
-    const lean = clamp(angDiff(this._ph ?? this.heading, this.heading) / Math.max(dt, 1e-3) * 0.08, -0.35, 0.35); this._ph = this.heading; K.rotation.z += this.flipT < 0 ? -lean * (this.kind === 'cloud' ? 0.5 : 1) : 0;
+    const lt = clamp(angDiff(this._ph ?? this.heading, this.heading) / Math.max(dt, 1e-3) * 0.03, -0.1, 0.1); this._ph = this.heading; this._lean = (this._lean || 0) + (lt - (this._lean || 0)) * Math.min(1, dt * 8); if (this.flipT < 0) K.rotation.z = -this._lean * (this.kind === 'cloud' ? 0.5 : 1);
     if (r && r._iy != null) { r.inner.position.y = r._iy + this.DECK[this.kind] + bob + (this.flipT >= 0 ? K.position.y : 0); r.inner.rotation.y = (this.kind === 'cloud' ? -0.35 : -1.25) + spin; }
     // 尾迹
     this.fx -= dt; if (this.fx <= 0 && this.sp > 1.2 && (p.grounded || this.kind === 'cloud')) { this.fx = 0.05; const b = p.pos.clone(); b.x -= Math.sin(this.heading) * 0.6; b.z -= Math.cos(this.heading) * 0.6; b.y = 0.1 + bob; burst(b, this.kind === 'cloud' ? 0xffe8a0 : this.kind === 'snow' ? 0xffffff : 0xcab89a, this.kind === 'skate' ? 2 : 4, 1 + this.sp * 0.3); }
