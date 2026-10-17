@@ -42,7 +42,7 @@ html.touch #styles{right:12px;bottom:auto;top:100px;transform:scale(.48);transfo
  ${R('guard', '格挡<small>按住</small>', 'right:196px;bottom:110px;width:66px;height:66px')}
  ${R('use', 'E<small>拾取/互动</small>', 'right:112px;bottom:166px;width:58px;height:58px')}
  <div class="row" style="right:14px;top:56px">${R('lock', '锁定', 'width:50px;height:36px', 'sq')}${R('mode', '拳/腿', 'width:54px;height:36px', 'sq')}${R('style', '套路', 'width:50px;height:36px', 'sq')}${R('crouch', '蹲', 'width:42px;height:36px', 'sq')}${R('take', 'F 制伏', 'width:58px;height:36px', 'sq')}</div>
- <div class="row" style="left:12px;top:12px">${R('pause', '暂停', 'width:42px;height:36px', 'sq')}${R('bag', '背包', 'width:50px;height:36px', 'sq')}${R('map', '地图', 'width:50px;height:36px', 'sq')}${R('assist', '辅助：开', 'width:74px;height:36px', 'sq')}</div>
+ <div class="row" style="left:12px;top:12px">${R('pause', '暂停', 'width:42px;height:36px', 'sq')}${R('bag', '背包', 'width:50px;height:36px', 'sq')}${R('map', '地图', 'width:50px;height:36px', 'sq')}${R('board', '滑板', 'width:50px;height:36px', 'sq')}${R('assist', '辅助：开', 'width:74px;height:36px', 'sq')}</div>
 </div><div id="tskip">跳过剧情 ››</div><div id="trot" class="need"><div style="font-size:44px">⟲</div>请把手机横过来玩</div>`);
   { const f = document.querySelector('.mfoot'); if (f) f.textContent = '轻触按钮开始 · 游戏中点左上角「暂停」打开菜单 · 建议横屏全屏'; }
   const KD = (code, up) => dispatchEvent(new KeyboardEvent(up ? 'keyup' : 'keydown', { code, key: code, bubbles: true }));
@@ -91,7 +91,7 @@ html.touch #styles{right:12px;bottom:auto;top:100px;transform:scale(.48);transfo
   // 按键
   const HOLD = { light: [() => MD(0), () => MD(0, true)], heavy: [() => MD(2), () => MD(2, true)], guard: [() => KD('KeyQ'), () => KD('KeyQ', true)] };
   const TAP = { jump: () => tap('Space'), dodge: () => tap('AltLeft'), use: () => tap('KeyE'), lock: () => tap('KeyR'), mode: () => tap('KeyX'), crouch: () => tap('KeyC'), take: () => tap('KeyF'),
-    style: () => tap('Digit' + ((player.style + 1) % 3 + 1)), bag: () => tap('Tab'), map: () => tap('KeyM'), pause: () => document.exitPointerLock(),
+    style: () => tap('Digit' + ((player.style + 1) % 3 + 1)), bag: () => tap('Tab'), map: () => tap('KeyM'), board: () => tap('KeyB'), pause: () => document.exitPointerLock(),
     assist: () => { TOUCH.assist = !TOUCH.assist; SETTINGS.assist = TOUCH.assist; saveSettings(); btns.querySelector('[data-k=assist]').textContent = '辅助：' + (TOUCH.assist ? '开' : '关'); } };
   btns.querySelectorAll('.tb').forEach(b => {
     const k = b.dataset.k;
